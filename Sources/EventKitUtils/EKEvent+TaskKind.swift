@@ -102,7 +102,7 @@ extension EKEvent: TaskKind {
     }
     
     public var updatedAt: Date? {
-        nil
+        lastModifiedDate
     }
     
     public func toggleCompletion() {
