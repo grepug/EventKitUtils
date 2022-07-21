@@ -114,6 +114,10 @@ extension EKEvent: TaskKind {
         
         isCompleted.toggle()
     }
+    
+    public var cellTag: String {
+        ""
+    }
 }
 
 extension EKEvent {

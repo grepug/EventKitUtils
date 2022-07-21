@@ -19,6 +19,8 @@ public protocol TaskKind: AnyObject {
     var linkedQuantity: Int? { get set }
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
+    /// for DiffableListViewController
+    var cellTag: String { get }
     
     func toggleCompletion()
 }

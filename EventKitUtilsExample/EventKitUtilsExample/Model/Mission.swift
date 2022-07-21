@@ -21,6 +21,10 @@ class Mission: TaskKind {
     var createdAt: Date?
     var updatedAt: Date?
     
+    var cellTag: String {
+        ""
+    }
+    
     func toggleCompletion() {
         
     }

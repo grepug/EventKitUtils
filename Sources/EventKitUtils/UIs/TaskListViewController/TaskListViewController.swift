@@ -11,6 +11,7 @@ import EventKit
 
 open class TaskListViewController: DiffableListViewController {
     public var tasks: [TaskKind] = []
+    public var groupedTasks: [TaskKindState: [TaskKind]] = [:]
     public var segment: SegmentType = .today
     
     lazy var eventStore = EKEventStore()
@@ -42,8 +43,17 @@ open class TaskListViewController: DiffableListViewController {
     }()
     
     open override var list: DLList {
-        DLList {
-            
+        DLList { [unowned self] in
+            switch segment {
+            case .today, .incompleted:
+                for state in TaskKindState.allCases {
+                    if let tasks = self.groupedTasks[state] {
+                        taskSection(tasks, groupedState: state)
+                    }
+                }
+            case .completed:
+                taskSection(tasks, groupedState: nil)
+            }
         }
     }
     
@@ -58,14 +68,12 @@ open class TaskListViewController: DiffableListViewController {
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
     
-        
-    open func fetchTasks(forSegment segment: SegmentType) -> [TaskKind] {
-        []
-    }
 }
 
 extension TaskListViewController {
- 
+    open func fetchTasks(forSegment segment: SegmentType) -> [TaskKind] {
+        []
+    }
 }
 
 extension TaskListViewController {
