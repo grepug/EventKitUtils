@@ -12,10 +12,10 @@ public enum TaskKindState: Int, CaseIterable {
     
     public var title: String {
         switch self {
-        case .overdued: return "v3_task_state_overdued"
-        case .today: return "v3_task_state_today"
-        case .afterToday: return "v3_task_state_after_today"
-        case .unscheduled: return "v3_task_state_unscheduled"
+        case .overdued: return "v3_task_state_overdued".loc
+        case .today: return "v3_task_state_today".loc
+        case .afterToday: return "v3_task_state_after_today".loc
+        case .unscheduled: return "v3_task_state_unscheduled".loc
         }
     }
 }

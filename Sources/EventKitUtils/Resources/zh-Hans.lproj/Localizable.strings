@@ -1,0 +1,8 @@
+"v3_task_state_today" = "今天";
+"v3_task_state_after_today" = "一天后";
+"v3_task_state_unscheduled" = "未计划";
+
+"v3_task_list_segment_today" = "今天";
+"v3_task_list_segment_incompleted" = "未完成";
+"v3_task_list_segment_completed" = "已完成";
+

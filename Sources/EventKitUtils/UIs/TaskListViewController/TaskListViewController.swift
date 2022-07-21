@@ -60,6 +60,10 @@ open class TaskListViewController: DiffableListViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
+        listView.contentInset.bottom = 64
+        setupCustomToolbar()
+        setupNavigationBar()
+        reload(animating: false)
     }
     
     open override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {

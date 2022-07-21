@@ -13,9 +13,9 @@ public extension TaskListViewController {
         
         var text: String {
             switch self {
-            case .today: return "v3_task_list_segment_today"
-            case .incompleted: return "v3_task_list_segment_incompleted"
-            case .completed: return "v3_task_list_segment_completed"
+            case .today: return "v3_task_list_segment_today".loc
+            case .incompleted: return "v3_task_list_segment_incompleted".loc
+            case .completed: return "v3_task_list_segment_completed".loc
             }
         }
     }
