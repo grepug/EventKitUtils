@@ -13,7 +13,7 @@ extension EKEvent: TaskKind {
     }
     
     public var normalizedTitle: String {
-        get { title }
+        get { title ?? "" }
         set { title = newValue }
     }
     
@@ -34,7 +34,7 @@ extension EKEvent: TaskKind {
             }
         }
     }
-
+    
     public var isCompleted: Bool {
         get {
             getValue(forKey: .isCompleted) == "1"

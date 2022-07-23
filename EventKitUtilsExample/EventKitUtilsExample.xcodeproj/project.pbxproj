@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2A84D4B7288A36070017D5C5 /* UIKitUtils */; };
 		2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D74D2886584D00778D98 /* AppDelegate.swift */; };
 		2AF5D7502886584D00778D98 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D74F2886584D00778D98 /* SceneDelegate.swift */; };
 		2AF5D7522886584D00778D98 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D7512886584D00778D98 /* ViewController.swift */; };
 		2AF5D7552886584D00778D98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF5D7532886584D00778D98 /* Main.storyboard */; };
 		2AF5D7572886584F00778D98 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AF5D7562886584F00778D98 /* Assets.xcassets */; };
 		2AF5D75A2886584F00778D98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF5D7582886584F00778D98 /* LaunchScreen.storyboard */; };
-		2AF5D765288659B200778D98 /* UIKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2AF5D764288659B200778D98 /* UIKitUtils */; };
 		2AF5D7682887B9A200778D98 /* EventKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2AF5D7672887B9A200778D98 /* EventKitUtils */; };
 		2AF5D76B2888424300778D98 /* Mission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D76A2888424300778D98 /* Mission.swift */; };
 		2AF5D76D2889404000778D98 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D76C2889404000778D98 /* EntryViewController.swift */; };
@@ -39,7 +39,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AF5D7682887B9A200778D98 /* EventKitUtils in Frameworks */,
-				2AF5D765288659B200778D98 /* UIKitUtils in Frameworks */,
+				2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,8 +120,8 @@
 			);
 			name = EventKitUtilsExample;
 			packageProductDependencies = (
-				2AF5D764288659B200778D98 /* UIKitUtils */,
 				2AF5D7672887B9A200778D98 /* EventKitUtils */,
+				2A84D4B7288A36070017D5C5 /* UIKitUtils */,
 			);
 			productName = EventKitUtilsExample;
 			productReference = 2AF5D74A2886584D00778D98 /* EventKitUtilsExample.app */;
@@ -414,7 +414,7 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2AF5D764288659B200778D98 /* UIKitUtils */ = {
+		2A84D4B7288A36070017D5C5 /* UIKitUtils */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2AF5D763288659B200778D98 /* XCRemoteSwiftPackageReference "UIKitUtils" */;
 			productName = UIKitUtils;

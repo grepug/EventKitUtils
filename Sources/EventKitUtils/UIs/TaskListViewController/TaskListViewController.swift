@@ -36,7 +36,7 @@ open class TaskListViewController: DiffableListViewController {
         let image = UIImage(systemName: "plus")?.withConfiguration(symbolConfiguration)
         button.setImage(image, for: .normal)
         button.addAction(.init { [unowned self] _ in
-//            presentTaskEditor(.created(of: Self.getRecentLinkedKeyResult()))
+            presentTaskEditor()
         }, for: .touchUpInside)
         
         return button
@@ -83,5 +83,17 @@ extension TaskListViewController {
 extension TaskListViewController {
     func setupNavigationBar() {
         title = segment.text
+    }
+    
+    var baseURL: URL {
+        URL(string: "https://okr.vision/a")!
+    }
+    
+    func presentTaskEditor(task: TaskKind? = nil) {
+        let task = task ?? EKEvent(baseURL: baseURL, eventStore: eventStore)
+        let vc = TaskEditorViewController(task: task)
+        let nav = vc.navigationControllerWrapped()
+        
+        present(nav, animated: true)
     }
 }

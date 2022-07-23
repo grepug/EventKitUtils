@@ -20,6 +20,7 @@ class Mission: TaskKind {
     var linkedQuantity: Int?
     var createdAt: Date?
     var updatedAt: Date?
+    var isAllDay: Bool = false
     
     var cellTag: String {
         ""
