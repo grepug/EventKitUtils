@@ -19,20 +19,12 @@ extension EKEvent: TaskKind {
     
     public var normalizedStartDate: Date? {
         get { startDate }
-        set {
-            if let date = newValue {
-                startDate = date
-            }
-        }
+        set { startDate = newValue }
     }
     
     public var normalizedEndDate: Date? {
         get { endDate }
-        set {
-            if let date = newValue {
-                endDate = date
-            }
-        }
+        set { endDate = newValue }
     }
     
     public var isCompleted: Bool {

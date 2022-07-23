@@ -91,8 +91,12 @@ extension TaskListViewController {
     
     func presentTaskEditor(task: TaskKind? = nil) {
         let task = task ?? EKEvent(baseURL: baseURL, eventStore: eventStore)
+        task.isDateEnabled = true
+        
         let vc = TaskEditorViewController(task: task)
         let nav = vc.navigationControllerWrapped()
+        
+        vc.eventStore = eventStore
         
         present(nav, animated: true)
     }

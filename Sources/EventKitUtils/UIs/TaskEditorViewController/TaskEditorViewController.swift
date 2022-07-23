@@ -8,9 +8,11 @@
 import DiffableList
 import UIKit
 import SwiftUI
+import EventKit
 
 open class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind
+    var eventStore: EKEventStore?
     
     init(task: TaskKind) {
         self.task = task
@@ -23,6 +25,10 @@ open class TaskEditorViewController: DiffableListViewController {
     
     var datePickerMode: UIDatePicker.Mode {
         task.isAllDay ? .date : .dateAndTime
+    }
+    
+    var isEvent: Bool {
+        task as? EKEvent != nil
     }
     
     open override var list: DLList {
@@ -41,36 +47,38 @@ open class TaskEditorViewController: DiffableListViewController {
                 DLCell {
                     DLText("计划时间")
                 }
-                .tag("enable planDate \(self.task.isDateEnabled.description)")
-                .accessories([.toggle(isOn: self.task.isDateEnabled, action: { [unowned self] isOn in
+                .tag("enable planDate \(isEvent) \(task.isDateEnabled)")
+                .accessories([.toggle(isOn: task.isDateEnabled, isEnabled: !isEvent, action: { [unowned self] isOn in
                     task.isDateEnabled = isOn
                     reload()
                 })])
                 
-                DLCell {
-                    DLText("全天")
+                if task.isDateEnabled {
+                    DLCell {
+                        DLText("全天")
+                    }
+                    .tag("is all day \(task.isDateEnabled.description) \(task.isAllDay.description)")
+                    .accessories([.toggle(isOn: task.isAllDay, action: { [unowned self] isOn in
+                        task.isAllDay = isOn
+                        reload()
+                    })])
+                    
+                    DLCell(using: .datePicker(labelText: "开始时间",
+                                              date: task.normalizedStartDate ?? Date(),
+                                              mode: datePickerMode,
+                                              valueDidChange: { [unowned self] date in
+                        task.normalizedStartDate = date
+                    }))
+                    .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate?.description ?? "") \(datePickerMode.rawValue)")
+                    
+                    DLCell(using: .datePicker(labelText: "结束时间",
+                                              date: task.normalizedEndDate ?? Date(),
+                                              mode: datePickerMode,
+                                              valueDidChange: { [unowned self] date in
+                        task.normalizedEndDate = date
+                    }))
+                    .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate?.description ?? "") \(datePickerMode.rawValue)")
                 }
-                .tag("is all day \(self.task.isAllDay.description)")
-                .accessories([.toggle(isOn: self.task.isAllDay, action: { [unowned self] isOn in
-                    task.isAllDay = isOn
-                    reload()
-                })])
-                
-                DLCell(using: .datePicker(labelText: "开始时间",
-                                          date: task.normalizedStartDate ?? Date(),
-                                          mode: datePickerMode,
-                                          valueDidChange: { [unowned self] date in
-                    task.normalizedStartDate = date
-                }))
-                .tag("startDate \(task.normalizedStartDate?.description ?? "") \(datePickerMode.rawValue)")
-                
-                DLCell(using: .datePicker(labelText: "结束时间",
-                                          date: task.normalizedEndDate ?? Date(),
-                                          mode: datePickerMode,
-                                          valueDidChange: { [unowned self] date in
-                    task.normalizedEndDate = date
-                }))
-                .tag("endDate \(task.normalizedEndDate?.description ?? "") \(datePickerMode.rawValue)")
             }
             .tag("2")
             
@@ -88,15 +96,18 @@ open class TaskEditorViewController: DiffableListViewController {
             }
             .tag("3")
             
-            DLSection {
+            DLSection { [unowned self] in
                 DLCell {
                     DLText("同步到系统日历")
                     DLText("设置提醒、重复任务")
                         .secondary()
                         .color(.secondaryLabel)
                 }
-                .tag("calendar")
-                .accessories([.label("开启"), .disclosureIndicator()])
+                .tag("calendar \(isEvent)")
+                .accessories([.label(isEvent ? "已开启" : "开启"), .disclosureIndicator()])
+                .onTapAndDeselect {  [unowned self] _ in
+                    presentEventEditor(task)
+                }
             }
             .tag("4")
             
@@ -108,7 +119,7 @@ open class TaskEditorViewController: DiffableListViewController {
                 }))
                 .tag("remarkEditor")
             }
-            .tag("remark")
+            .tag("remark \(task.notes ?? "")")
         }
     }
     
