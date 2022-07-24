@@ -14,8 +14,18 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
     public var groupedTasks: [TaskKindState: [TaskKind]] = [:]
     public var segment: SegmentType = .today
     
+    let config: TaskConfig
     lazy var eventStore = EKEventStore()
     var canAccessEventStore = false
+    
+    public init(config: TaskConfig) {
+        self.config = config
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: SegmentType.allCases.map(\.text))
@@ -73,9 +83,6 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
     
-}
-
-extension TaskListViewController {
     open func fetchTasks(forSegment segment: SegmentType) -> [TaskKind] {
         let calendar = eventStore.defaultCalendarForNewEvents!
         let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
@@ -84,9 +91,16 @@ extension TaskListViewController {
                                                       end: end,
                                                       calendars: [calendar])
         let events = eventStore.events(matching: predicate)
-
+        
         return events
     }
+    
+    open func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
+        .init(task: task, eventStore: eventStore)
+    }
+}
+
+extension TaskListViewController {
     
     func groupTasks(_ tasks: [TaskKind]) {
         var dict: [TaskKindState: [TaskKind]] = [:]
@@ -118,15 +132,11 @@ extension TaskListViewController {
         title = segment.text
     }
     
-    var baseURL: URL {
-        URL(string: "https://okr.vision/a")!
-    }
-    
     func presentTaskEditor(task: TaskKind? = nil) {
-        let task = task ?? EKEvent(baseURL: baseURL, eventStore: eventStore)
+        let task = task ?? config.createNonEventTask()
         task.isDateEnabled = true
         
-        let vc = TaskEditorViewController(task: task, eventStore: eventStore)
+        let vc = taskEditorViewController(task: task, eventStore: eventStore)
         let nav = vc.navigationControllerWrapped()
         
         present(nav, animated: true)

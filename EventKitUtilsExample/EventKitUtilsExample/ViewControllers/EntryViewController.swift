@@ -10,6 +10,14 @@ import UIKit
 import EventKitUtils
 
 class EntryViewController: DiffableListViewController {
+    var taskConfig: TaskConfig {
+        .init(eventBaseURL: .init(string: "https://okr.vision/a")!) {
+            let mission = Mission.initWithViewContext()
+            
+            return mission
+        }
+    }
+    
     override var list: DLList {
         DLList { [unowned self] in
             DLSection {
@@ -19,7 +27,7 @@ class EntryViewController: DiffableListViewController {
                 .tag("taskList")
                 .accessories([.disclosureIndicator()])
                 .onTapAndDeselect { [unowned self] _ in
-                    let vc = TaskListViewController()
+                    let vc = TaskList(config: taskConfig)
                     push(vc)
                 }
             }

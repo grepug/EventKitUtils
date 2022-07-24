@@ -14,7 +14,7 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
     var task: TaskKind
     let eventStore: EKEventStore
     
-    init(task: TaskKind, eventStore: EKEventStore) {
+    public init(task: TaskKind, eventStore: EKEventStore) {
         self.task = task
         self.eventStore = eventStore
         super.init(nibName: nil, bundle: nil)
