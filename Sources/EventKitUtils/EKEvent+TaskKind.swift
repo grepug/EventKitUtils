@@ -119,9 +119,7 @@ extension EKEvent: TaskKind {
 extension EKEvent {
     public convenience init(baseURL: URL, eventStore: EKEventStore) {
         self.init(eventStore: eventStore)
-        
-        let urlComponents = URLComponents(string: baseURL.absoluteString)!
-        self.url = urlComponents.url
+        self.url = baseURL
     }
 }
 

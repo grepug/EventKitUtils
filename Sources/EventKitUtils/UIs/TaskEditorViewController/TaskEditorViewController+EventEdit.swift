@@ -11,13 +11,12 @@ import EventKitUI
 
 extension TaskEditorViewController {
     func presentEventEditor(_ task: TaskKind) {
-        guard let event = task as? EKEvent,
-              let eventStore = eventStore else {
+        guard let event = task as? EKEvent else {
             return
         }
         
         event.calendar = eventStore.defaultCalendarForNewEvents
-        try! eventStore.save(event, span: .thisEvent, commit: true)
+        saveTask(task)
             
         let vc = EKEventEditViewController()
         vc.event = event

@@ -10,12 +10,13 @@ import UIKit
 import SwiftUI
 import EventKit
 
-open class TaskEditorViewController: DiffableListViewController {
+open class TaskEditorViewController: DiffableListViewController, TaskHandler {
     var task: TaskKind
-    var eventStore: EKEventStore?
+    let eventStore: EKEventStore
     
-    init(task: TaskKind) {
+    init(task: TaskKind, eventStore: EKEventStore) {
         self.task = task
+        self.eventStore = eventStore
         super.init(nibName: nil, bundle: nil)
     }
     

@@ -9,7 +9,7 @@ import DiffableList
 import UIKit
 import EventKit
 
-open class TaskListViewController: DiffableListViewController {
+open class TaskListViewController: DiffableListViewController, TaskHandler {
     public var tasks: [TaskKind] = []
     public var groupedTasks: [TaskKindState: [TaskKind]] = [:]
     public var segment: SegmentType = .today
@@ -126,10 +126,8 @@ extension TaskListViewController {
         let task = task ?? EKEvent(baseURL: baseURL, eventStore: eventStore)
         task.isDateEnabled = true
         
-        let vc = TaskEditorViewController(task: task)
+        let vc = TaskEditorViewController(task: task, eventStore: eventStore)
         let nav = vc.navigationControllerWrapped()
-        
-        vc.eventStore = eventStore
         
         present(nav, animated: true)
     }

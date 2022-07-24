@@ -34,9 +34,11 @@ extension TaskListViewController {
                 DLCell(using: .swiftUI(movingTo: self, content: {
                     TaskListCell(task: task, hidingDate: hidingDate) { [unowned self] in
                         task.toggleCompletion()
+                        saveTask(task)
+                        
                         reload()
                     } presentEditor: { [unowned self] in
-//                        presentTaskEditor(task)
+                        presentTaskEditor(task: task)
                     }
                 }))
                 .tag(task.cellTag)
@@ -107,7 +109,7 @@ extension TaskListViewController {
 //        }
         
         MBButton.edit { [unowned self] in
-//            presentTaskEditor(task)
+            presentTaskEditor(task: task)
         }
         
         MBButton.delete { [unowned self] in
