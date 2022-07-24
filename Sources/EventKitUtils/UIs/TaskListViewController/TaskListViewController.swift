@@ -44,7 +44,7 @@ open class TaskListViewController: DiffableListViewController {
     
     open override var list: DLList {
         DLList { [unowned self] in
-            switch segment {
+            switch self.segment {
             case .today, .incompleted:
                 for state in TaskKindState.allCases {
                     if let tasks = self.groupedTasks[state] {
@@ -68,6 +68,7 @@ open class TaskListViewController: DiffableListViewController {
     
     open override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
         tasks = fetchTasks(forSegment: segment)
+        groupTasks(tasks)
         
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
@@ -76,7 +77,39 @@ open class TaskListViewController: DiffableListViewController {
 
 extension TaskListViewController {
     open func fetchTasks(forSegment segment: SegmentType) -> [TaskKind] {
-        []
+        let calendar = eventStore.defaultCalendarForNewEvents!
+        let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
+        let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
+        let predicate = eventStore.predicateForEvents(withStart: start,
+                                                      end: end,
+                                                      calendars: [calendar])
+        let events = eventStore.events(matching: predicate)
+
+        return events
+    }
+    
+    func groupTasks(_ tasks: [TaskKind]) {
+        var dict: [TaskKindState: [TaskKind]] = [:]
+        
+        for state in TaskKindState.allCases {
+            var includingCompleted = false
+            
+            if segment == .completed {
+                includingCompleted = true
+            } else if segment == .today && state == .today {
+                includingCompleted = true
+            }
+            
+            let filteredTasks = state.filtered(tasks,
+                                               includingCompleted: includingCompleted)
+            
+            if !filteredTasks.isEmpty {
+                dict[state] = filteredTasks
+            }
+        }
+        
+        
+        groupedTasks = dict
     }
 }
 

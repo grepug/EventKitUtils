@@ -75,13 +75,13 @@ extension EKEvent: TaskKind {
         }
     }
     
-    public var linkedQuantity: Int? {
+    public var linkedValue: Double? {
         get {
             guard let value = getValue(forKey: .linkedQuantity) else {
                 return nil
             }
                 
-            return Int(value)
+            return Double(value)
         }
         
         set {
@@ -108,7 +108,11 @@ extension EKEvent: TaskKind {
     }
     
     public var cellTag: String {
-        ""
+        calendarItemIdentifier +
+        normalizedTitle +
+        (normalizedStartDate?.description ?? "startDate") +
+        (normalizedEndDate?.description ?? "endDate") +
+        isCompleted.description
     }
 }
 

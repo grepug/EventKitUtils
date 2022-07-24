@@ -16,3 +16,40 @@ extension String {
         String(format: NSLocalizedString(self, bundle: .module, comment: ""), string)
     }
 }
+
+extension Date {
+    func formatted(in type: DateFormatter.Style, timeStyle: DateFormatter.Style = .none) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = type
+        formatter.timeStyle = timeStyle
+        return formatter.string(from: self)
+    }
+    
+    var tomorrow: Self {
+        Calendar.current.date(byAdding: .day, value: 1, to: self)!
+    }
+    
+    var startOfDay: Self {
+        Calendar.current.startOfDay(for: self)
+    }
+    
+    func days(to date: Date, includingLastDay: Bool = true) -> Int {
+        let days = Calendar.current.dateComponents([.day], from: startOfDay, to: date.tomorrow.startOfDay).day ?? 0
+        
+        if !includingLastDay {
+            return days - 1
+        }
+        
+        return days
+    }
+    
+    func formattedRelatively() -> String {
+        let days = Date().days(to: self, includingLastDay: false)
+        
+        switch days {
+        case 0: return "task_date_today".loc
+        case 1: return "task_date_tomorrow".loc
+        default: return formatted(in: .medium)
+        }
+    }
+}

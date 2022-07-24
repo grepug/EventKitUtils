@@ -10,12 +10,13 @@ import UIKit
 import SwiftUI
 import MenuBuilder
 import UIKitUtils
+import EventKit
 
 extension TaskListViewController {
     @ListBuilder
     func taskSection(_ tasks: [TaskKind], groupedState: TaskKindState?) -> [DLSection] {
         DLSection { [unowned self] in
-            let headerTag = taskHeaderTag(state: groupedState, count: tasks.count)
+            let headerTag = self.taskHeaderTag(state: groupedState, count: tasks.count)
             
             if let state = groupedState {
                 DLCell(using: .header(state.title))
@@ -31,12 +32,12 @@ extension TaskListViewController {
                 let hidingDate = groupedState == .today
                 
                 DLCell(using: .swiftUI(movingTo: self, content: {
-//                    KeyResultDetail.TaskCell(task: task, hidingDate: hidingDate) { [unowned self] in
-//                        task.save()
-//                        reload()
-//                    } presentEditor: { [unowned self] in
+                    TaskListCell(task: task, hidingDate: hidingDate) { [unowned self] in
+                        task.toggleCompletion()
+                        reload()
+                    } presentEditor: { [unowned self] in
 //                        presentTaskEditor(task)
-//                    }
+                    }
                 }))
                 .tag(task.cellTag)
                 .child(of: headerTag)
@@ -110,7 +111,10 @@ extension TaskListViewController {
         }
         
         MBButton.delete { [unowned self] in
-//            task.delete()
+            if let event = task as? EKEvent {
+                try! eventStore.remove(event, span: .thisEvent, commit: true)
+            }
+            
             reload()
         }
     }

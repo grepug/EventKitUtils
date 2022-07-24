@@ -17,7 +17,7 @@ class Mission: TaskKind {
     var completedAt: Date?
     var notes: String?
     var keyResultId: String?
-    var linkedQuantity: Int?
+    var linkedValue: Double?
     var createdAt: Date?
     var updatedAt: Date?
     var isAllDay: Bool = false

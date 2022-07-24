@@ -17,7 +17,7 @@ public protocol TaskKind: AnyObject {
     var completedAt: Date? { get set }
     var notes: String? { get set }
     var keyResultId: String? { get set }
-    var linkedQuantity: Int? { get set }
+    var linkedValue: Double? { get set }
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
     /// for DiffableListViewController

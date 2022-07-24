@@ -77,7 +77,7 @@ open class TaskEditorViewController: DiffableListViewController {
                                               valueDidChange: { [unowned self] date in
                         task.normalizedEndDate = date
                     }))
-                    .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate?.description ?? "") \(datePickerMode.rawValue)")
+                    .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate?.description ?? "") \(datePickerMode)")
                 }
             }
             .tag("2")
