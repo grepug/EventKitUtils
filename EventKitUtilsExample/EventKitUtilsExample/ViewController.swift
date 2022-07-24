@@ -44,7 +44,7 @@ class ViewController: DiffableListViewController {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
                         }))
-                        .tag(task.id + "\(task.isCompleted.description)")
+                        .tag(task.normalizedID + "\(task.isCompleted.description)")
                     }
                 }
                 .tag(0)

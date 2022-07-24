@@ -129,6 +129,7 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
         
         setupNavigationBar()
         reload(animating: false)
+        becomeFirstResponder(at: [0, 0])
     }
     
     open func presentKeyResultSelector(action: @escaping (String) -> Void) {}

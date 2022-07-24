@@ -8,7 +8,7 @@
 import EventKit
 
 extension EKEvent: TaskKind {
-    public var id: String {
+    public var normalizedID: String {
         calendarItemIdentifier
     }
     
@@ -105,14 +105,6 @@ extension EKEvent: TaskKind {
         }
         
         isCompleted.toggle()
-    }
-    
-    public var cellTag: String {
-        calendarItemIdentifier +
-        normalizedTitle +
-        (normalizedStartDate?.description ?? "startDate") +
-        (normalizedEndDate?.description ?? "endDate") +
-        isCompleted.description
     }
 }
 

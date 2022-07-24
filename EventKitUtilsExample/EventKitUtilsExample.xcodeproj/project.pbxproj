@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A5B41A2288D36C20089A70D /* StorageProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 2A5B41A1288D36C20089A70D /* StorageProvider */; };
+		2A5B41A5288D37080089A70D /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A3288D37080089A70D /* Model.xcdatamodeld */; };
+		2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A6288D37870089A70D /* StorageProvider.swift */; };
 		2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2A84D4B7288A36070017D5C5 /* UIKitUtils */; };
 		2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D74D2886584D00778D98 /* AppDelegate.swift */; };
 		2AF5D7502886584D00778D98 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D74F2886584D00778D98 /* SceneDelegate.swift */; };
@@ -20,6 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2A5B41A4288D37080089A70D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		2A5B41A6288D37870089A70D /* StorageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProvider.swift; sourceTree = "<group>"; };
 		2AF5D74A2886584D00778D98 /* EventKitUtilsExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EventKitUtilsExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF5D74D2886584D00778D98 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2AF5D74F2886584D00778D98 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -39,6 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AF5D7682887B9A200778D98 /* EventKitUtils in Frameworks */,
+				2A5B41A2288D36C20089A70D /* StorageProvider in Frameworks */,
 				2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,6 +105,8 @@
 			isa = PBXGroup;
 			children = (
 				2AF5D76A2888424300778D98 /* Mission.swift */,
+				2A5B41A3288D37080089A70D /* Model.xcdatamodeld */,
+				2A5B41A6288D37870089A70D /* StorageProvider.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -122,6 +130,7 @@
 			packageProductDependencies = (
 				2AF5D7672887B9A200778D98 /* EventKitUtils */,
 				2A84D4B7288A36070017D5C5 /* UIKitUtils */,
+				2A5B41A1288D36C20089A70D /* StorageProvider */,
 			);
 			productName = EventKitUtilsExample;
 			productReference = 2AF5D74A2886584D00778D98 /* EventKitUtilsExample.app */;
@@ -153,6 +162,7 @@
 			mainGroup = 2AF5D7412886584D00778D98;
 			packageReferences = (
 				2AF5D763288659B200778D98 /* XCRemoteSwiftPackageReference "UIKitUtils" */,
+				2A5B41A0288D36C20089A70D /* XCRemoteSwiftPackageReference "StorageProvider" */,
 			);
 			productRefGroup = 2AF5D74B2886584D00778D98 /* Products */;
 			projectDirPath = "";
@@ -186,6 +196,8 @@
 				2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */,
 				2AF5D76B2888424300778D98 /* Mission.swift in Sources */,
 				2AF5D7502886584D00778D98 /* SceneDelegate.swift in Sources */,
+				2A5B41A5288D37080089A70D /* Model.xcdatamodeld in Sources */,
+				2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,6 +415,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2A5B41A0288D36C20089A70D /* XCRemoteSwiftPackageReference "StorageProvider" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grepug/StorageProvider.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		2AF5D763288659B200778D98 /* XCRemoteSwiftPackageReference "UIKitUtils" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grepug/UIKitUtils.git";
@@ -414,6 +434,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2A5B41A1288D36C20089A70D /* StorageProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A5B41A0288D36C20089A70D /* XCRemoteSwiftPackageReference "StorageProvider" */;
+			productName = StorageProvider;
+		};
 		2A84D4B7288A36070017D5C5 /* UIKitUtils */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2AF5D763288659B200778D98 /* XCRemoteSwiftPackageReference "UIKitUtils" */;
@@ -424,6 +449,19 @@
 			productName = EventKitUtils;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		2A5B41A3288D37080089A70D /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				2A5B41A4288D37080089A70D /* Model.xcdatamodel */,
+			);
+			currentVersion = 2A5B41A4288D37080089A70D /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 2AF5D7422886584D00778D98 /* Project object */;
 }

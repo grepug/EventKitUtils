@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol TaskKind: AnyObject {
-    var id: String { get }
+    var normalizedID: String { get }
     var normalizedTitle: String { get set }
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
@@ -20,8 +20,6 @@ public protocol TaskKind: AnyObject {
     var linkedValue: Double? { get set }
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
-    /// for DiffableListViewController
-    var cellTag: String { get }
     
     func toggleCompletion()
 }
@@ -42,5 +40,13 @@ public extension TaskKind {
                 normalizedEndDate = nil
             }
         }
+    }
+    
+    var cellTag: String {
+        normalizedID +
+        normalizedTitle +
+        (normalizedStartDate?.description ?? "startDate") +
+        (normalizedEndDate?.description ?? "endDate") +
+        isCompleted.description
     }
 }

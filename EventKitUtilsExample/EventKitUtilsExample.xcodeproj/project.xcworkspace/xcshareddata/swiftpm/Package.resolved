@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "cloudkitsyncmonitor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ggruen/CloudKitSyncMonitor.git",
+      "state" : {
+        "revision" : "980208a30685713c4c4eb10897206a2e2574ed3f",
+        "version" : "1.1.1"
+      }
+    },
+    {
       "identity" : "diffablelist",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grepug/DiffableList",
@@ -25,6 +34,15 @@
       "state" : {
         "revision" : "f222cbdf325885926566172f6f5f06af95473158",
         "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "storageprovider",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grepug/StorageProvider.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "95145d5320e24ead798ae8deff972fc67c0e98d0"
       }
     },
     {

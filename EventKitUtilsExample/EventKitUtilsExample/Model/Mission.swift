@@ -7,26 +7,44 @@
 
 import Foundation
 import EventKitUtils
+import StorageProvider
 
-class Mission: TaskKind {
-    var id: String = UUID().uuidString
-    var normalizedTitle: String = ""
-    var normalizedStartDate: Date?
-    var normalizedEndDate: Date?
-    var isCompleted: Bool = false
-    var completedAt: Date?
-    var notes: String?
-    var keyResultId: String?
-    var linkedValue: Double?
-    var createdAt: Date?
-    var updatedAt: Date?
-    var isAllDay: Bool = false
-    
-    var cellTag: String {
-        ""
+extension Mission: ManagedObject, TaskKind {
+    public var linkedValue: Double? {
+        get { linkedRecordValue }
+        set { linkedRecordValue = newValue ?? 0 }
     }
     
-    func toggleCompletion() {
-        
+    public var keyResultId: String? {
+        get {
+            linkedKeyResultId?.uuidString
+        }
+        set(newValue) {
+            linkedKeyResultId = UUID(uuidString: newValue!)
+        }
+    }
+    
+    public var normalizedTitle: String {
+        get { title ?? "" }
+        set { title = newValue }
+    }
+    
+    public var normalizedID: String {
+        get { id?.uuidString ?? "" }
+        set { id = UUID(uuidString: newValue) }
+    }
+    
+    public var normalizedStartDate: Date? {
+        get { startDate }
+        set { startDate = newValue }
+    }
+    
+    public var normalizedEndDate: Date? {
+        get { endDate }
+        set { endDate = newValue }
+    }
+    
+    public func toggleCompletion() {
+        isCompleted.toggle()
     }
 }
