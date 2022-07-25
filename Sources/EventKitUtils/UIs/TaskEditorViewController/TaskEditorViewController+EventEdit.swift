@@ -10,9 +10,16 @@ import EventKit
 import EventKitUI
 
 extension TaskEditorViewController {
-    func presentEventEditor(_ task: TaskKind) {
-        guard let event = task as? EKEvent else {
-            return
+    func presentEventEditor() {
+        let event: EKEvent
+        
+        if let _event = task as? EKEvent {
+            event = _event
+        } else {
+            event = .init(baseURL: taskConfig.eventBaseURL, eventStore: eventStore)
+            event.copy(from: task)
+            task = event
+            deleteTask(task)
         }
         
         event.calendar = eventStore.defaultCalendarForNewEvents
@@ -23,7 +30,9 @@ extension TaskEditorViewController {
         vc.eventStore = eventStore
         vc.editViewDelegate = self
         
-        present(vc, animated: true)
+        present(vc, animated: true) { [unowned self] in
+            reload(animating: false)
+        }
     }
 }
 

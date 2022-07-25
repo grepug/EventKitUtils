@@ -13,10 +13,12 @@ import EventKit
 open class TaskEditorViewController: DiffableListViewController, TaskHandler {
     var task: TaskKind
     let eventStore: EKEventStore
+    let taskConfig: TaskConfig
     
-    public init(task: TaskKind, eventStore: EKEventStore) {
+    public init(task: TaskKind, config: TaskConfig, eventStore: EKEventStore) {
         self.task = task
         self.eventStore = eventStore
+        self.taskConfig = config
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -107,7 +109,7 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
                 .tag("calendar \(isEvent)")
                 .accessories([.label(isEvent ? "已开启" : "开启"), .disclosureIndicator()])
                 .onTapAndDeselect {  [unowned self] _ in
-                    presentEventEditor(task)
+                    presentEventEditor()
                 }
             }
             .tag("4")

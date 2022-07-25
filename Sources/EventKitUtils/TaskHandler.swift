@@ -20,4 +20,12 @@ extension TaskHandler {
             task.save()
         }
     }
+    
+    func deleteTask(_ task: TaskKind) {
+        if let event = task as? EKEvent {
+             
+        } else if let task = task as? ManagedObject {
+            task.delete()
+        }
+    }
 }

@@ -12,10 +12,11 @@ class TaskList: TaskListViewController {
     override func fetchTasks(forSegment segment: TaskListViewController.SegmentType) -> [TaskKind] {
         let events = super.fetchTasks(forSegment: segment)
         
+//        Mission.fetch(where: )
         return events
     }
     
     override func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
-        TaskEditor(task: task, eventStore: eventStore)
+        TaskEditor(task: task, config: config, eventStore: eventStore)
     }
 }

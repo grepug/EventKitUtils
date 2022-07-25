@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A5B41A2288D36C20089A70D /* StorageProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 2A5B41A1288D36C20089A70D /* StorageProvider */; };
-		2A5B41A5288D37080089A70D /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A3288D37080089A70D /* Model.xcdatamodeld */; };
+		2A5B41A5288D37080089A70D /* EventKitUtils.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */; };
 		2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A6288D37870089A70D /* StorageProvider.swift */; };
 		2A5B41A9288D40C70089A70D /* TaskList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A8288D40C70089A70D /* TaskList.swift */; };
 		2A5B41AC288D42320089A70D /* TaskEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41AB288D42320089A70D /* TaskEditor.swift */; };
@@ -119,7 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				2AF5D76A2888424300778D98 /* Mission.swift */,
-				2A5B41A3288D37080089A70D /* Model.xcdatamodeld */,
+				2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */,
 				2A5B41A6288D37870089A70D /* StorageProvider.swift */,
 			);
 			path = Model;
@@ -212,7 +212,7 @@
 				2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */,
 				2AF5D76B2888424300778D98 /* Mission.swift in Sources */,
 				2AF5D7502886584D00778D98 /* SceneDelegate.swift in Sources */,
-				2A5B41A5288D37080089A70D /* Model.xcdatamodeld in Sources */,
+				2A5B41A5288D37080089A70D /* EventKitUtils.xcdatamodeld in Sources */,
 				2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -467,13 +467,13 @@
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
-		2A5B41A3288D37080089A70D /* Model.xcdatamodeld */ = {
+		2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
 				2A5B41A4288D37080089A70D /* Model.xcdatamodel */,
 			);
 			currentVersion = 2A5B41A4288D37080089A70D /* Model.xcdatamodel */;
-			path = Model.xcdatamodeld;
+			path = EventKitUtils.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

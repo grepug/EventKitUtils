@@ -13,8 +13,8 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
     public var tasks: [TaskKind] = []
     public var groupedTasks: [TaskKindState: [TaskKind]] = [:]
     public var segment: SegmentType = .today
+    public let config: TaskConfig
     
-    let config: TaskConfig
     lazy var eventStore = EKEventStore()
     var canAccessEventStore = false
     
@@ -85,10 +85,8 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
     
     open func fetchTasks(forSegment segment: SegmentType) -> [TaskKind] {
         let calendar = eventStore.defaultCalendarForNewEvents!
-        let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
-        let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
-        let predicate = eventStore.predicateForEvents(withStart: start,
-                                                      end: end,
+        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
+                                                      end: config.eventRequestRange.upperBound,
                                                       calendars: [calendar])
         let events = eventStore.events(matching: predicate)
         
@@ -96,7 +94,7 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
     }
     
     open func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
-        .init(task: task, eventStore: eventStore)
+        .init(task: task, config: config, eventStore: eventStore)
     }
 }
 
@@ -139,6 +137,8 @@ extension TaskListViewController {
         let vc = taskEditorViewController(task: task, eventStore: eventStore)
         let nav = vc.navigationControllerWrapped()
         
-        present(nav, animated: true)
+        present(nav, animated: true) { [unowned self] in
+            saveTask(task)
+        }
     }
 }

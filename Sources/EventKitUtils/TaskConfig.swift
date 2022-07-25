@@ -8,11 +8,17 @@
 import Foundation
 
 public struct TaskConfig {
-    public init(eventBaseURL: URL, createNonEventTask: @escaping () -> TaskKind) {
+    public init(eventBaseURL: URL, eventRequestRange: Range<Date>? = nil , createNonEventTask: @escaping () -> TaskKind) {
         self.eventBaseURL = eventBaseURL
         self.createNonEventTask = createNonEventTask
+        
+        let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
+        let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
+        self.eventRequestRange = start..<end
     }
     
+    
     let eventBaseURL: URL
+    var eventRequestRange: Range<Date>
     var createNonEventTask: () -> TaskKind
 }
