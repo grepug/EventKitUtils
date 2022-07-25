@@ -40,8 +40,12 @@ public struct TaskWrapper {
         set { first[keyPath: keyPath] = newValue }
     }
     
-    var recurrenceCount: Int {
-        futureTasks.count + 1
+    var recurrenceCount: Int? {
+        guard hasFutureTasks else {
+            return nil
+        }
+        
+        return futureTasks.count
     }
 }
 

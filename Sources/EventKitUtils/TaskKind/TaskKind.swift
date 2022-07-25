@@ -42,6 +42,15 @@ public extension TaskKind {
         }
     }
     
+    var dateRange: Range<Date>? {
+        guard let start = normalizedStartDate,
+              let end = normalizedEndDate else {
+            return nil
+        }
+        
+        return start..<end
+    }
+    
     var cellTag: String {
         normalizedID +
         normalizedTitle +

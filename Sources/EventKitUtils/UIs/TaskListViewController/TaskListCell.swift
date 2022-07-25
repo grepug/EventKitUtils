@@ -9,8 +9,8 @@ import SwiftUI
 
 struct TaskListCell: View {
     var task: TaskKind
+    var recurenceCount: Int?
     var linkedKeyResultTitle: String?
-    var linkedRecordValue: Int?
     var hidingGoal: Bool = false
     var hidingDate: Bool = false
     var check: () -> Void
@@ -55,9 +55,16 @@ struct TaskListCell: View {
                 }
                 
                 if !hidingDate && task.isDateEnabled, let date = task.normalizedEndDate {
-                    Text(date.formattedRelatively())
-                        .font(.caption)
-                        .foregroundColor(relativeDateColor)
+                    HStack {
+                        Text(date.formattedRelatively())
+                            .foregroundColor(relativeDateColor)
+                            
+                        if let recurenceCount = recurenceCount {
+                            Label("\(recurenceCount)", systemImage: "repeat")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .font(.caption)
                 }
                 
                 if !hidingGoal, let title = linkedKeyResultTitle {
@@ -65,7 +72,7 @@ struct TaskListCell: View {
                         HStack(spacing: 4) {
                             Text(title)
 
-                            if let value = linkedRecordValue {
+                            if let value = task.linkedValue {
                                 Rectangle()
                                     .frame(width: 0.3, height: 8)
                                     .foregroundColor(.secondary)

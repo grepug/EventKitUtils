@@ -32,7 +32,7 @@ extension TaskListViewController {
                 let hidingDate = groupedState == .today
                 
                 DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task.first, hidingDate: hidingDate) { [unowned self] in
+                    TaskListCell(task: task.first, recurenceCount: task.recurrenceCount, hidingDate: hidingDate) { [unowned self] in
                         task.first.toggleCompletion()
                         saveTask(task.first)
                         
