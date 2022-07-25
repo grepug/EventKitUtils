@@ -8,14 +8,14 @@
 import Foundation
 
 @dynamicMemberLookup
-struct TaskWrapper<T: TaskKind> {
-    var task: T
+public struct TaskWrapper {
+    var first: TaskKind
     var isRecurrence: Bool = false
-    var futureTasks: [T]
+    var futureTasks: [TaskKind]
     
-    subscript<K>(dynamicMember keyPath: WritableKeyPath<T, K>) -> K {
-        get { task[keyPath: keyPath] }
-        set { task[keyPath: keyPath] = newValue }
+    subscript<K>(dynamicMember keyPath: WritableKeyPath<TaskKind, K>) -> K {
+        get { first[keyPath: keyPath] }
+        set { first[keyPath: keyPath] = newValue }
     }
     
     var recurrenceCount: Int {

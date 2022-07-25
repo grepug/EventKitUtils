@@ -14,7 +14,7 @@ import EventKit
 
 extension TaskListViewController {
     @ListBuilder
-    func taskSection(_ tasks: [TaskKind], groupedState: TaskKindState?) -> [DLSection] {
+    func taskSection(_ tasks: [TaskWrapper], groupedState: TaskKindState?) -> [DLSection] {
         DLSection { [unowned self] in
             let headerTag = self.taskHeaderTag(state: groupedState, count: tasks.count)
             
@@ -32,20 +32,20 @@ extension TaskListViewController {
                 let hidingDate = groupedState == .today
                 
                 DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task, hidingDate: hidingDate) { [unowned self] in
-                        task.toggleCompletion()
-                        saveTask(task)
+                    TaskListCell(task: task.first, hidingDate: hidingDate) { [unowned self] in
+                        task.first.toggleCompletion()
+                        saveTask(task.first)
                         
                         reload()
                     } presentEditor: { [unowned self] in
-                        presentTaskEditor(task: task)
+                        presentTaskEditor(task: task.first)
                     }
                 }))
-                .tag(task.cellTag)
+                .tag(task.first.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(taskMenu(for: task, isContextMenu: true)).children)
-                .swipeTrailingActions(.makeActions(taskMenu(for: task)).reversed())
+                .contextMenu(.makeMenu(taskMenu(for: task.first, isContextMenu: true)).children)
+                .swipeTrailingActions(.makeActions(taskMenu(for: task.first)).reversed())
             }
         }
         .tag(groupedState?.title ?? "tasks")

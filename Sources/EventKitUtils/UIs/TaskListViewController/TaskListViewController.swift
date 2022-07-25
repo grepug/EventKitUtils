@@ -10,8 +10,8 @@ import UIKit
 import EventKit
 
 open class TaskListViewController: DiffableListViewController, TaskHandler {
-    public var tasks: [TaskKind] = []
-    public var groupedTasks: [TaskKindState: [TaskKind]] = [:]
+    public var tasks: [TaskWrapper] = []
+    public var groupedTasks: [TaskKindState: [TaskWrapper]] = [:]
     public var segment: SegmentType = .today
     public let config: TaskConfig
     
@@ -83,14 +83,16 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
     
-    open func fetchTasks(forSegment segment: SegmentType) -> [TaskKind] {
+    open func fetchTasks(forSegment segment: SegmentType) -> [TaskWrapper] {
         let calendar = eventStore.defaultCalendarForNewEvents!
         let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
                                                       end: config.eventRequestRange.upperBound,
                                                       calendars: [calendar])
         let events = eventStore.events(matching: predicate)
         
-        return events
+        return events.map {
+            .init(first: $0, futureTasks: [])
+        }
     }
     
     open func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
@@ -100,8 +102,8 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
 
 extension TaskListViewController {
     
-    func groupTasks(_ tasks: [TaskKind]) {
-        var dict: [TaskKindState: [TaskKind]] = [:]
+    func groupTasks(_ tasks: [TaskWrapper]) {
+        var dict: [TaskKindState: [TaskWrapper]] = [:]
         
         for state in TaskKindState.allCases {
             var includingCompleted = false
