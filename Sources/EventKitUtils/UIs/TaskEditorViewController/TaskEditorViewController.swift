@@ -22,6 +22,8 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
         self.eventStore = eventStore
         self.taskConfig = config
         super.init(nibName: nil, bundle: nil)
+        
+        isModalInPresentation = true
     }
     
     required public init?(coder: NSCoder) {

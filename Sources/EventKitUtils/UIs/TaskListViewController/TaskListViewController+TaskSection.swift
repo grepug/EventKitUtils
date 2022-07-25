@@ -6,11 +6,9 @@
 //
 
 import DiffableList
-import UIKit
 import SwiftUI
 import MenuBuilder
 import UIKitUtils
-import EventKit
 
 extension TaskListViewController {
     @ListBuilder
