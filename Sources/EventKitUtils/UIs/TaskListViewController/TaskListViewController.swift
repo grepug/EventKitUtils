@@ -137,6 +137,10 @@ extension TaskListViewController {
         let vc = taskEditorViewController(task: task, eventStore: eventStore)
         let nav = vc.navigationControllerWrapped()
         
+        vc.onDismiss = { [unowned self] in
+            reload()
+        }
+        
         present(nav, animated: true) { [unowned self] in
             saveTask(task)
         }

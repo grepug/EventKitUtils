@@ -15,6 +15,8 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
     let eventStore: EKEventStore
     let taskConfig: TaskConfig
     
+    var onDismiss: (() -> Void)?
+    
     public init(task: TaskKind, config: TaskConfig, eventStore: EKEventStore) {
         self.task = task
         self.eventStore = eventStore
@@ -143,6 +145,7 @@ extension TaskEditorViewController {
         
         navigationItem.rightBarButtonItems = [
             makeDoneButton { [unowned self] in
+                onDismiss?()
                 presentingViewController?.dismiss(animated: true)
             }
         ]

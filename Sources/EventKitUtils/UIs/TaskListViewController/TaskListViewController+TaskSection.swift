@@ -41,11 +41,11 @@ extension TaskListViewController {
                         presentTaskEditor(task: task.first)
                     }
                 }))
-                .tag(task.first.cellTag)
+                .tag(task.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(taskMenu(for: task.first, isContextMenu: true)).children)
-                .swipeTrailingActions(.makeActions(taskMenu(for: task.first)).reversed())
+                .contextMenu(.makeMenu(taskMenu(for: task, isContextMenu: true)).children)
+                .swipeTrailingActions(.makeActions(taskMenu(for: task)).reversed())
             }
         }
         .tag(groupedState?.title ?? "tasks")
@@ -99,7 +99,7 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     @MenuBuilder
-    func taskMenu(for task: TaskKind, isContextMenu: Bool = false) -> [MBMenu] {
+    func taskMenu(for task: TaskWrapper, isContextMenu: Bool = false) -> [MBMenu] {
 //        if isContextMenu, let kr = task.sortedKeyResults.first {
 //            MBButton("v3_task_open_kr".loc, image: kr.displayEmoji.textToImage()!) { [unowned self] in
 //                let vc = KeyResultDetail(kr: kr)
@@ -109,15 +109,43 @@ extension TaskListViewController {
 //        }
         
         MBButton.edit { [unowned self] in
-            presentTaskEditor(task: task)
+            presentTaskEditor(task: task.first)
         }
         
-        MBButton.delete { [unowned self] in
-            if let event = task as? EKEvent {
-                try! eventStore.remove(event, span: .thisEvent, commit: true)
+        MBButton.delete { [unowned self] completion in
+            if task.hasFutureTasks {
+                presentDeletingTaskWrapperAlert {
+                    completion(false)
+                } deletingThis: { [unowned self] in
+                    deleteTask(task.first)
+                    completion(true)
+                    reload()
+                } deletingAll: { [unowned self] in
+                    deleteTasks(task.tasks)
+                    completion(true)
+                    reload()
+                }
+            } else {
+                deleteTask(task.first)
+                reload()
+                completion(true)
             }
-            
-            reload()
         }
+    }
+    
+    func presentDeletingTaskWrapperAlert(canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {
+        presentAlertController(title: "删除所有？",
+                               message: "",
+                               actions: [
+                                .cancel {
+                                    canceled()
+                                },
+                                .init(title: "仅删除当前", style: .destructive) { _ in
+                                    deletingThis()
+                                },
+                                .init(title: "删除所有", style: .destructive) { _ in
+                                    deletingAll()
+                                }
+                               ])
     }
 }

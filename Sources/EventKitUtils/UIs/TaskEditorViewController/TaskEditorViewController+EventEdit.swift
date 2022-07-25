@@ -18,12 +18,12 @@ extension TaskEditorViewController {
         } else {
             event = .init(baseURL: taskConfig.eventBaseURL, eventStore: eventStore)
             event.copy(from: task)
-            task = event
             deleteTask(task)
+            task = event
         }
         
         event.calendar = eventStore.defaultCalendarForNewEvents
-        saveTask(task)
+        saveTask(event)
             
         let vc = EKEventEditViewController()
         vc.event = event

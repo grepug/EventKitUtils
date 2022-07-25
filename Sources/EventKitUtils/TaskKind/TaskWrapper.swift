@@ -47,6 +47,11 @@ public struct TaskWrapper {
         
         return futureTasks.count
     }
+    
+    var cellTag: String {
+        first.cellTag +
+        "\(recurrenceCount ?? 0)"
+    }
 }
 
 public extension Array where Element: TaskKind {
