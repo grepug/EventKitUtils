@@ -8,15 +8,21 @@
 import DiffableList
 import UIKit
 import EventKit
+import Combine
 
-open class TaskListViewController: DiffableListViewController, TaskHandler {
+open class TaskListViewController: DiffableListViewController, TaskHandler, ObservableObject {
+    typealias TaskGroupsByState = [TaskKindState: [TaskGroup]]
+    
     public var tasks: [TaskGroup] = []
     public var groupedTasks: [TaskKindState: [TaskGroup]] = [:]
-    public var segment: SegmentType = .today
+    @Published public var segment: SegmentType = .today
     public let config: TaskConfig
     
     lazy var eventStore = EKEventStore()
     var canAccessEventStore = false
+    var cancellables = Set<AnyCancellable>()
+    
+    let reloadingSubject = PassthroughSubject<SegmentType, Never>()
     
     public init(config: TaskConfig) {
         self.config = config
@@ -73,35 +79,66 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
         listView.contentInset.bottom = 64
         setupCustomToolbar()
         setupNavigationBar()
-        reload(animating: false)
-    }
-    
-    open override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
-        tasks = fetchTasks(forSegment: segment)
-        groupTasks(tasks)
         
-        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
-    }
-    
-    open func fetchTasks(forSegment segment: SegmentType) -> [TaskGroup] {
-        let calendar = eventStore.defaultCalendarForNewEvents!
-        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
-                                                      end: config.eventRequestRange.upperBound,
-                                                      calendars: [calendar])
-        let events = eventStore.events(matching: predicate)
+        var isFirst = true
         
-        return events.makeTaskGroups()
+        $segment
+            .merge(with: reloadingSubject)
+            .prepend(segment)
+            .flatMap { [unowned self] segment in
+                fetchTasksPublisher(for: segment)
+            }
+            .sink { [weak self] groups in
+                guard let self = self else { return }
+                
+                self.groupedTasks = groups
+                self.reload(animating: !isFirst)
+                isFirst = false
+            }
+            .store(in: &cancellables)
     }
     
     open func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
         .init(task: task, config: config, eventStore: eventStore)
     }
+    
+    open func fetchNonEventTasksPublisher(for segment: SegmentType) -> AnyPublisher<[TaskKind], Error> {
+        Empty<[TaskKind], Error>(completeImmediately: true).eraseToAnyPublisher()
+    }
+    
+    func fetchTasksPublisher(for segment: SegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
+        let events: Future<[TaskKind], Never> = Future { [unowned self] promise in
+            DispatchQueue.global(qos: .background).async { [unowned self] in
+                let tasks = fetchEvents(forSegment: segment).map(\.value)
+                promise(.success(tasks))
+            }
+        }
+        
+        return events
+            .zip(
+                fetchNonEventTasksPublisher(for: segment)
+                    .catch { error in Empty() }
+            )
+            .map { [unowned self] events, nonEvents in
+                groupTasks(events + nonEvents)
+            }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
 }
 
 extension TaskListViewController {
-    
-    func groupTasks(_ tasks: [TaskGroup]) {
-        var dict: [TaskKindState: [TaskGroup]] = [:]
+    func groupTasks(_ tasks: [TaskKind]) -> TaskGroupsByState {
+        var dict: TaskGroupsByState = [:]
+        var cache: [TaskKindState: [TaskKind]] = [:]
+        
+        for task in tasks {
+            
+        }
+        
+        for (state, tasks) in cache {
+            dict[state] = tasks.makeTaskGroups()
+        }
         
         for state in TaskKindState.allCases {
             var includingCompleted = false
@@ -112,8 +149,12 @@ extension TaskListViewController {
                 includingCompleted = true
             }
             
-            let filteredTasks = state.filtered(tasks,
-                                               includingCompleted: includingCompleted)
+            let filteredTasks = state.filtered(tasks, includingCompleted: includingCompleted)
+                .makeTaskGroups()
+            
+            if segment == .completed {
+                
+            }
             
             if !filteredTasks.isEmpty {
                 dict[state] = filteredTasks
@@ -121,7 +162,17 @@ extension TaskListViewController {
         }
         
         
-        groupedTasks = dict
+        return dict
+    }
+    
+    func fetchEvents(forSegment segment: SegmentType) -> [EKEvent] {
+        let calendar = eventStore.defaultCalendarForNewEvents!
+        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
+                                                      end: config.eventRequestRange.upperBound,
+                                                      calendars: [calendar])
+        let events = eventStore.events(matching: predicate)
+        
+        return events
     }
 }
 
@@ -131,7 +182,7 @@ extension TaskListViewController {
     }
     
     func presentTaskEditor(task: TaskKind? = nil) {
-        let task = task ?? config.createNonEventTask()
+        var task = task ?? config.createNonEventTask()
         task.isDateEnabled = true
         
         let vc = taskEditorViewController(task: task, eventStore: eventStore)

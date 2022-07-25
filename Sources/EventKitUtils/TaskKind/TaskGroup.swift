@@ -54,7 +54,7 @@ public struct TaskGroup {
     }
 }
 
-public extension Array where Element: TaskKind {
+public extension Array where Element == TaskKind {
     func makeTaskGroups() -> [TaskGroup] {
         var wrappers: [TaskGroup] = []
         var cache: OrderedDictionary<String, [TaskKind]> = .init()

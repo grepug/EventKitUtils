@@ -19,7 +19,7 @@ public enum TaskKindState: Int, CaseIterable {
         }
     }
     
-    func filtered(_ tasks: [TaskGroup], includingCompleted: Bool = true) -> [TaskGroup] {
+    func filtered(_ tasks: [TaskKind], includingCompleted: Bool = true) -> [TaskKind] {
         let current = Date()
         
         return tasks.filter { task in

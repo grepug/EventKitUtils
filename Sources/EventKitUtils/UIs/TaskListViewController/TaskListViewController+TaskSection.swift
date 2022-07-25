@@ -31,7 +31,8 @@ extension TaskListViewController {
                 
                 DLCell(using: .swiftUI(movingTo: self, content: {
                     TaskListCell(task: task.first, recurenceCount: task.recurrenceCount, hidingDate: hidingDate) { [unowned self] in
-                        task.first.toggleCompletion()
+                        let taskObject = config.taskById(task.first.normalizedID)!
+                        taskObject.toggleCompletion()
                         saveTask(task.first)
                         
                         reload()

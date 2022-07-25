@@ -16,7 +16,7 @@ extension TaskEditorViewController {
         if let _event = task as? EKEvent {
             event = _event
         } else {
-            event = .init(baseURL: taskConfig.eventBaseURL, eventStore: eventStore)
+            event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
             event.copy(from: task)
             deleteTask(task)
             task = event

@@ -13,14 +13,14 @@ import EventKit
 open class TaskEditorViewController: DiffableListViewController, TaskHandler {
     var task: TaskKind
     let eventStore: EKEventStore
-    let taskConfig: TaskConfig
+    let config: TaskConfig
     
     var onDismiss: (() -> Void)?
     
     public init(task: TaskKind, config: TaskConfig, eventStore: EKEventStore) {
         self.task = task
         self.eventStore = eventStore
-        self.taskConfig = config
+        self.config = config
         super.init(nibName: nil, bundle: nil)
         
         isModalInPresentation = true

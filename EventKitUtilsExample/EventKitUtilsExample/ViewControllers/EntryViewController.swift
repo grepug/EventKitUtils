@@ -15,6 +15,12 @@ class EntryViewController: DiffableListViewController {
             let mission = Mission.initWithViewContext()
             
             return mission
+        } taskById: { id in
+            guard let uuid = UUID(uuidString: id) else {
+                return nil
+            }
+            
+            return Mission.fetch(byId: uuid)
         }
     }
     

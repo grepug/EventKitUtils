@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol TaskKind: AnyObject {
+public protocol TaskKind {
     var normalizedID: String { get }
     var normalizedTitle: String { get set }
     var normalizedStartDate: Date? { get set }
@@ -58,4 +58,36 @@ public extension TaskKind {
         (normalizedEndDate?.description ?? "endDate") +
         isCompleted.description
     }
+    
+    var value: TaskValue {
+        .init(normalizedID: normalizedID,
+              normalizedTitle: normalizedTitle,
+              normalizedStartDate: normalizedStartDate,
+              normalizedEndDate: normalizedEndDate,
+              isAllDay: isAllDay,
+              isCompleted: isCompleted,
+              completedAt: completedAt,
+              notes: notes,
+              keyResultId: keyResultId,
+              linkedValue: linkedValue,
+              createdAt: createdAt,
+              updatedAt: updatedAt)
+    }
+}
+
+public struct TaskValue: TaskKind {
+    public var normalizedID: String
+    public var normalizedTitle: String
+    public var normalizedStartDate: Date?
+    public var normalizedEndDate: Date?
+    public var isAllDay: Bool
+    public var isCompleted: Bool
+    public var completedAt: Date?
+    public var notes: String?
+    public var keyResultId: String?
+    public var linkedValue: Double?
+    public var createdAt: Date?
+    public var updatedAt: Date?
+    
+    public func toggleCompletion() {}
 }

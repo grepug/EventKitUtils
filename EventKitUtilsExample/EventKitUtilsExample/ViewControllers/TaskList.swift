@@ -7,16 +7,16 @@
 
 import EventKit
 import EventKitUtils
+import StorageProvider
+import Combine
 
 class TaskList: TaskListViewController {
-    override func fetchTasks(forSegment segment: TaskListViewController.SegmentType) -> [TaskGroup] {
-        let events = super.fetchTasks(forSegment: segment)
-        
-//        Mission.fetch(where: )
-        return events
-    }
-    
     override func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
         TaskEditor(task: task, config: config, eventStore: eventStore)
+    }
+    
+    override func fetchNonEventTasksPublisher(for segment: TaskListViewController.SegmentType) -> AnyPublisher<[TaskKind], Error> {
+        Mission.fetchPublisher(where: nil, sortedBy: nil, transform: { $0.map(\.value) })
+            .eraseToAnyPublisher()
     }
 }
