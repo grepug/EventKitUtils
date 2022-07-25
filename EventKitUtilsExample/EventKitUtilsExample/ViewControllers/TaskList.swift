@@ -9,7 +9,7 @@ import EventKit
 import EventKitUtils
 
 class TaskList: TaskListViewController {
-    override func fetchTasks(forSegment segment: TaskListViewController.SegmentType) -> [TaskWrapper] {
+    override func fetchTasks(forSegment segment: TaskListViewController.SegmentType) -> [TaskGroup] {
         let events = super.fetchTasks(forSegment: segment)
         
 //        Mission.fetch(where: )

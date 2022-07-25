@@ -14,7 +14,7 @@ import EventKit
 
 extension TaskListViewController {
     @ListBuilder
-    func taskSection(_ tasks: [TaskWrapper], groupedState: TaskKindState?) -> [DLSection] {
+    func taskSection(_ tasks: [TaskGroup], groupedState: TaskKindState?) -> [DLSection] {
         DLSection { [unowned self] in
             let headerTag = self.taskHeaderTag(state: groupedState, count: tasks.count)
             
@@ -99,7 +99,7 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     @MenuBuilder
-    func taskMenu(for task: TaskWrapper, isContextMenu: Bool = false) -> [MBMenu] {
+    func taskMenu(for task: TaskGroup, isContextMenu: Bool = false) -> [MBMenu] {
 //        if isContextMenu, let kr = task.sortedKeyResults.first {
 //            MBButton("v3_task_open_kr".loc, image: kr.displayEmoji.textToImage()!) { [unowned self] in
 //                let vc = KeyResultDetail(kr: kr)
@@ -114,7 +114,7 @@ extension TaskListViewController {
         
         MBButton.delete { [unowned self] completion in
             if task.hasFutureTasks {
-                presentDeletingTaskWrapperAlert {
+                presentDeletingTaskGroupAlert {
                     completion(false)
                 } deletingThis: { [unowned self] in
                     deleteTask(task.first)
@@ -133,7 +133,7 @@ extension TaskListViewController {
         }
     }
     
-    func presentDeletingTaskWrapperAlert(canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {
+    func presentDeletingTaskGroupAlert(canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {
         presentAlertController(title: "删除所有？",
                                message: "",
                                actions: [

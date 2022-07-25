@@ -1,5 +1,5 @@
 //
-//  TaskWrapper.swift
+//  TaskGroup.swift
 //  
 //
 //  Created by Kai on 2022/7/25.
@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 @dynamicMemberLookup
-public struct TaskWrapper {
+public struct TaskGroup {
     public init(tasks: [TaskKind], isRecurrence: Bool = false) {
         guard !tasks.isEmpty else {
             fatalError("task wrapper tasks cannot be empty")
@@ -55,8 +55,8 @@ public struct TaskWrapper {
 }
 
 public extension Array where Element: TaskKind {
-    func makeTaskWrappers() -> [TaskWrapper] {
-        var wrappers: [TaskWrapper] = []
+    func makeTaskGroups() -> [TaskGroup] {
+        var wrappers: [TaskGroup] = []
         var cache: OrderedDictionary<String, [TaskKind]> = .init()
         
         for task in self {
