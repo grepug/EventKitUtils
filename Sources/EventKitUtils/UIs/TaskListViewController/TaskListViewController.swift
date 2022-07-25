@@ -90,9 +90,7 @@ open class TaskListViewController: DiffableListViewController, TaskHandler {
                                                       calendars: [calendar])
         let events = eventStore.events(matching: predicate)
         
-        return events.map {
-            .init(first: $0, futureTasks: [])
-        }
+        return events.makeTaskWrappers()
     }
     
     open func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
