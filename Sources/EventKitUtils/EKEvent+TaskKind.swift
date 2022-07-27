@@ -23,7 +23,13 @@ extension EKEvent: TaskKind {
     }
     
     public var normalizedEndDate: Date? {
-        get { endDate }
+        get {
+            if isAllDay {
+                return endDate.endOfDay
+            }
+            
+            return endDate
+        }
         set { endDate = newValue }
     }
     

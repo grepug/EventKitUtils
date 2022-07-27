@@ -36,6 +36,16 @@ class EntryViewController: DiffableListViewController {
                     let vc = TaskList(config: taskConfig)
                     push(vc)
                 }
+                
+                DLCell {
+                    DLText("EventSettings")
+                }
+                .tag("eventSettings")
+                .accessories([.disclosureIndicator()])
+                .onTapAndDeselect { [unowned self] _ in
+                    let vc = EventSettings()
+                    push(vc)
+                }
             }
             .tag("0")
         }
