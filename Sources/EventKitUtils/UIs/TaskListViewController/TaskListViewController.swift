@@ -86,6 +86,7 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         
         $segment
             .merge(with: reloadingSubject)
+            .merge(with: eventsChangedPublisher)
             .prepend(segment)
             .flatMap { [unowned self] segment in
                 fetchTasksPublisher(for: segment)
@@ -130,6 +131,14 @@ extension TaskListViewController {
             .map { $0 + $1 }
             .map { [unowned self] in groupTasks($0) }
             .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
+    
+    var eventsChangedPublisher: AnyPublisher<SegmentType, Never> {
+        NotificationCenter.default
+            .publisher(for: .EKEventStoreChanged)
+            .debounce(for: 1, scheduler: RunLoop.current)
+            .map { [unowned self] _ in segment }
             .eraseToAnyPublisher()
     }
 }
