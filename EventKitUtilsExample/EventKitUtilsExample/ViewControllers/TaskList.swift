@@ -20,4 +20,8 @@ class TaskList: TaskListViewController {
 //            .eraseToAnyPublisher()
         Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
+    
+    override func makeRepeatingListViewController(title: String) -> TaskListViewController? {
+        TaskList(config: config, fetchingTitle: title)
+    }
 }

@@ -17,15 +17,21 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
     public var groupedTasks: TaskGroupsByState = [:]
     @Published public var segment: SegmentType = .today
     public let config: TaskConfig
+    public var fetchingTitle: String?
     
     lazy var eventStore = EKEventStore()
     var canAccessEventStore = false
     var cancellables = Set<AnyCancellable>()
     
-    let reloadingSubject = PassthroughSubject<SegmentType, Never>()
+    private let reloadingSubject = PassthroughSubject<SegmentType, Never>()
     
-    public init(config: TaskConfig) {
+    var isRepeatingList: Bool {
+        fetchingTitle != nil
+    }
+    
+    public init(config: TaskConfig, fetchingTitle: String? = nil) {
         self.config = config
+        self.fetchingTitle = fetchingTitle
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -60,16 +66,22 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
     
     open override var list: DLList {
         DLList { [unowned self] in
-            switch self.segment {
-            case .today, .incompleted:
-                for state in TaskKindState.allCases {
-                    if let tasks = self.groupedTasks[state] {
-                        taskSection(tasks, groupedState: state)
-                    }
-                }
-            case .completed:
+            if isRepeatingList {
                 if let tasks = self.groupedTasks[nil] {
                     taskSection(tasks, groupedState: nil)
+                }
+            } else {
+                switch self.segment {
+                case .today, .incompleted:
+                    for state in TaskKindState.allCases {
+                        if let tasks = self.groupedTasks[state] {
+                            taskSection(tasks, groupedState: state)
+                        }
+                    }
+                case .completed:
+                    if let tasks = self.groupedTasks[nil] {
+                        taskSection(tasks, groupedState: nil)
+                    }
                 }
             }
         }
@@ -79,7 +91,11 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         super.viewDidLoad()
         
         listView.contentInset.bottom = 64
-        setupCustomToolbar()
+        
+        if !isRepeatingList {
+            setupCustomToolbar()
+        }
+        
         setupNavigationBar()
         
         var isFirst = true
@@ -107,6 +123,10 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
     
     open func fetchNonEventTasksPublisher(for segment: SegmentType) -> AnyPublisher<[TaskValue], Error> {
         Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
+    }
+    
+    open func makeRepeatingListViewController(title: String) -> TaskListViewController? {
+        nil
     }
 }
 
@@ -157,7 +177,9 @@ extension TaskListViewController {
         var cache: TasksByState = [:]
         let current = Date()
         
-        if segment == .completed {
+        if isRepeatingList {
+            cache[nil] = tasks
+        } else if segment == .completed {
             cache[nil] = tasks.filter { $0.isCompleted }
         } else {
             for task in tasks {
@@ -194,7 +216,11 @@ extension TaskListViewController {
         }
         
         for (state, tasks) in cache {
-            dict[state] = tasks.makeTaskGroups()
+            if isRepeatingList {
+                dict[state] = tasks.map { .init(tasks: [$0]) }
+            } else {
+                dict[state] = tasks.makeTaskGroups()
+            }
         }
         
         return dict
@@ -207,7 +233,15 @@ extension TaskListViewController {
                                                       calendars: [calendar])
         
         let events = eventStore.events(matching: predicate)
-            .filter { [unowned self] in $0.url?.host == config.eventBaseURL.host }
+            .filter { [unowned self] event in
+                if let title = fetchingTitle {
+                    if event.normalizedTitle != title {
+                        return false
+                    }
+                }
+                
+                return event.url?.host == config.eventBaseURL.host
+            }
         
         return events
     }
@@ -215,7 +249,14 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     func setupNavigationBar() {
-        title = segment.text
+        if let title = fetchingTitle {
+            self.title = title
+            navigationItem.rightBarButtonItem = makeDoneButton { [unowned self] in
+                presentingViewController?.dismiss(animated: true)
+            }
+        } else {
+            title = segment.text
+        }
     }
     
     func presentTaskEditor(task: TaskKind? = nil) {

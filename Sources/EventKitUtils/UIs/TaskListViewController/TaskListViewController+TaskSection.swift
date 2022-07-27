@@ -93,7 +93,7 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     @MenuBuilder
-    func taskMenu(for task: TaskGroup, isContextMenu: Bool = false) -> [MBMenu] {
+    func taskMenu(for taskGroup: TaskGroup, isContextMenu: Bool = false) -> [MBMenu] {
 //        if isContextMenu, let kr = task.sortedKeyResults.first {
 //            MBButton("v3_task_open_kr".loc, image: kr.displayEmoji.textToImage()!) { [unowned self] in
 //                let vc = KeyResultDetail(kr: kr)
@@ -102,25 +102,44 @@ extension TaskListViewController {
 //            }
 //        }
         
+        if isContextMenu && taskGroup.hasFutureTasks {
+            MBGroup {
+                MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
+                    guard let vc = makeRepeatingListViewController(title: taskGroup.normalizedTitle) else {
+                        return
+                    }
+                    
+                    let nav = vc.navigationControllerWrapped()
+                    
+                    nav.modalPresentationStyle = .popover
+                    
+                    let indexPath = listView.indexPath(forItemIdentifier: taskGroup.cellTag)!
+                    nav.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
+                    
+                    present(nav, animated: true)
+                }
+            }
+        }
+        
         MBButton.edit { [unowned self] in
-            presentTaskEditor(task: task.first)
+            presentTaskEditor(task: taskGroup.first)
         }
         
         MBButton.delete { [unowned self] completion in
-            if task.hasFutureTasks {
+            if taskGroup.hasFutureTasks {
                 presentDeletingTaskGroupAlert {
                     completion(false)
                 } deletingThis: { [unowned self] in
-                    deleteTask(task.first)
+                    deleteTask(taskGroup.first)
                     completion(true)
                     reloadList()
                 } deletingAll: { [unowned self] in
-                    deleteTasks(task.tasks)
+                    deleteTasks(taskGroup.tasks)
                     completion(true)
                     reloadList()
                 }
             } else {
-                deleteTask(task.first)
+                deleteTask(taskGroup.first)
                 reloadList()
                 completion(true)
             }
