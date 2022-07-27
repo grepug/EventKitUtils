@@ -7,6 +7,7 @@
 
 import DiffableList
 import EventKit
+import UIKit
 
 open class EventSettingsViewController: DiffableListViewController {
     lazy var eventStore = EKEventStore()
@@ -49,8 +50,6 @@ open class EventSettingsViewController: DiffableListViewController {
         isGranted = status == .authorized
         reload(animating: false)
     }
-    
-    open func openSystemSettings() {}
 }
 
 extension EventSettingsViewController {
@@ -81,12 +80,29 @@ extension EventSettingsViewController {
     func presentGoingToSystemSettingsAlert() {
         presentAlertController(title: "未授权日历访问", message: "去系统设置开启日历访问权限", actions: [
             .cancel,
-            .init(title: "去开启", style: .default, handler: { [unowned self] _ in
-                openSystemSettings()
+            .init(title: "去开启", style: .default, handler: { _ in
+                Self.openSettings()
             })
         ])
         
         forceReloadToggleFlag += 1
         reload()
+    }
+}
+
+extension EventSettingsViewController {
+    static func openSettings() {
+        let url: URL
+        #if targetEnvironment(macCatalyst)
+        url = Self.macOSCalendarPrivacyURL
+        #else
+        url = URL(string: UIApplication.openSettingsURLString)!
+        #endif
+
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    }
+    
+    static var macOSCalendarPrivacyURL: URL {
+        URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
     }
 }
