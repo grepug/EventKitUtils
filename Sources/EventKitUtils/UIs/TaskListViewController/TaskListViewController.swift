@@ -11,10 +11,10 @@ import EventKit
 import Combine
 
 open class TaskListViewController: DiffableListViewController, TaskHandler, ObservableObject {
-    typealias TaskGroupsByState = [TaskKindState: [TaskGroup]]
+    public typealias TaskGroupsByState = [TaskKindState?: [TaskGroup]]
+    typealias TasksByState = [TaskKindState?: [TaskKind]]
     
-    public var tasks: [TaskGroup] = []
-    public var groupedTasks: [TaskKindState: [TaskGroup]] = [:]
+    public var groupedTasks: TaskGroupsByState = [:]
     @Published public var segment: SegmentType = .today
     public let config: TaskConfig
     
@@ -68,7 +68,9 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
                     }
                 }
             case .completed:
-                taskSection(tasks, groupedState: nil)
+                if let tasks = self.groupedTasks[nil] {
+                    taskSection(tasks, groupedState: nil)
+                }
             }
         }
     }
@@ -102,8 +104,8 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         .init(task: task, config: config, eventStore: eventStore)
     }
     
-    open func fetchNonEventTasksPublisher(for segment: SegmentType) -> AnyPublisher<[TaskKind], Error> {
-        Empty<[TaskKind], Error>(completeImmediately: true).eraseToAnyPublisher()
+    open func fetchNonEventTasksPublisher(for segment: SegmentType) -> AnyPublisher<[TaskValue], Error> {
+        Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
     
     func fetchTasksPublisher(for segment: SegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
@@ -119,48 +121,63 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
                 fetchNonEventTasksPublisher(for: segment)
                     .catch { error in Empty() }
             )
-            .map { [unowned self] events, nonEvents in
-                groupTasks(events + nonEvents)
-            }
+            .map { $0 + $1 }
+            .map { [unowned self] in groupTasks($0) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 }
 
 extension TaskListViewController {
+    func addToCache(_ state: TaskKindState?, _ task: TaskKind, in cache: inout TasksByState) {
+        if cache[state] == nil {
+            cache[state] = []
+        }
+        
+        cache[state]!.append(task)
+    }
+    
     func groupTasks(_ tasks: [TaskKind]) -> TaskGroupsByState {
         var dict: TaskGroupsByState = [:]
-        var cache: [TaskKindState: [TaskKind]] = [:]
+        var cache: TasksByState = [:]
+        let current = Date()
         
-        for task in tasks {
-            
+        if segment == .completed {
+            cache[nil] = tasks
+        } else {
+            for task in tasks {
+                if task.isDateEnabled, let endDate = task.normalizedEndDate {
+                    /// 兼容没有开始时间的情况
+                    if task.normalizedStartDate == nil || task.isAllDay {
+                        if endDate.startOfDay == current.startOfDay {
+                            addToCache(.today, task, in: &cache)
+                        } else if endDate.startOfDay < current.startOfDay {
+                            addToCache(.overdued, task, in: &cache)
+                        } else {
+                            addToCache(.afterToday, task, in: &cache)
+                        }
+                    } else {
+                        /// 包含今天，则为今天
+                        if let range = task.dateRange, range.contains(current) {
+                            addToCache(.today, task, in: &cache)
+                        } else if endDate < current {
+                            if !task.isCompleted {
+                                addToCache(.overdued, task, in: &cache)
+                            }
+                        } else {
+                            addToCache(.afterToday, task, in: &cache)
+                        }
+                    }
+                } else {
+                    addToCache(.unscheduled, task, in: &cache)
+                }
+            }
         }
+        
         
         for (state, tasks) in cache {
             dict[state] = tasks.makeTaskGroups()
         }
-        
-        for state in TaskKindState.allCases {
-            var includingCompleted = false
-            
-            if segment == .completed {
-                includingCompleted = true
-            } else if segment == .today && state == .today {
-                includingCompleted = true
-            }
-            
-            let filteredTasks = state.filtered(tasks, includingCompleted: includingCompleted)
-                .makeTaskGroups()
-            
-            if segment == .completed {
-                
-            }
-            
-            if !filteredTasks.isEmpty {
-                dict[state] = filteredTasks
-            }
-        }
-        
         
         return dict
     }

@@ -15,8 +15,9 @@ class TaskList: TaskListViewController {
         TaskEditor(task: task, config: config, eventStore: eventStore)
     }
     
-    override func fetchNonEventTasksPublisher(for segment: TaskListViewController.SegmentType) -> AnyPublisher<[TaskKind], Error> {
-        Mission.fetchPublisher(where: nil, sortedBy: nil, transform: { $0.map(\.value) })
-            .eraseToAnyPublisher()
+    override func fetchNonEventTasksPublisher(for segment: TaskListViewController.SegmentType) -> AnyPublisher<[TaskValue], Error> {
+//        Mission.fetchPublisher(where: nil, sortedBy: nil, transform: { $0.map(\.value) })
+//            .eraseToAnyPublisher()
+        Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
 }

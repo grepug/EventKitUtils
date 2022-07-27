@@ -33,6 +33,10 @@ extension Date {
         Calendar.current.startOfDay(for: self)
     }
     
+    var endOfDay: Self {
+        Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+    }
+    
     func days(to date: Date, includingLastDay: Bool = true) -> Int {
         let days = Calendar.current.dateComponents([.day], from: startOfDay, to: date.tomorrow.startOfDay).day ?? 0
         

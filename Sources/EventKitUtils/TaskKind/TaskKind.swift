@@ -48,6 +48,10 @@ public extension TaskKind {
             return nil
         }
         
+        if isAllDay {
+            return start.startOfDay..<end.endOfDay
+        }
+        
         return start..<end
     }
     
