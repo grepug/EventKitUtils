@@ -56,23 +56,32 @@ public struct TaskGroup {
 
 public extension Array where Element == TaskKind {
     func makeTaskGroups() -> [TaskGroup] {
-        var wrappers: [TaskGroup] = []
+        var groups: [TaskGroup] = []
+        var completedGroups: [TaskGroup] = []
         var cache: OrderedDictionary<String, [TaskKind]> = .init()
         
         for task in self {
-            if cache[task.normalizedTitle] == nil {
-                cache[task.normalizedTitle] = []
+            if task.isCompleted {
+                completedGroups.append(.init(tasks: [task]))
+            } else {
+                if cache[task.normalizedTitle] == nil {
+                    cache[task.normalizedTitle] = []
+                }
+                
+                cache[task.normalizedTitle]!.append(task)
             }
-            
-            cache[task.normalizedTitle]!.append(task)
         }
         
         for (_, tasks) in cache {
-            wrappers.append(
+            guard !tasks.isEmpty else {
+                continue
+            }
+            
+            groups.append(
                 .init(tasks: tasks, isRecurrence: false)
             )
         }
         
-        return wrappers
+        return groups + completedGroups
     }
 }

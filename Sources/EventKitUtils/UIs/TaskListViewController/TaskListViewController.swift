@@ -38,7 +38,7 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         sc.selectedSegmentIndex = segment.rawValue
         sc.addAction(.init { [unowned self] _ in
             segment = .init(rawValue: sc.selectedSegmentIndex)!
-            reload()
+            reloadList()
             view.endEditing(true)
             setupNavigationBar()
         }, for: .valueChanged)
@@ -107,6 +107,12 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
     open func fetchNonEventTasksPublisher(for segment: SegmentType) -> AnyPublisher<[TaskValue], Error> {
         Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
+}
+
+extension TaskListViewController {
+    func reloadList(of segment: SegmentType? = nil) {
+        reloadingSubject.send(segment ?? self.segment)
+    }
     
     func fetchTasksPublisher(for segment: SegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
         let events: Future<[TaskKind], Never> = Future { [unowned self] promise in
@@ -143,9 +149,13 @@ extension TaskListViewController {
         let current = Date()
         
         if segment == .completed {
-            cache[nil] = tasks
+            cache[nil] = tasks.filter { $0.isCompleted }
         } else {
             for task in tasks {
+                if segment == .incompleted && task.isCompleted {
+                    continue
+                }
+                
                 if task.isDateEnabled, let endDate = task.normalizedEndDate {
                     /// 兼容没有开始时间的情况
                     if task.normalizedStartDate == nil || task.isAllDay {
@@ -174,7 +184,6 @@ extension TaskListViewController {
             }
         }
         
-        
         for (state, tasks) in cache {
             dict[state] = tasks.makeTaskGroups()
         }
@@ -187,7 +196,9 @@ extension TaskListViewController {
         let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
                                                       end: config.eventRequestRange.upperBound,
                                                       calendars: [calendar])
+        
         let events = eventStore.events(matching: predicate)
+            .filter { [unowned self] in $0.url?.host == config.eventBaseURL.host }
         
         return events
     }
@@ -206,7 +217,7 @@ extension TaskListViewController {
         let nav = vc.navigationControllerWrapped()
         
         vc.onDismiss = { [unowned self] in
-            reload()
+            reloadList()
         }
         
         present(nav, animated: true) { [unowned self] in

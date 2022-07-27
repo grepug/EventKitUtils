@@ -14,6 +14,15 @@ protocol TaskHandler {
 }
 
 extension TaskHandler {
+    func toggleCompletion(_ task: TaskKind) {
+        guard let taskObject = fetchTask(byId: task.normalizedID) else {
+            return
+        }
+        
+        taskObject.toggleCompletion()
+        saveTask(taskObject)
+    }
+    
     func fetchTask(byId id: String) -> TaskKind? {
         if let task = config.taskById(id) {
             return task

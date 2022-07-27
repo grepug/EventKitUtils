@@ -35,11 +35,11 @@ extension EKEvent: TaskKind {
     
     public var isCompleted: Bool {
         get {
-            getValue(forKey: .isCompleted) == "1"
+            completedAt != nil
         }
         
         set {
-            setValue(newValue ? "1" : "0", forKey: .isCompleted)
+            completedAt = newValue ? Date() : nil
         }
     }
     
@@ -104,11 +104,11 @@ extension EKEvent: TaskKind {
     }
     
     public func toggleCompletion() {
-        if !isCompleted {
-            setValue("\(Date().timeIntervalSince1970)", forKey: .completedAt)
-        } else {
-            setValue("", forKey: .completedAt)
-        }
+//        if !isCompleted {
+//            setValue("\(Date().timeIntervalSince1970)", forKey: .completedAt)
+//        } else {
+//            setValue("", forKey: .completedAt)
+//        }
         
         isCompleted.toggle()
     }

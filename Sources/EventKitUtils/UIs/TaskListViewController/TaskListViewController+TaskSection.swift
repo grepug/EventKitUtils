@@ -27,15 +27,10 @@ extension TaskListViewController {
             }
             
             for task in tasks {
-                let hidingDate = groupedState == .today
-                
                 DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task.first, recurenceCount: task.recurrenceCount, hidingDate: hidingDate) { [unowned self] in
-                        let taskObject = config.taskById(task.first.normalizedID)!
-                        taskObject.toggleCompletion()
-                        saveTask(task.first)
-                        
-                        reload()
+                    TaskListCell(task: task.first, recurenceCount: task.recurrenceCount) { [unowned self] in
+                        toggleCompletion(task.first)
+                        reloadList()
                     } presentEditor: { [unowned self] in
                         presentTaskEditor(task: task.first)
                     }
@@ -89,7 +84,7 @@ extension TaskListViewController {
                                 .ok { [unowned self] in
 //                                    Task.postpondOverdued()
                                     DispatchQueue.main.async { [unowned self] in
-                                        reload()
+                                        reloadList()
                                     }
                                 }
                                ])
@@ -118,15 +113,15 @@ extension TaskListViewController {
                 } deletingThis: { [unowned self] in
                     deleteTask(task.first)
                     completion(true)
-                    reload()
+                    reloadList()
                 } deletingAll: { [unowned self] in
                     deleteTasks(task.tasks)
                     completion(true)
-                    reload()
+                    reloadList()
                 }
             } else {
                 deleteTask(task.first)
-                reload()
+                reloadList()
                 completion(true)
             }
         }

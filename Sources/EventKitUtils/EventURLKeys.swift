@@ -8,13 +8,12 @@
 import Foundation
 
 public enum EventURLKeys {
-    case keyResultId, linkedQuantity, isCompleted, completedAt
+    case keyResultId, linkedQuantity, completedAt
     
     public var key: String {
         switch self {
         case .keyResultId: return "k"
         case .linkedQuantity: return "v"
-        case .isCompleted: return "c"
         case .completedAt: return "ca"
         }
     }
