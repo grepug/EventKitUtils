@@ -11,6 +11,10 @@ import EventKitUI
 
 extension TaskEditorViewController {
     func presentEventEditor() {
+        guard let task = fetchTask(byId: task.normalizedID) else {
+            return
+        }
+        
         let event: EKEvent
         
         if let _event = task as? EKEvent {
@@ -19,7 +23,7 @@ extension TaskEditorViewController {
             event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
             event.copy(from: task)
             deleteTask(task)
-            task = event
+            self.task = event
         }
         
         event.calendar = eventStore.defaultCalendarForNewEvents

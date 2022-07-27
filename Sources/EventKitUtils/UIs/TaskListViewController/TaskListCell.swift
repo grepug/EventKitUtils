@@ -54,9 +54,9 @@ struct TaskListCell: View {
                     }
                 }
                 
-                if !hidingDate && task.isDateEnabled, let date = task.normalizedEndDate {
+                if !hidingDate && task.isDateEnabled, let dateString = dateString(task) {
                     HStack {
-                        Text(date.formattedRelatively())
+                        Text(dateString)
                             .foregroundColor(relativeDateColor)
                             
                         if let recurenceCount = recurenceCount {
@@ -94,5 +94,28 @@ struct TaskListCell: View {
         .onTapGesture {
             presentEditor()
         }
+    }
+}
+
+extension TaskListCell {
+    func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .short
+        formatter.doesRelativeDateFormatting = true
+        
+        return formatter.string(from: date)
+    }
+    
+    func dateString(_ task: TaskKind) -> String? {
+        if let endDate = task.normalizedEndDate, task.normalizedStartDate == nil {
+            return formatDate(endDate)
+        }
+        
+        if let range = task.dateRange {
+            return "\(formatDate(range.lowerBound)) - \(formatDate(range.upperBound))"
+        }
+        
+        return nil
     }
 }

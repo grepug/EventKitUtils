@@ -36,8 +36,10 @@ extension TaskHandler {
             try! eventStore.save(event, span: .thisEvent, commit: true)
         } else if let task = task as? ManagedObject {
             task.save()
+        } else if let task = fetchTask(byId: task.normalizedID) {
+            saveTask(task)
         } else {
-            assertionFailure("cannot save task value")
+            assertionFailure("no such task")
         }
     }
     
