@@ -139,11 +139,19 @@ extension TaskListViewController {
                     reloadList()
                 }
             } else {
-                deleteTask(taskGroup.first)
-                reloadList()
+                removeTaskGroup(taskGroup)
                 completion(true)
+                deleteTask(taskGroup.first)
             }
         }
+    }
+    
+    func removeTaskGroup(_ taskGroup: TaskGroup) {
+        for (key, _) in groupedTasks {
+            groupedTasks[key]?.removeAll { $0.normalizedTitle == taskGroup.normalizedTitle }
+        }
+        
+        reload()
     }
     
     func presentDeletingTaskGroupAlert(canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {

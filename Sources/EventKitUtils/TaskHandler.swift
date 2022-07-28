@@ -43,21 +43,19 @@ extension TaskHandler {
         }
     }
     
-    func deleteTask(_ task: TaskKind) {
+    func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false) {
         if let event = task as? EKEvent {
-            try! eventStore.remove(event, span: .thisEvent, commit: true)
+            try! eventStore.remove(event, span: deletingRecurence ? .futureEvents : .thisEvent, commit: true)
         } else if let task = task as? ManagedObject {
             task.delete()
         } else if let task = taskObject(task) {
-            deleteTask(task)
-        } else {
-            assertionFailure("cannot delete task value")
+            deleteTask(task, deletingRecurence: deletingRecurence)
         }
     }
     
     func deleteTasks(_ tasks: [TaskKind]) {
         for task in tasks {
-            deleteTask(task)
+            deleteTask(task, deletingRecurence: true)
         }
     }
     
