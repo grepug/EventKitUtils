@@ -147,9 +147,30 @@ extension TaskEditorViewController {
         
         navigationItem.rightBarButtonItems = [
             makeDoneButton { [unowned self] in
-                onDismiss?()
-                presentingViewController?.dismiss(animated: true)
+                if let event = task as? EKEvent {
+                    presentSaveRepeatingTaskAlert(task: event)
+                } else {
+                    dismissEditor()
+                }
             }
         ]
+    }
+    
+    func presentSaveRepeatingTaskAlert(task: TaskKind) {
+        presentAlertController(title: "重复任务", message: "", actions: [
+            .init(title: "仅保存此任务", style: .default) { [unowned self] _ in
+                saveTask(task)
+                dismissEditor()
+            },
+            .init(title: "保存将来所有任务", style: .default) { [unowned self] _ in
+                dismissEditor()
+            },
+            .cancel
+        ])
+    }
+    
+    func dismissEditor() {
+        onDismiss?()
+        presentingViewController?.dismiss(animated: true)
     }
 }

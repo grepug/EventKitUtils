@@ -58,9 +58,78 @@ extension TaskHandler {
             deleteTask(task)
         }
     }
+    
+    func saveTasks(_ tasks: [TaskKind]) {
+        for task in tasks {
+            saveTask(task)
+        }
+    }
+    
+    func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
+        let predicate = precidate ?? eventsPredicate()
+        
+        eventStore.enumerateEvents(matching: predicate) { event, pointer in
+            guard event.url?.host == config.eventBaseURL.host else {
+                return
+            }
+            
+            if handler(event) {
+                pointer.pointee = true
+            }
+        }
+    }
+    
+    func testHasRepeatingTasks(with task: TaskKind) -> Bool {
+        if config.testHasRepeatingTask(task) {
+            return true
+        }
+        
+        var foundEvent: EKEvent?
+        var isTrue = false
+        
+        enumerateEvents { event in
+            if event.normalizedTitle == task.normalizedTitle {
+                if foundEvent != nil {
+                    isTrue = true
+                    return true
+                }
+                        
+                foundEvent = event
+            }
+            
+            return false
+        }
+
+        return isTrue
+    }
+    
+    func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
+        DispatchQueue.global(qos: .background).async {
+            var tasks: [TaskValue] = []
+            
+            config.fetchNonEventTasks(type) {
+                tasks.append(contentsOf: $0.map(\.value))
+            }
+            
+            enumerateEvents { event in
+                switch type {
+                case .title(let title):
+                    if title == event.normalizedTitle {
+                        tasks.append(event.value)
+                    }
+                default:
+                    tasks.append(event.value)
+                }
+                
+                return false
+            }
+                
+            handler(tasks)
+        }
+    }
 }
 
-extension TaskHandler {
+fileprivate extension TaskHandler {
     func eventsPredicate() -> NSPredicate {
         let calendar = eventStore.defaultCalendarForNewEvents!
         let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
@@ -84,39 +153,5 @@ extension TaskHandler {
         }
         
         return foundEvent
-    }
-    
-    func testHasRepeatingTasks(with task: TaskKind) -> Bool {
-        var foundEvent: EKEvent?
-        var isTrue = false
-        
-        enumerateEvents { event in
-            if event.normalizedTitle == task.normalizedTitle {
-                if foundEvent != nil {
-                    isTrue = true
-                    return true
-                }
-                        
-                foundEvent = event
-            }
-            
-            return false
-        }
-
-        return isTrue
-    }
-    
-    func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
-        let predicate = precidate ?? eventsPredicate()
-        
-        eventStore.enumerateEvents(matching: predicate) { event, pointer in
-            guard event.url?.host == config.eventBaseURL.host else {
-                return
-            }
-            
-            if handler(event) {
-                pointer.pointee = true
-            }
-        }
     }
 }

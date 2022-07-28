@@ -11,7 +11,9 @@ import EventKitUtils
 
 class EntryViewController: DiffableListViewController {
     var taskConfig: TaskConfig {
-        .init(eventBaseURL: .init(string: "https://okr.vision/a")!) {
+        .init(eventBaseURL: .init(string: "https://okr.vision/a")!) { type, handler  in
+            
+        } createNonEventTask: {
             let mission = Mission.initWithViewContext()
             
             return mission
@@ -21,6 +23,8 @@ class EntryViewController: DiffableListViewController {
             }
             
             return Mission.fetch(byId: uuid)
+        } testHasRepeatingTask: { task in
+            false
         }
     }
     

@@ -121,10 +121,6 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         .init(task: task, config: config, eventStore: eventStore)
     }
     
-    open func fetchNonEventTasksPublisher(for segment: SegmentType) -> AnyPublisher<[TaskValue], Error> {
-        Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
-    }
-    
     open func makeRepeatingListViewController(title: String) -> TaskListViewController? {
         nil
     }
@@ -135,23 +131,23 @@ extension TaskListViewController {
         reloadingSubject.send(segment ?? self.segment)
     }
     
+    var fetchingType: FetchTasksType {
+        if let title = fetchingTitle {
+            return .title(title)
+        }
+        
+        return .segment(segment)
+    }
+    
     func fetchTasksPublisher(for segment: SegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
-        let events: Future<[TaskKind], Never> = Future { [unowned self] promise in
-            DispatchQueue.global(qos: .background).async { [unowned self] in
-                let tasks = fetchEvents(forSegment: segment).map(\.value)
+        Future { [unowned self] promise in
+            fetchTasksAsync(with: fetchingType) { tasks in
                 promise(.success(tasks))
             }
         }
-        
-        return events
-            .zip(
-                fetchNonEventTasksPublisher(for: segment)
-                    .catch { error in Empty() }
-            )
-            .map { $0 + $1 }
-            .map { [unowned self] in groupTasks($0) }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+        .map { [unowned self] in groupTasks($0) }
+        .receive(on: RunLoop.main)
+        .eraseToAnyPublisher()
     }
     
     var eventsChangedPublisher: AnyPublisher<SegmentType, Never> {
@@ -225,24 +221,6 @@ extension TaskListViewController {
         
         return dict
     }
-    
-    func fetchEvents(forSegment segment: SegmentType) -> [EKEvent] {
-        var events: [EKEvent] = []
-        
-        enumerateEvents { [unowned self] event in
-            if let title = fetchingTitle {
-                if event.normalizedTitle != title {
-                    return false
-                }
-            }
-            
-            events.append(event)
-            
-            return false
-        }
-        
-        return events
-    }
 }
 
 extension TaskListViewController {
@@ -258,10 +236,17 @@ extension TaskListViewController {
     }
     
     func presentTaskEditor(task: TaskKind? = nil) {
-        var task = task ?? config.createNonEventTask()
-        task.isDateEnabled = true
+        var taskObject: TaskKind
         
-        let vc = taskEditorViewController(task: task, eventStore: eventStore)
+        if let task = task {
+            taskObject = self.taskObject(task)!
+        } else {
+            taskObject = config.createNonEventTask()
+        }
+        
+        taskObject.isDateEnabled = true
+        
+        let vc = taskEditorViewController(task: taskObject, eventStore: eventStore)
         let nav = vc.navigationControllerWrapped()
         
         vc.onDismiss = { [unowned self] in
@@ -269,7 +254,7 @@ extension TaskListViewController {
         }
         
         present(nav, animated: true) { [unowned self] in
-            saveTask(task)
+            saveTask(taskObject)
         }
     }
 }
