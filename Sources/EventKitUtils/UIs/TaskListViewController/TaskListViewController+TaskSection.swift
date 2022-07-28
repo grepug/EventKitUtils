@@ -59,7 +59,7 @@ extension TaskListViewController {
         .footer(using: groupedState != .overdued ? nil : .swiftUI(movingTo: { [unowned self] in self}, content: {
             HStack {
                 Spacer()
-                SwiftUI.Button("v3_task_postpone") { [unowned self] in
+                SwiftUI.Button("v3_task_postpone".loc) { [unowned self] in
                     presentPostponedAlert()
                 }
                 .font(.subheadline)

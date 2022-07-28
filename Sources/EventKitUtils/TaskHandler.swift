@@ -48,6 +48,8 @@ extension TaskHandler {
             try! eventStore.remove(event, span: .thisEvent, commit: true)
         } else if let task = task as? ManagedObject {
             task.delete()
+        } else if let task = taskObject(task) {
+            deleteTask(task)
         } else {
             assertionFailure("cannot delete task value")
         }
