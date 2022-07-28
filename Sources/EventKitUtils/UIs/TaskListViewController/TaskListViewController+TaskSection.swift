@@ -27,7 +27,7 @@ extension TaskListViewController {
             }
             
             for task in tasks {
-                     DLCell(using: .swiftUI(movingTo: self, content: {
+                DLCell(using: .swiftUI(movingTo: self, content: {
                     TaskListCell(task: task.first, recurenceCount: task.recurrenceCount) { [unowned self] in
                         toggleCompletion(task.first)
                         reloadList()

@@ -11,7 +11,7 @@ import EventKitUI
 
 extension TaskEditorViewController {
     func presentEventEditor() {
-        guard let task = fetchTask(byId: task.normalizedID) else {
+        guard let task = taskObject(task) else {
             return
         }
         

@@ -227,21 +227,20 @@ extension TaskListViewController {
     }
     
     func fetchEvents(forSegment segment: SegmentType) -> [EKEvent] {
-        let calendar = eventStore.defaultCalendarForNewEvents!
-        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
-                                                      end: config.eventRequestRange.upperBound,
-                                                      calendars: [calendar])
+        let predicate = eventsPredicate()
+        var events: [EKEvent] = []
         
-        let events = eventStore.events(matching: predicate)
-            .filter { [unowned self] event in
-                if let title = fetchingTitle {
-                    if event.normalizedTitle != title {
-                        return false
-                    }
+        eventStore.enumerateEvents(matching: predicate) { [unowned self] event, _ in
+            if let title = fetchingTitle {
+                if event.normalizedTitle != title {
+                    return
                 }
-                
-                return event.url?.host == config.eventBaseURL.host
             }
+            
+            if event.url?.host == config.eventBaseURL.host {
+                events.append(event)
+            }
+        }
         
         return events
     }

@@ -18,7 +18,6 @@ public struct TaskConfig {
         self.eventRequestRange = start..<end
     }
     
-    
     let eventBaseURL: URL
     var eventRequestRange: Range<Date>
     var createNonEventTask: () -> TaskKind

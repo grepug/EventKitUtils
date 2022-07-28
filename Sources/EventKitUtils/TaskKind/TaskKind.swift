@@ -33,8 +33,8 @@ public extension TaskKind {
         set {
             if newValue {
                 let date = Date()
-                normalizedStartDate = date
-                normalizedEndDate = Calendar.current.date(byAdding: .day, value: 1, to: date)
+                normalizedStartDate = normalizedStartDate ?? date
+                normalizedEndDate = normalizedEndDate ?? Calendar.current.date(byAdding: .day, value: 1, to: date)
             } else {
                 normalizedStartDate = nil
                 normalizedEndDate = nil
@@ -79,7 +79,7 @@ public extension TaskKind {
     }
 }
 
-public struct TaskValue: TaskKind {
+public struct TaskValue: TaskKind, Equatable {
     public var normalizedID: String
     public var normalizedTitle: String
     public var normalizedStartDate: Date?

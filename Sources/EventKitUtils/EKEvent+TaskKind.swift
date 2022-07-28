@@ -9,7 +9,7 @@ import EventKit
 
 extension EKEvent: TaskKind {
     public var normalizedID: String {
-        calendarItemIdentifier
+        eventIdentifier
     }
     
     public var normalizedTitle: String {

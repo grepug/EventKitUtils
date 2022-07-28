@@ -15,7 +15,7 @@ protocol TaskHandler {
 
 extension TaskHandler {
     func toggleCompletion(_ task: TaskKind) {
-        guard let taskObject = fetchTask(byId: task.normalizedID) else {
+        guard let taskObject = taskObject(task) else {
             return
         }
         
@@ -23,12 +23,26 @@ extension TaskHandler {
         saveTask(taskObject)
     }
     
-    func fetchTask(byId id: String) -> TaskKind? {
-        if let task = config.taskById(id) {
+    func taskObject(_ task: TaskKind) -> TaskKind? {
+        if let task = config.taskById(task.normalizedID) {
             return task
         }
         
-        return eventStore.event(withIdentifier: id)
+        return fetchEvent(withTaskValue: task.value)
+    }
+    
+    func fetchEvent(withTaskValue task: TaskValue) -> EKEvent? {
+        let predicate = eventsPredicate()
+        var foundEvent: EKEvent?
+        
+        eventStore.enumerateEvents(matching: predicate) { event, pointer in
+            if event.value == task {
+                foundEvent = event
+                pointer.pointee = true
+            }
+        }
+        
+        return foundEvent
     }
     
     func saveTask(_ task: TaskKind) {
@@ -36,7 +50,7 @@ extension TaskHandler {
             try! eventStore.save(event, span: .thisEvent, commit: true)
         } else if let task = task as? ManagedObject {
             task.save()
-        } else if let task = fetchTask(byId: task.normalizedID) {
+        } else if let task = taskObject(task) {
             saveTask(task)
         } else {
             assertionFailure("no such task")
@@ -57,5 +71,16 @@ extension TaskHandler {
         for task in tasks {
             deleteTask(task)
         }
+    }
+}
+
+extension TaskHandler {
+    func eventsPredicate() -> NSPredicate {
+        let calendar = eventStore.defaultCalendarForNewEvents!
+        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
+                                                      end: config.eventRequestRange.upperBound,
+                                                      calendars: [calendar])
+        
+        return predicate
     }
 }

@@ -77,8 +77,10 @@ public extension Array where Element == TaskKind {
                 continue
             }
             
+            let isRecurrence = false
+            
             groups.append(
-                .init(tasks: tasks, isRecurrence: false)
+                .init(tasks: tasks, isRecurrence: isRecurrence)
             )
         }
         
