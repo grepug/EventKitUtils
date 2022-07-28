@@ -31,20 +31,6 @@ extension TaskHandler {
         return fetchEvent(withTaskValue: task.value)
     }
     
-    func fetchEvent(withTaskValue task: TaskValue) -> EKEvent? {
-        let predicate = eventsPredicate()
-        var foundEvent: EKEvent?
-        
-        eventStore.enumerateEvents(matching: predicate) { event, pointer in
-            if event.value == task {
-                foundEvent = event
-                pointer.pointee = true
-            }
-        }
-        
-        return foundEvent
-    }
-    
     func saveTask(_ task: TaskKind) {
         if let event = task as? EKEvent {
             try! eventStore.save(event, span: .thisEvent, commit: true)
@@ -82,5 +68,55 @@ extension TaskHandler {
                                                       calendars: [calendar])
         
         return predicate
+    }
+    
+    func fetchEvent(withTaskValue task: TaskValue) -> EKEvent? {
+        var foundEvent: EKEvent?
+        
+        enumerateEvents { event in
+            if event.value == task {
+                foundEvent = event
+                
+                return true
+            }
+            
+            return false
+        }
+        
+        return foundEvent
+    }
+    
+    func testHasRepeatingTasks(with task: TaskKind) -> Bool {
+        var foundEvent: EKEvent?
+        var isTrue = false
+        
+        enumerateEvents { event in
+            if event.normalizedTitle == task.normalizedTitle {
+                if foundEvent != nil {
+                    isTrue = true
+                    return true
+                }
+                        
+                foundEvent = event
+            }
+            
+            return false
+        }
+
+        return isTrue
+    }
+    
+    func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
+        let predicate = precidate ?? eventsPredicate()
+        
+        eventStore.enumerateEvents(matching: predicate) { event, pointer in
+            guard event.url?.host == config.eventBaseURL.host else {
+                return
+            }
+            
+            if handler(event) {
+                pointer.pointee = true
+            }
+        }
     }
 }

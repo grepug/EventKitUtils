@@ -227,19 +227,18 @@ extension TaskListViewController {
     }
     
     func fetchEvents(forSegment segment: SegmentType) -> [EKEvent] {
-        let predicate = eventsPredicate()
         var events: [EKEvent] = []
         
-        eventStore.enumerateEvents(matching: predicate) { [unowned self] event, _ in
+        enumerateEvents { [unowned self] event in
             if let title = fetchingTitle {
                 if event.normalizedTitle != title {
-                    return
+                    return false
                 }
             }
             
-            if event.url?.host == config.eventBaseURL.host {
-                events.append(event)
-            }
+            events.append(event)
+            
+            return false
         }
         
         return events

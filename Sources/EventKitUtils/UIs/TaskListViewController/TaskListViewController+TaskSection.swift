@@ -38,7 +38,7 @@ extension TaskListViewController {
                 .tag(task.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(taskMenu(for: task, isContextMenu: true)).children)
+                .contextMenu(.makeMenu(self.taskMenu(for: task, isContextMenu: true)).children)
                 .swipeTrailingActions(.makeActions(taskMenu(for: task)).reversed())
             }
         }
@@ -102,7 +102,7 @@ extension TaskListViewController {
 //            }
 //        }
         
-        if isContextMenu && taskGroup.hasFutureTasks {
+        if isContextMenu && testHasRepeatingTasks(with: taskGroup.first) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
                     guard let vc = makeRepeatingListViewController(title: taskGroup.normalizedTitle) else {
