@@ -98,8 +98,6 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         
         setupNavigationBar()
         
-        var isFirst = true
-        
         $segment
             .merge(with: reloadingSubject)
             .merge(with: eventsChangedPublisher)
@@ -111,8 +109,7 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
                 guard let self = self else { return }
                 
                 self.groupedTasks = groups
-                self.reload(animating: !isFirst)
-                isFirst = false
+                self.reload()
             }
             .store(in: &cancellables)
     }

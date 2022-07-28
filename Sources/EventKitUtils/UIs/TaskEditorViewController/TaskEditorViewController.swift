@@ -170,6 +170,7 @@ extension TaskEditorViewController {
     }
     
     func dismissEditor() {
+        saveTask(task)
         onDismiss?()
         presentingViewController?.dismiss(animated: true)
     }
