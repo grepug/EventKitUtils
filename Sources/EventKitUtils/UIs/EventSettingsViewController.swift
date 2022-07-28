@@ -11,15 +11,14 @@ import UIKit
 
 open class EventSettingsViewController: DiffableListViewController {
     lazy var eventStore = EKEventStore()
+    var calendars: [EKCalendar] = []
     
-    open var isUserEnabled = false
     var isGranted = false
+    var forceReloadToggleFlag = 0
     
     var isEnabled: Bool {
-        isUserEnabled && isGranted
+        isGranted
     }
-    
-    var forceReloadToggleFlag = 0
     
     var status: EKAuthorizationStatus {
         EKEventStore.authorizationStatus(for: .event)
@@ -36,18 +35,46 @@ open class EventSettingsViewController: DiffableListViewController {
                     if isOn {
                         determineAuthorizationStatus()
                     } else {
-                        isUserEnabled = false
+                        Self.openSettings()
+                        
+                        forceReloadToggleFlag += 1
                         reload()
                     }
                 })])
             }
             .tag("0")
+            
+            DLSection { [unowned self] in
+                DLCell(using: .header("默认日历", using: .groupedHeader()))
+                    .tag("header")
+                
+                for calendar in calendars {
+                    DLCell {
+                        DLImage(systemName: "circle")
+                            .color(UIColor(cgColor: calendar.cgColor))
+                        DLText(calendar.title)
+                    }
+                    .tag(calendar.calendarIdentifier)
+                    .onTapAndDeselect { [unowned self] _ in
+                        
+                    }
+                }
+            }
+            .tag("calendars")
+            .firstCellAsHeader()
         }
     }
     
     open override func viewDidLoad() {
         super.viewDidLoad()
+        
+        title = "日历任务"
+        
+        setTopPadding()
         isGranted = status == .authorized
+        calendars = eventStore.calendars(for: .event)
+            .filter { $0.allowsContentModifications }
+        
         reload(animating: false)
     }
 }

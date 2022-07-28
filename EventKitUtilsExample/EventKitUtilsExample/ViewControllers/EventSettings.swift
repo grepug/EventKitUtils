@@ -9,8 +9,4 @@ import EventKitUtils
 import UIKit
 
 class EventSettings: EventSettingsViewController {
-    override var isUserEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "isUserEnabledEventKit") }
-        set { UserDefaults.standard.set(newValue, forKey: "isUserEnabledEventKit") }
-    }
 }
