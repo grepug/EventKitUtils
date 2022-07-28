@@ -103,6 +103,10 @@ extension TaskHandler {
         return isTrue
     }
     
+    var isEventStoreAuthorized: Bool {
+        EKEventStore.authorizationStatus(for: .event) == .authorized
+    }
+    
     func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
         DispatchQueue.global(qos: .background).async {
             var tasks: [TaskValue] = []
@@ -111,18 +115,21 @@ extension TaskHandler {
                 tasks.append(contentsOf: $0.map(\.value))
             }
             
-            enumerateEvents { event in
-                switch type {
-                case .title(let title):
-                    if title == event.normalizedTitle {
+            if isEventStoreAuthorized {
+                enumerateEvents { event in
+                    switch type {
+                    case .title(let title):
+                        if title == event.normalizedTitle {
+                            tasks.append(event.value)
+                        }
+                    default:
                         tasks.append(event.value)
                     }
-                default:
-                    tasks.append(event.value)
+                    
+                    return false
                 }
-                
-                return false
             }
+            
                 
             handler(tasks)
         }

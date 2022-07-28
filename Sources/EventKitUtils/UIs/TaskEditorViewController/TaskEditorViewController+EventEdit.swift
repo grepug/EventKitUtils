@@ -10,7 +10,22 @@ import EventKit
 import EventKitUI
 
 extension TaskEditorViewController {
+    func presentEventSettingsAlert() {
+        presentAlertController(title: "未开启日历权限", message: "现在去开启吗？", actions: [
+            .cancel,
+            .init(title: "去开启", style: .default) { [unowned self] _ in
+                let vc = EventSettingsViewController()
+                present(vc, animated: true)
+            }
+        ])
+    }
+    
     func presentEventEditor() {
+        guard isEventStoreAuthorized else {
+            presentEventSettingsAlert()
+            return
+        }
+        
         guard let task = taskObject(task) else {
             return
         }
