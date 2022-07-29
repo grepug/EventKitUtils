@@ -66,7 +66,9 @@ extension TaskHandler {
     }
     
     func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
-        let predicate = precidate ?? eventsPredicate()
+        guard let predicate = precidate ?? eventsPredicate() else {
+            return
+        }
         
         eventStore.enumerateEvents(matching: predicate) { event, pointer in
             guard event.url?.host == config.eventBaseURL.host else {
@@ -103,6 +105,15 @@ extension TaskHandler {
         return isTrue
     }
     
+    var calendarInUse: EKCalendar? {
+        if let id = EventSettingsViewController.selectedCalendarIdentifier,
+           let calendar = eventStore.calendar(withIdentifier: id)  {
+            return calendar
+        }
+        
+        return eventStore.defaultCalendarForNewEvents
+    }
+    
     var isEventStoreAuthorized: Bool {
         EKEventStore.authorizationStatus(for: .event) == .authorized
     }
@@ -137,8 +148,11 @@ extension TaskHandler {
 }
 
 fileprivate extension TaskHandler {
-    func eventsPredicate() -> NSPredicate {
-        let calendar = eventStore.defaultCalendarForNewEvents!
+    func eventsPredicate() -> NSPredicate? {
+        guard let calendar = calendarInUse else {
+            return nil
+        }
+        
         let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
                                                       end: config.eventRequestRange.upperBound,
                                                       calendars: [calendar])

@@ -9,6 +9,8 @@ import DiffableList
 import EventKit
 import UIKit
 
+
+
 open class EventSettingsViewController: DiffableListViewController {
     lazy var eventStore = EKEventStore()
     var calendars: [EKCalendar] = []
@@ -24,8 +26,13 @@ open class EventSettingsViewController: DiffableListViewController {
         EKEventStore.authorizationStatus(for: .event)
     }
     
+    static public var selectedCalendarIdentifier: String? {
+        get { UserDefaults.standard.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
+        set { UserDefaults.standard.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
+    }
+    
     open override var list: DLList {
-        DLList {
+        DLList { [unowned self] in
             DLSection { [unowned self] in
                 DLCell {
                     DLText("开启")
@@ -44,24 +51,35 @@ open class EventSettingsViewController: DiffableListViewController {
             }
             .tag("0")
             
-            DLSection { [unowned self] in
-                DLCell(using: .header("默认日历", using: .groupedHeader()))
-                    .tag("header")
-                
-                for calendar in calendars {
-                    DLCell {
-                        DLImage(systemName: "circle")
-                            .color(UIColor(cgColor: calendar.cgColor))
-                        DLText(calendar.title)
-                    }
-                    .tag(calendar.calendarIdentifier)
-                    .onTapAndDeselect { [unowned self] _ in
+            if isEnabled {
+                DLSection { [unowned self] in
+                    DLCell(using: .header("默认日历", using: .groupedHeader()))
+                        .tag("header")
+                    
+                    for calendar in calendars {
+                        let selected = isCalendarSelected(calendar)
                         
+                        DLCell { [unowned self] in
+                            DLImage(systemName: selected ? "checkmark.circle.fill" : "circle")
+                                .color(UIColor(cgColor: calendar.cgColor))
+                            DLText(calendar.title)
+                            
+                            if self.eventStore.defaultCalendarForNewEvents == calendar {
+                                DLText("系统默认")
+                                    .secondary()
+                                    .color(.secondaryLabel)
+                            }
+                        }
+                        .tag(calendar.calendarIdentifier + "\(selected)")
+                        .onTapAndDeselect { [unowned self] _ in
+                            Self.selectedCalendarIdentifier = calendar.calendarIdentifier
+                            reload()
+                        }
                     }
                 }
+                .tag("calendars")
+                .firstCellAsHeader()
             }
-            .tag("calendars")
-            .firstCellAsHeader()
         }
     }
     
@@ -76,6 +94,10 @@ open class EventSettingsViewController: DiffableListViewController {
             .filter { $0.allowsContentModifications }
         
         reload(animating: false)
+    }
+    
+    func isCalendarSelected(_ calendar: EKCalendar) -> Bool {
+        calendar.calendarIdentifier == Self.selectedCalendarIdentifier ?? eventStore.defaultCalendarForNewEvents?.calendarIdentifier
     }
 }
 

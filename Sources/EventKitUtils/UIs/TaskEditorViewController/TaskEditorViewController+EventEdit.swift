@@ -26,6 +26,10 @@ extension TaskEditorViewController {
             return
         }
         
+        guard let calendar = calendarInUse else {
+            return
+        }
+        
         guard let task = taskObject(task) else {
             return
         }
@@ -41,7 +45,7 @@ extension TaskEditorViewController {
             self.task = event
         }
         
-        event.calendar = eventStore.defaultCalendarForNewEvents
+        event.calendar = calendar
         saveTask(event)
             
         let vc = EKEventEditViewController()
