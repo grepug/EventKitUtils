@@ -161,6 +161,12 @@ fileprivate extension TaskHandler {
     }
     
     func fetchEvent(withTaskValue task: TaskValue) -> EKEvent? {
+        /// 若 event 不是重复事件，则可以直接用 id 拿到
+        if let event = eventStore.event(withIdentifier: task.normalizedID),
+           !event.hasRecurrenceRules {
+            return event
+        }
+        
         var foundEvent: EKEvent?
         
         enumerateEvents { event in

@@ -19,7 +19,7 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
     public let config: TaskConfig
     public var fetchingTitle: String?
     
-    lazy var eventStore = EKEventStore()
+    public lazy var eventStore = EKEventStore()
     var canAccessEventStore = false
     var cancellables = Set<AnyCancellable>()
     
@@ -114,8 +114,12 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
             .store(in: &cancellables)
     }
     
-    open func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
+    open func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
         .init(task: task, config: config, eventStore: eventStore)
+    }
+    
+    open func taskEditorViewController(taskGroup: TaskGroup, taskAt index: Int) -> TaskEditorViewController {
+        .init(taskGroup: taskGroup, taskAt: index, config: config, eventStore: eventStore)
     }
     
     open func makeRepeatingListViewController(title: String) -> TaskListViewController? {
@@ -232,10 +236,12 @@ extension TaskListViewController {
         }
     }
     
-    func presentTaskEditor(task: TaskKind? = nil) {
+    func presentTaskEditor(taskGroup: TaskGroup? = nil, at index: Int = 0) {
+        let taskGroup = isRepeatingList ? groupedTasks[nil]!.merged() : taskGroup
+        let isCreating = taskGroup == nil
         var taskObject: TaskKind
         
-        if let task = task {
+        if let task = taskGroup?.tasks[index] {
             taskObject = self.taskObject(task)!
         } else {
             taskObject = config.createNonEventTask()
@@ -243,7 +249,7 @@ extension TaskListViewController {
         
         taskObject.isDateEnabled = true
         
-        let vc = taskEditorViewController(task: taskObject, eventStore: eventStore)
+        let vc = isCreating ? taskEditorViewController(task: taskObject) : taskEditorViewController(taskGroup: taskGroup!, taskAt: index)
         let nav = vc.navigationControllerWrapped()
         
         vc.onDismiss = { [unowned self] in

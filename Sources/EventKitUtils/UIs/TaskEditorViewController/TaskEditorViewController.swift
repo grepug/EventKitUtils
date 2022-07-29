@@ -11,7 +11,9 @@ import SwiftUI
 import EventKit
 
 open class TaskEditorViewController: DiffableListViewController, TaskHandler {
-    var task: TaskKind
+    var task: TaskKind!
+    let taskGroup: TaskGroup?
+    let originalTaskValue: TaskValue?
     let eventStore: EKEventStore
     let config: TaskConfig
     
@@ -21,9 +23,20 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
         self.task = task
         self.eventStore = eventStore
         self.config = config
+        self.taskGroup = nil
+        self.originalTaskValue = nil
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    public init(taskGroup: TaskGroup, taskAt index: Int, config: TaskConfig, eventStore: EKEventStore) {
+        self.taskGroup = taskGroup
+        self.config = config
+        self.eventStore = eventStore
+        self.originalTaskValue = taskGroup.tasks[index].value
         super.init(nibName: nil, bundle: nil)
         
-        isModalInPresentation = true
+        self.task = taskObject(taskGroup.tasks[index])!
     }
     
     required public init?(coder: NSCoder) {
@@ -133,6 +146,7 @@ open class TaskEditorViewController: DiffableListViewController, TaskHandler {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
+        isModalInPresentation = true
         setupNavigationBar()
         reload(animating: false)
         becomeFirstResponder(at: [0, 0])
@@ -147,22 +161,47 @@ extension TaskEditorViewController {
         
         navigationItem.rightBarButtonItems = [
             makeDoneButton { [unowned self] in
-                if let event = task as? EKEvent {
-                    presentSaveRepeatingTaskAlert(task: event)
-                } else {
-                    dismissEditor()
-                }
+                doneEditor()
             }
         ]
     }
     
-    func presentSaveRepeatingTaskAlert(task: TaskKind) {
+    func doneEditor() {
+        if let taskGroup = taskGroup,
+           let originalTaskValue = originalTaskValue,
+           let endDate = originalTaskValue.normalizedEndDate,
+           task.value != originalTaskValue,
+           task.testAreDatesSame(from: originalTaskValue) {
+            let futureTasks = taskGroup.incompletedTasksAfter(endDate)
+            
+            if !futureTasks.isEmpty {
+                presentSaveRepeatingTaskAlert { [unowned self] in
+                    for task in futureTasks {
+                        var taskObject = taskObject(task)!
+                        
+                        taskObject.saveAsRepeatingTask(from: self.task)
+                        saveTask(taskObject)
+                    }
+                    
+                    saveTask(self.task)
+                }
+                
+                return
+            }
+        }
+        
+        saveTask(task)
+        dismissEditor()
+    }
+    
+    func presentSaveRepeatingTaskAlert(savingFutureTasks: @escaping () -> Void) {
         presentAlertController(title: "重复任务", message: "", actions: [
             .init(title: "仅保存此任务", style: .default) { [unowned self] _ in
                 saveTask(task)
                 dismissEditor()
             },
-            .init(title: "保存将来所有任务", style: .default) { [unowned self] _ in
+            .init(title: "保存将来所有未完成的任务", style: .default) { [unowned self] _ in
+                savingFutureTasks()
                 dismissEditor()
             },
             .cancel

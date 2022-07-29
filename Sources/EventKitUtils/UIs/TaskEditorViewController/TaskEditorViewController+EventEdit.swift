@@ -30,10 +30,6 @@ extension TaskEditorViewController {
             return
         }
         
-        guard let task = taskObject(task) else {
-            return
-        }
-        
         let event: EKEvent
         
         if let _event = task as? EKEvent {

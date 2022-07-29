@@ -10,17 +10,15 @@ import Collections
 
 @dynamicMemberLookup
 public struct TaskGroup {
-    public init(tasks: [TaskKind], isRecurrence: Bool = false) {
+    public init(tasks: [TaskKind]) {
         guard !tasks.isEmpty else {
             fatalError("task wrapper tasks cannot be empty")
         }
         
         self.tasks = tasks
-        self.isRecurrence = isRecurrence
     }
     
     var tasks: [TaskKind]
-    var isRecurrence: Bool = false
     
     var first: TaskKind {
         get { tasks[0] }
@@ -54,6 +52,22 @@ public struct TaskGroup {
     }
 }
 
+extension TaskGroup {
+    func incompletedTasksAfter(_ date: Date) -> [TaskKind] {
+        tasks.filter { task in
+            guard !task.isCompleted else {
+                return false
+            }
+            
+            guard let endDate = task.normalizedEndDate else {
+                return false
+            }
+                
+            return endDate > date
+        }
+    }
+}
+
 public extension Array where Element == TaskKind {
     func makeTaskGroups() -> [TaskGroup] {
         var groups: [TaskGroup] = []
@@ -77,13 +91,19 @@ public extension Array where Element == TaskKind {
                 continue
             }
             
-            let isRecurrence = false
-            
-            groups.append(
-                .init(tasks: tasks, isRecurrence: isRecurrence)
-            )
+            groups.append(.init(tasks: tasks))
         }
         
         return groups + completedGroups
+    }
+}
+
+extension Array where Element == TaskGroup {
+    func merged() -> TaskGroup {
+        let tasks = reduce(into: []) {
+            $0 += $1.tasks
+        }
+        
+        return .init(tasks: tasks)
     }
 }

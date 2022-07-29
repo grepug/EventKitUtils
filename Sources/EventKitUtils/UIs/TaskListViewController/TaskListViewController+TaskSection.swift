@@ -26,20 +26,20 @@ extension TaskListViewController {
                     .backgroundConfiguration(.clear())
             }
             
-            for task in tasks {
+            for (index, task) in tasks.enumerated() {
                 DLCell(using: .swiftUI(movingTo: self, content: {
                     TaskListCell(task: task.first, recurenceCount: task.recurrenceCount) { [unowned self] in
                         toggleCompletion(task.first)
                         reloadList()
                     } presentEditor: { [unowned self] in
-                        presentTaskEditor(task: task.first)
+                        presentTaskEditor(taskGroup: task)
                     }
                 }))
                 .tag(task.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(self.taskMenu(for: task, isContextMenu: true)).children)
-                .swipeTrailingActions(.makeActions(taskMenu(for: task)).reversed())
+                .contextMenu(.makeMenu(self.taskMenu(for: task, at: index, isContextMenu: true)).children)
+                .swipeTrailingActions(.makeActions(taskMenu(for: task, at: index)).reversed())
             }
         }
         .tag(groupedState?.title ?? "tasks")
@@ -93,7 +93,7 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     @MenuBuilder
-    func taskMenu(for taskGroup: TaskGroup, isContextMenu: Bool = false) -> [MBMenu] {
+    func taskMenu(for taskGroup: TaskGroup, at index: Int = 0, isContextMenu: Bool = false) -> [MBMenu] {
 //        if isContextMenu, let kr = task.sortedKeyResults.first {
 //            MBButton("v3_task_open_kr".loc, image: kr.displayEmoji.textToImage()!) { [unowned self] in
 //                let vc = KeyResultDetail(kr: kr)
@@ -122,7 +122,7 @@ extension TaskListViewController {
         }
         
         MBButton.edit { [unowned self] in
-            presentTaskEditor(task: taskGroup.first)
+            presentTaskEditor(taskGroup: taskGroup, at: index)
         }
         
         MBButton.delete { [unowned self] completion in

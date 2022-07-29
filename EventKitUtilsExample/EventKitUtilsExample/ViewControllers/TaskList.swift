@@ -10,7 +10,7 @@ import EventKitUtils
 import StorageProvider
 
 class TaskList: TaskListViewController {
-    override func taskEditorViewController(task: TaskKind, eventStore: EKEventStore) -> TaskEditorViewController {
+    override func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
         TaskEditor(task: task, config: config, eventStore: eventStore)
     }
     
