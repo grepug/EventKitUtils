@@ -175,7 +175,7 @@ extension TaskEditorViewController {
             let futureTasks = taskGroup.incompletedTasksAfter(endDate)
             
             if !futureTasks.isEmpty {
-                presentSaveRepeatingTaskAlert { [unowned self] in
+                presentSaveRepeatingTaskAlert(count: futureTasks.count) { [unowned self] in
                     for task in futureTasks {
                         var taskObject = taskObject(task)!
                         
@@ -194,13 +194,13 @@ extension TaskEditorViewController {
         dismissEditor()
     }
     
-    func presentSaveRepeatingTaskAlert(savingFutureTasks: @escaping () -> Void) {
+    func presentSaveRepeatingTaskAlert(count: Int, savingFutureTasks: @escaping () -> Void) {
         presentAlertController(title: "重复任务", message: "", actions: [
             .init(title: "仅保存此任务", style: .default) { [unowned self] _ in
                 saveTask(task)
                 dismissEditor()
             },
-            .init(title: "保存将来所有未完成的任务", style: .default) { [unowned self] _ in
+            .init(title: "保存将来所有未完成的任务(\(count))", style: .default) { [unowned self] _ in
                 savingFutureTasks()
                 dismissEditor()
             },

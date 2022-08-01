@@ -32,7 +32,7 @@ extension TaskListViewController {
                         toggleCompletion(task.first)
                         reloadList()
                     } presentEditor: { [unowned self] in
-                        presentTaskEditor(taskGroup: task)
+                        presentTaskEditor(taskGroup: task, at: index)
                     }
                 }))
                 .tag(task.cellTag)
