@@ -26,11 +26,6 @@ open class EventSettingsViewController: DiffableListViewController {
         EKEventStore.authorizationStatus(for: .event)
     }
     
-    static public var selectedCalendarIdentifier: String? {
-        get { UserDefaults.standard.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
-        set { UserDefaults.standard.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
-    }
-    
     open override var list: DLList {
         DLList { [unowned self] in
             DLSection { [unowned self] in
@@ -72,7 +67,7 @@ open class EventSettingsViewController: DiffableListViewController {
                         }
                         .tag(calendar.calendarIdentifier + "\(selected)")
                         .onTapAndDeselect { [unowned self] _ in
-                            Self.selectedCalendarIdentifier = calendar.calendarIdentifier
+                            EventManager.selectedCalendarIdentifier = calendar.calendarIdentifier
                             reload()
                         }
                     }
@@ -97,7 +92,7 @@ open class EventSettingsViewController: DiffableListViewController {
     }
     
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {
-        calendar.calendarIdentifier == Self.selectedCalendarIdentifier ?? eventStore.defaultCalendarForNewEvents?.calendarIdentifier
+        calendar.calendarIdentifier == EventManager.selectedCalendarIdentifier ?? eventStore.defaultCalendarForNewEvents?.calendarIdentifier
     }
 }
 

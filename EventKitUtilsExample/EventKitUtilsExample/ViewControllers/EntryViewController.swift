@@ -25,6 +25,10 @@ class EntryViewController: DiffableListViewController {
             return Mission.fetch(byId: uuid)
         } testHasRepeatingTask: { task in
             false
+        } saveTask: { task in
+            false
+        } deleteTask: { task in
+            false
         }
     }
     

@@ -1,28 +1,71 @@
 //
-//  TaskHandler.swift
+//  File.swift
 //  
 //
-//  Created by Kai on 2022/7/24.
+//  Created by Kai on 2022/8/1.
 //
 
+import Foundation
 import EventKit
-import CoreData
+import Combine
 
-protocol TaskHandler {
-    var eventStore: EKEventStore { get }
-    var config: TaskConfig { get }
-}
-
-extension TaskHandler {
-    func toggleCompletion(_ task: TaskKind) {
-        guard let taskObject = taskObject(task) else {
-            return
-        }
-        
-        taskObject.toggleCompletion()
-        saveTask(taskObject)
+open class EventManager {
+    var config: TaskConfig
+    public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
+    public let recordsOfKeyResult: Cache<String, [RecordValue]> = .init()
+    public var taskValues: [TaskValue] = []
+    
+    public let reloaded = PassthroughSubject<Void, Never>()
+    
+    public lazy var eventStore = EKEventStore()
+    var cancellables = Set<AnyCancellable>()
+    
+    public init(config: TaskConfig) {
+        self.config = config
+        setupEventStore()
     }
     
+    func setupEventStore() {
+        NotificationCenter.default.publisher(for: .EKEventStoreChanged)
+            .map { _ in }
+            .prepend(())
+            .flatMap { [unowned self] in
+                valuesByKeyResultID
+                    .zip(allTasksPublisher)
+                    .receive(on: DispatchQueue.main)
+            }
+            .sink { [unowned self] a, b in
+                tasksOfKeyResult.assignWithDictionary(a.0)
+                recordsOfKeyResult.assignWithDictionary(a.1)
+                taskValues = b
+                
+                reloaded.send()
+            }
+            .store(in: &cancellables)
+    }
+}
+
+extension EventManager {
+    static public var selectedCalendarIdentifier: String? {
+        get { UserDefaults.standard.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
+        set { UserDefaults.standard.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
+    }
+    
+    var calendarInUse: EKCalendar? {
+        if let id = Self.selectedCalendarIdentifier,
+           let calendar = eventStore.calendar(withIdentifier: id)  {
+            return calendar
+        }
+        
+        return eventStore.defaultCalendarForNewEvents
+    }
+    
+    var isEventStoreAuthorized: Bool {
+        EKEventStore.authorizationStatus(for: .event) == .authorized
+    }
+}
+
+extension EventManager {
     func taskObject(_ task: TaskKind) -> TaskKind? {
         if let task = config.taskById(task.normalizedID) {
             return task
@@ -34,8 +77,8 @@ extension TaskHandler {
     func saveTask(_ task: TaskKind) {
         if let event = task as? EKEvent {
             try! eventStore.save(event, span: .thisEvent, commit: true)
-        } else if let task = task as? NSManagedObject {
-//            task.save()
+        } else if config.saveTask(task) {
+            
         } else if let task = taskObject(task) {
             saveTask(task)
         } else {
@@ -46,8 +89,8 @@ extension TaskHandler {
     func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false) {
         if let event = task as? EKEvent {
             try! eventStore.remove(event, span: deletingRecurence ? .futureEvents : .thisEvent, commit: true)
-        } else if let task = task as? NSManagedObject {
-//            task.delete()
+        } else if config.deleteTask(task) {
+            
         } else if let task = taskObject(task) {
             deleteTask(task, deletingRecurence: deletingRecurence)
         }
@@ -65,66 +108,9 @@ extension TaskHandler {
         }
     }
     
-    func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
-        guard let predicate = precidate ?? eventsPredicate() else {
-            return
-        }
-        
-        eventStore.enumerateEvents(matching: predicate) { event, pointer in
-            guard event.url?.host == config.eventBaseURL.host else {
-                return
-            }
-            
-            if handler(event) {
-                pointer.pointee = true
-            }
-        }
-    }
-    
-    func testHasRepeatingTasks(with task: TaskKind) -> Bool {
-        if config.testHasRepeatingTask(task) {
-            return true
-        }
-        
-        var foundEvent: EKEvent?
-        var isTrue = false
-        
-        enumerateEvents { event in
-            if event.normalizedTitle == task.normalizedTitle {
-                if foundEvent != nil {
-                    isTrue = true
-                    return true
-                }
-                        
-                foundEvent = event
-            }
-            
-            return false
-        }
-
-        return isTrue
-    }
-    
-    var calendarInUse: EKCalendar? {
-        if let id = EventManager.selectedCalendarIdentifier,
-           let calendar = eventStore.calendar(withIdentifier: id)  {
-            return calendar
-        }
-        
-        return eventStore.defaultCalendarForNewEvents
-    }
-    
-    var isEventStoreAuthorized: Bool {
-        EKEventStore.authorizationStatus(for: .event) == .authorized
-    }
-    
     func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            var tasks: [TaskValue] = []
-            
-            config.fetchNonEventTasks(type) {
-                tasks.append(contentsOf: $0.map(\.value))
-            }
+        config.fetchNonEventTasks(type) { [unowned self] tasks in
+            var tasks = tasks.map(\.value)
             
             if isEventStoreAuthorized {
                 enumerateEvents { event in
@@ -144,9 +130,25 @@ extension TaskHandler {
             handler(tasks)
         }
     }
+    
+    func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
+        guard let predicate = precidate ?? eventsPredicate() else {
+            return
+        }
+        
+        eventStore.enumerateEvents(matching: predicate) { event, pointer in
+            guard event.url?.host == self.config.eventBaseURL.host else {
+                return
+            }
+            
+            if handler(event) {
+                pointer.pointee = true
+            }
+        }
+    }
 }
 
-fileprivate extension TaskHandler {
+extension EventManager {
     func eventsPredicate() -> NSPredicate? {
         guard let calendar = calendarInUse else {
             return nil

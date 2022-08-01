@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-public enum FetchTasksType {
+public enum FetchTasksType: Hashable {
     case segment(TaskListViewController.SegmentType), title(String)
 }
 
@@ -16,12 +16,14 @@ public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool) {
+    public init(eventBaseURL: URL, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Bool, deleteTask: @escaping (TaskKind) -> Bool) {
         self.eventBaseURL = eventBaseURL
         self.createNonEventTask = createNonEventTask
         self.taskById = taskById
         self.testHasRepeatingTask = testHasRepeatingTask
         self.fetchNonEventTasks = fetchNonEventTasks
+        self.saveTask = saveTask
+        self.deleteTask = deleteTask
         
         let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
         let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
@@ -34,4 +36,6 @@ public struct TaskConfig {
     var createNonEventTask: () -> TaskKind
     var taskById: (String) -> TaskKind?
     var testHasRepeatingTask: (TaskKind) -> Bool
+    var saveTask: (TaskKind) -> Bool
+    var deleteTask: (TaskKind) -> Bool
 }
