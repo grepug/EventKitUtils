@@ -119,7 +119,7 @@ extension TaskHandler {
     }
     
     func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .userInitiated).async {
             var tasks: [TaskValue] = []
             
             config.fetchNonEventTasks(type) {
@@ -141,7 +141,6 @@ extension TaskHandler {
                 }
             }
             
-                
             handler(tasks)
         }
     }
