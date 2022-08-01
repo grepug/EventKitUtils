@@ -11,10 +11,10 @@ import StorageProvider
 
 class TaskList: TaskListViewController {
     override func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
-        TaskEditor(task: task, config: config, eventStore: eventStore)
+        TaskEditor(task: task, eventManager: .shared)
     }
     
     override func makeRepeatingListViewController(title: String) -> TaskListViewController? {
-        TaskList(config: config, fetchingTitle: title)
+        TaskList(eventManager: .shared, fetchingTitle: title)
     }
 }

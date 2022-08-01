@@ -7,13 +7,18 @@
 
 import Foundation
 import Combine
+import EventKit
 
 extension EventManager {
     typealias TasksByKeyResultID = [String: [TaskValue]]
     typealias RecordsByKeyResultID = [String: [RecordValue]]
     
-    var valuesByKeyResultID: Future<(TasksByKeyResultID, RecordsByKeyResultID), Never> {
-        Future { promise in
+    var valuesByKeyResultID: AnyPublisher<(TasksByKeyResultID, RecordsByKeyResultID)?, Never> {
+        guard EKEventStore.authorizationStatus(for: .event) == .authorized else {
+            return Just(nil).eraseToAnyPublisher()
+        }
+        
+        return Future { promise in
             DispatchQueue.global(qos: .userInitiated).async { [unowned self] in
                 var dict: TasksByKeyResultID = [:]
                 var dict2: RecordsByKeyResultID = [:]
@@ -49,13 +54,6 @@ extension EventManager {
                 promise(.success(res))
             }
         }
-    }
-    
-    var allTasksPublisher: Future<[TaskValue], Never> {
-        Future { [unowned self] promise in
-            fetchTasksAsync(with: .segment(.today)) { tasks in
-                promise(.success(tasks))
-            }
-        }
+        .eraseToAnyPublisher()
     }
 }

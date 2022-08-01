@@ -106,11 +106,6 @@ extension TaskHandler {
     }
     
     var calendarInUse: EKCalendar? {
-        if let id = EventManager.selectedCalendarIdentifier,
-           let calendar = eventStore.calendar(withIdentifier: id)  {
-            return calendar
-        }
-        
         return eventStore.defaultCalendarForNewEvents
     }
     

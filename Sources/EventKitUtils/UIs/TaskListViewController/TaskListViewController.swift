@@ -10,13 +10,13 @@ import UIKit
 import EventKit
 import Combine
 
-open class TaskListViewController: DiffableListViewController, TaskHandler, ObservableObject {
+open class TaskListViewController: DiffableListViewController, ObservableObject {
     public typealias TaskGroupsByState = [TaskKindState?: [TaskGroup]]
     typealias TasksByState = [TaskKindState?: [TaskKind]]
     
     public var groupedTasks: TaskGroupsByState = [:]
     @Published public var segment: SegmentType = .today
-    public let config: TaskConfig
+    unowned public let em: EventManager
     public var fetchingTitle: String?
     
     public lazy var eventStore = EKEventStore()
@@ -29,8 +29,8 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
         fetchingTitle != nil
     }
     
-    public init(config: TaskConfig, fetchingTitle: String? = nil) {
-        self.config = config
+    public init(eventManager: EventManager, fetchingTitle: String? = nil) {
+        self.em = eventManager
         self.fetchingTitle = fetchingTitle
         super.init(nibName: nil, bundle: nil)
     }
@@ -115,11 +115,11 @@ open class TaskListViewController: DiffableListViewController, TaskHandler, Obse
     }
     
     open func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
-        .init(task: task, config: config, eventStore: eventStore)
+        .init(task: task, eventManager: em)
     }
     
     open func taskEditorViewController(taskGroup: TaskGroup, taskAt index: Int) -> TaskEditorViewController {
-        .init(taskGroup: taskGroup, taskAt: index, config: config, eventStore: eventStore)
+        .init(taskGroup: taskGroup, taskAt: index, eventManager: em)
     }
     
     open func makeRepeatingListViewController(title: String) -> TaskListViewController? {
@@ -142,7 +142,7 @@ extension TaskListViewController {
     
     func fetchTasksPublisher(for segment: SegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
         Future { [unowned self] promise in
-            fetchTasksAsync(with: fetchingType) { tasks in
+            em.fetchTasksAsync(with: fetchingType) { tasks in
                 promise(.success(tasks))
             }
         }
@@ -242,9 +242,9 @@ extension TaskListViewController {
         var taskObject: TaskKind
         
         if let task = taskGroup?.tasks[index] {
-            taskObject = self.taskObject(task)!
+            taskObject = em.taskObject(task)!
         } else {
-            taskObject = config.createNonEventTask()
+            taskObject = em.config.createNonEventTask()
         }
         
         taskObject.isDateEnabled = true
@@ -257,7 +257,7 @@ extension TaskListViewController {
         }
         
         present(nav, animated: true) { [unowned self] in
-            saveTask(taskObject)
+            em.saveTask(taskObject)
         }
     }
 }

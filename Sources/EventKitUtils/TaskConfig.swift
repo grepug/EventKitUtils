@@ -16,8 +16,9 @@ public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Bool, deleteTask: @escaping (TaskKind) -> Bool) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Bool, deleteTask: @escaping (TaskKind) -> Bool) {
         self.eventBaseURL = eventBaseURL
+        self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
         self.taskById = taskById
         self.testHasRepeatingTask = testHasRepeatingTask
@@ -31,6 +32,7 @@ public struct TaskConfig {
     }
     
     let eventBaseURL: URL
+    let appGroup: String?
     var eventRequestRange: Range<Date>
     var fetchNonEventTasks: FetchTasksHandler
     var createNonEventTask: () -> TaskKind
@@ -38,4 +40,15 @@ public struct TaskConfig {
     var testHasRepeatingTask: (TaskKind) -> Bool
     var saveTask: (TaskKind) -> Bool
     var deleteTask: (TaskKind) -> Bool
+}
+
+extension TaskConfig {
+    var userDefaults: UserDefaults {
+        if let appGroup = appGroup,
+        let userDefaults = UserDefaults(suiteName: appGroup) {
+            return userDefaults
+        }
+        
+        return UserDefaults.standard
+    }
 }

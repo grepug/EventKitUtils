@@ -14,19 +14,19 @@ extension TaskEditorViewController {
         presentAlertController(title: "未开启日历权限", message: "现在去开启吗？", actions: [
             .cancel,
             .init(title: "去开启", style: .default) { [unowned self] _ in
-                let vc = EventSettingsViewController()
+                let vc = EventSettingsViewController(eventManager: em)
                 present(vc, animated: true)
             }
         ])
     }
     
     func presentEventEditor() {
-        guard isEventStoreAuthorized else {
+        guard em.isEventStoreAuthorized else {
             presentEventSettingsAlert()
             return
         }
         
-        guard let calendar = calendarInUse else {
+        guard let calendar = em.calendarInUse else {
             return
         }
         
@@ -37,12 +37,12 @@ extension TaskEditorViewController {
         } else {
             event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
             event.copy(from: task)
-            deleteTask(task)
+            em.deleteTask(task)
             self.task = event
         }
         
         event.calendar = calendar
-        saveTask(event)
+        em.saveTask(event)
             
         let vc = EKEventEditViewController()
         vc.event = event

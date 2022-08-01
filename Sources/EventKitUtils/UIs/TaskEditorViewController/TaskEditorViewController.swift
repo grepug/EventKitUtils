@@ -10,37 +10,42 @@ import UIKit
 import SwiftUI
 import EventKit
 
-open class TaskEditorViewController: DiffableListViewController, TaskHandler {
+open class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind!
     let taskGroup: TaskGroup?
     let originalTaskValue: TaskValue?
-    let eventStore: EKEventStore
-    let config: TaskConfig
+    unowned let em: EventManager
     
     var onDismiss: (() -> Void)?
     
-    public init(task: TaskKind, config: TaskConfig, eventStore: EKEventStore) {
+    public init(task: TaskKind, eventManager: EventManager) {
         self.task = task
-        self.eventStore = eventStore
-        self.config = config
+        self.em = eventManager
         self.taskGroup = nil
         self.originalTaskValue = nil
         
         super.init(nibName: nil, bundle: nil)
     }
     
-    public init(taskGroup: TaskGroup, taskAt index: Int, config: TaskConfig, eventStore: EKEventStore) {
+    public init(taskGroup: TaskGroup, taskAt index: Int, eventManager: EventManager) {
         self.taskGroup = taskGroup
-        self.config = config
-        self.eventStore = eventStore
+        self.em = eventManager
         self.originalTaskValue = taskGroup.tasks[index].value
         super.init(nibName: nil, bundle: nil)
         
-        self.task = taskObject(taskGroup.tasks[index])!
+        self.task = eventManager.taskObject(taskGroup.tasks[index])!
     }
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    var config: TaskConfig {
+        em.config
+    }
+    
+    var eventStore: EKEventStore {
+        em.eventStore
     }
     
     var datePickerMode: UIDatePicker.Mode {
@@ -177,27 +182,27 @@ extension TaskEditorViewController {
             if !futureTasks.isEmpty {
                 presentSaveRepeatingTaskAlert(count: futureTasks.count) { [unowned self] in
                     for task in futureTasks {
-                        var taskObject = taskObject(task)!
+                        var taskObject = em.taskObject(task)!
                         
                         taskObject.saveAsRepeatingTask(from: self.task)
-                        saveTask(taskObject)
+                        em.saveTask(taskObject)
                     }
                     
-                    saveTask(self.task)
+                    em.saveTask(self.task)
                 }
                 
                 return
             }
         }
         
-        saveTask(task)
+        em.saveTask(task)
         dismissEditor()
     }
     
     func presentSaveRepeatingTaskAlert(count: Int, savingFutureTasks: @escaping () -> Void) {
         presentAlertController(title: "重复任务", message: "", actions: [
             .init(title: "仅保存此任务", style: .default) { [unowned self] _ in
-                saveTask(task)
+                em.saveTask(task)
                 dismissEditor()
             },
             .init(title: "保存将来所有未完成的任务(\(count))", style: .default) { [unowned self] _ in
@@ -209,7 +214,7 @@ extension TaskEditorViewController {
     }
     
     func dismissEditor() {
-        saveTask(task)
+        em.saveTask(task)
         onDismiss?()
         presentingViewController?.dismiss(animated: true)
     }

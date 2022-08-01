@@ -29,7 +29,7 @@ extension TaskListViewController {
             for (index, task) in tasks.enumerated() {
                 DLCell(using: .swiftUI(movingTo: self, content: {
                     TaskListCell(task: task.first, recurenceCount: task.recurrenceCount) { [unowned self] in
-                        toggleCompletion(task.first)
+                        em.toggleCompletion(task.first)
                         reloadList()
                     } presentEditor: { [unowned self] in
                         presentTaskEditor(taskGroup: task, at: index)
@@ -102,7 +102,7 @@ extension TaskListViewController {
 //            }
 //        }
         
-        if isContextMenu && testHasRepeatingTasks(with: taskGroup.first) {
+        if isContextMenu && em.testHasRepeatingTasks(with: taskGroup.first) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
                     guard let vc = makeRepeatingListViewController(title: taskGroup.normalizedTitle) else {
@@ -130,18 +130,18 @@ extension TaskListViewController {
                 presentDeletingTaskGroupAlert {
                     completion(false)
                 } deletingThis: { [unowned self] in
-                    deleteTask(taskGroup.first)
+                    em.deleteTask(taskGroup.first)
                     completion(true)
                     reloadList()
                 } deletingAll: { [unowned self] in
-                    deleteTasks(taskGroup.tasks)
+                    em.deleteTasks(taskGroup.tasks)
                     completion(true)
                     reloadList()
                 }
             } else {
                 removeTaskGroup(taskGroup)
                 completion(true)
-                deleteTask(taskGroup.first)
+                em.deleteTask(taskGroup.first)
             }
         }
     }

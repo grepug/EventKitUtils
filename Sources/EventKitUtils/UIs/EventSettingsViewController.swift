@@ -11,8 +11,8 @@ import UIKit
 
 
 
-open class EventSettingsViewController: DiffableListViewController {
-    lazy var eventStore = EKEventStore()
+public class EventSettingsViewController: DiffableListViewController {
+    unowned let em: EventManager
     var calendars: [EKCalendar] = []
     
     var isGranted = false
@@ -24,6 +24,15 @@ open class EventSettingsViewController: DiffableListViewController {
     
     var status: EKAuthorizationStatus {
         EKEventStore.authorizationStatus(for: .event)
+    }
+    
+    public init(eventManager: EventManager) {
+        self.em = eventManager
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     open override var list: DLList {
@@ -51,7 +60,7 @@ open class EventSettingsViewController: DiffableListViewController {
                     DLCell(using: .header("默认日历", using: .groupedHeader()))
                         .tag("header")
                     
-                    for calendar in calendars {
+                    for calendar in self.calendars {
                         let selected = isCalendarSelected(calendar)
                         
                         DLCell { [unowned self] in
@@ -59,7 +68,7 @@ open class EventSettingsViewController: DiffableListViewController {
                                 .color(UIColor(cgColor: calendar.cgColor))
                             DLText(calendar.title)
                             
-                            if self.eventStore.defaultCalendarForNewEvents == calendar {
+                            if self.em.eventStore.defaultCalendarForNewEvents == calendar {
                                 DLText("系统默认")
                                     .secondary()
                                     .color(.secondaryLabel)
@@ -67,7 +76,7 @@ open class EventSettingsViewController: DiffableListViewController {
                         }
                         .tag(calendar.calendarIdentifier + "\(selected)")
                         .onTapAndDeselect { [unowned self] _ in
-                            EventManager.selectedCalendarIdentifier = calendar.calendarIdentifier
+                            em.selectedCalendarIdentifier = calendar.calendarIdentifier
                             reload()
                         }
                     }
@@ -85,14 +94,15 @@ open class EventSettingsViewController: DiffableListViewController {
         
         setTopPadding()
         isGranted = status == .authorized
-        calendars = eventStore.calendars(for: .event)
+        calendars = em.eventStore.calendars(for: .event)
             .filter { $0.allowsContentModifications }
         
         reload(animating: false)
     }
     
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {
-        calendar.calendarIdentifier == EventManager.selectedCalendarIdentifier ?? eventStore.defaultCalendarForNewEvents?.calendarIdentifier
+        calendar.calendarIdentifier == em.selectedCalendarIdentifier ??
+        em.eventStore.defaultCalendarForNewEvents?.calendarIdentifier
     }
 }
 
@@ -112,7 +122,7 @@ extension EventSettingsViewController {
     }
     
     func requestAccess() {
-        eventStore.requestAccess(to: .event) { [unowned self] isGranted, error in
+        em.eventStore.requestAccess(to: .event) { [unowned self] isGranted, error in
             if error != nil {
                 self.isGranted = false
             } else {

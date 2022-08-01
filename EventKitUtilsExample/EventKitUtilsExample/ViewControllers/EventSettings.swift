@@ -8,5 +8,4 @@
 import EventKitUtils
 import UIKit
 
-class EventSettings: EventSettingsViewController {
-}
+

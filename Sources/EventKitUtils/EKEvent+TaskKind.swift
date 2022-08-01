@@ -104,12 +104,6 @@ extension EKEvent: TaskKind {
     }
     
     public func toggleCompletion() {
-//        if !isCompleted {
-//            setValue("\(Date().timeIntervalSince1970)", forKey: .completedAt)
-//        } else {
-//            setValue("", forKey: .completedAt)
-//        }
-        
         isCompleted.toggle()
     }
             

@@ -9,11 +9,10 @@ import Foundation
 import EventKit
 import Combine
 
-open class EventManager {
+public class EventManager {
     var config: TaskConfig
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public let recordsOfKeyResult: Cache<String, [RecordValue]> = .init()
-    public var taskValues: [TaskValue] = []
     
     public let reloaded = PassthroughSubject<Void, Never>()
     
@@ -31,13 +30,12 @@ open class EventManager {
             .prepend(())
             .flatMap { [unowned self] in
                 valuesByKeyResultID
-                    .zip(allTasksPublisher)
+                    .compactMap { $0 }
                     .receive(on: DispatchQueue.main)
             }
             .sink { [unowned self] a, b in
-                tasksOfKeyResult.assignWithDictionary(a.0)
-                recordsOfKeyResult.assignWithDictionary(a.1)
-                taskValues = b
+                tasksOfKeyResult.assignWithDictionary(a)
+                recordsOfKeyResult.assignWithDictionary(b)
                 
                 reloaded.send()
             }
@@ -46,13 +44,13 @@ open class EventManager {
 }
 
 extension EventManager {
-    static public var selectedCalendarIdentifier: String? {
-        get { UserDefaults.standard.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
-        set { UserDefaults.standard.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
+    var selectedCalendarIdentifier: String? {
+        get { config.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
+        set { config.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
     }
     
     var calendarInUse: EKCalendar? {
-        if let id = Self.selectedCalendarIdentifier,
+        if let id = selectedCalendarIdentifier,
            let calendar = eventStore.calendar(withIdentifier: id)  {
             return calendar
         }
@@ -72,6 +70,15 @@ extension EventManager {
         }
         
         return fetchEvent(withTaskValue: task.value)
+    }
+    
+    func toggleCompletion(_ task: TaskKind) {
+        guard let taskObject = taskObject(task) else {
+            return
+        }
+        
+        taskObject.toggleCompletion()
+        saveTask(taskObject)
     }
     
     func saveTask(_ task: TaskKind) {
@@ -106,6 +113,30 @@ extension EventManager {
         for task in tasks {
             saveTask(task)
         }
+    }
+    
+    func testHasRepeatingTasks(with task: TaskKind) -> Bool {
+        if config.testHasRepeatingTask(task) {
+            return true
+        }
+        
+        var foundEvent: EKEvent?
+        var isTrue = false
+        
+        enumerateEvents { event in
+            if event.normalizedTitle == task.normalizedTitle {
+                if foundEvent != nil {
+                    isTrue = true
+                    return true
+                }
+                        
+                foundEvent = event
+            }
+            
+            return false
+        }
+
+        return isTrue
     }
     
     func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
