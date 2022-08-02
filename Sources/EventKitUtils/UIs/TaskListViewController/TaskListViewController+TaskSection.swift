@@ -32,6 +32,7 @@ extension TaskListViewController {
                         em.toggleCompletion(task.first)
                         reloadList()
                     } presentEditor: { [unowned self] in
+                        let index = isRepeatingList ? index : 0
                         presentTaskEditor(taskGroup: task, at: index)
                     }
                 }))
