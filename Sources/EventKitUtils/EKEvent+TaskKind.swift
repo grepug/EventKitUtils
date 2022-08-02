@@ -16,9 +16,13 @@ extension EKEvent: TaskKind {
         eventIdentifier
     }
     
+    var titlePrefixEmoji: String {
+        isCompleted ? "✅" : "⭕️"
+    }
+    
     public var normalizedTitle: String {
-        get { title ?? "" }
-        set { title = newValue }
+        get { (title ?? "").statusEmojiTrimmed() }
+        set { title = "\(titlePrefixEmoji) \(newValue)" }
     }
     
     public var normalizedStartDate: Date? {
@@ -109,6 +113,7 @@ extension EKEvent: TaskKind {
     
     public func toggleCompletion() {
         isCompleted.toggle()
+        normalizedTitle = normalizedTitle
     }
             
     public func copy(from task: TaskKind) {
@@ -128,6 +133,22 @@ extension EKEvent {
     public convenience init(baseURL: URL, eventStore: EKEventStore) {
         self.init(eventStore: eventStore)
         self.url = baseURL
+    }
+}
+
+extension String {
+    func statusEmojiTrimmed() -> String {
+        let trimedTitle = trimmingCharacters(in: .whitespacesAndNewlines)
+        let signs = Set<Character>(["⭕️", "✅"])
+        
+        if let firstChar = trimedTitle.first,
+           signs.contains(firstChar) {
+            let newTitle = String(trimedTitle.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            return newTitle.statusEmojiTrimmed()
+        }
+        
+        return trimedTitle
     }
 }
 
