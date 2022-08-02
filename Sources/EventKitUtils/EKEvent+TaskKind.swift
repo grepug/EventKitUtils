@@ -12,6 +12,10 @@ extension EKEvent: TaskKind {
         .event
     }
     
+    public var isValueType: Bool {
+        false
+    }
+    
     public var normalizedID: String {
         eventIdentifier
     }

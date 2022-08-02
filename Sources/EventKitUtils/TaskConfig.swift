@@ -17,12 +17,12 @@ public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void, presentKeyResultSelector: @escaping PresentKeyResultSelectorHandler) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void, presentKeyResultSelector: @escaping PresentKeyResultSelectorHandler) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
         self.taskById = taskById
-        self.testHasRepeatingTask = testHasRepeatingTask
+        self.taskCountWithTitle = taskCountWithTitle
         self.fetchNonEventTasks = fetchNonEventTasks
         self.saveTask = saveTask
         self.deleteTask = deleteTask
@@ -39,7 +39,7 @@ public struct TaskConfig {
     var fetchNonEventTasks: FetchTasksHandler
     var createNonEventTask: () -> TaskKind
     var taskById: (String) -> TaskKind?
-    var testHasRepeatingTask: (TaskKind) -> Bool
+    var taskCountWithTitle: (TaskKind) -> Int
     var saveTask: (TaskKind) -> Void
     var deleteTask: (TaskKind) -> Void
     var presentKeyResultSelector: PresentKeyResultSelectorHandler

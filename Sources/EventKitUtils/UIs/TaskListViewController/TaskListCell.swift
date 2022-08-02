@@ -42,9 +42,17 @@ struct TaskListCell: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text(task.normalizedTitle)
-                        .bold()
-                        .foregroundColor(task.isCompleted ? .gray : Color(UIColor.label))
+                    HStack {
+                        Text(task.normalizedTitle)
+                            .bold()
+                            .foregroundColor(task.isCompleted ? .gray : Color(UIColor.label))
+                            
+                        if task.kindIdentifier == .event {
+                            Image(systemName: "calendar")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
                     
                     Spacer()
                     

@@ -51,4 +51,8 @@ extension Mission: ManagedObject, TaskKind {
     public var kindIdentifier: TaskKindIdentifier {
         .managedObject
     }
+    
+    public var isValueType: Bool {
+        false
+    }
 }

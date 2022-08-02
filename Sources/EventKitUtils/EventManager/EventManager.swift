@@ -82,24 +82,24 @@ extension EventManager {
     }
     
     func saveTask(_ task: TaskKind, commit: Bool = true) {
-        if let event = task as? EKEvent {
+        if task.isValueType, let task = taskObject(task) {
+            saveTask(task)
+        } else if let event = task as? EKEvent {
             try! eventStore.save(event, span: .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
             config.saveTask(task)
-        } else if task.kindIdentifier == .value, let task = taskObject(task) {
-            saveTask(task)
         } else {
             assertionFailure("no such task")
         }
     }
     
     func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false, commit: Bool = true) {
-        if let event = task as? EKEvent {
+        if task.isValueType, let task = taskObject(task) {
+            deleteTask(task, deletingRecurence: deletingRecurence)
+        } else if let event = task as? EKEvent {
             try! eventStore.remove(event, span: deletingRecurence ? .futureEvents : .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
             config.deleteTask(task)
-        } else if task.kindIdentifier == .value, let task = taskObject(task) {
-            deleteTask(task, deletingRecurence: deletingRecurence)
         }
     }
     
@@ -120,7 +120,9 @@ extension EventManager {
     }
     
     func testHasRepeatingTasks(with task: TaskKind) -> Bool {
-        if config.testHasRepeatingTask(task) {
+        let count = config.taskCountWithTitle(task)
+        
+        if count > 1 {
             return true
         }
         
@@ -129,7 +131,7 @@ extension EventManager {
         
         enumerateEvents { event in
             if event.normalizedTitle == task.normalizedTitle {
-                if foundEvent != nil {
+                if foundEvent != nil || count == 1 {
                     isTrue = true
                     return true
                 }

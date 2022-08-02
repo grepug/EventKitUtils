@@ -8,7 +8,7 @@
 import Foundation
 
 public enum TaskKindIdentifier {
-    case event, managedObject, value
+    case event, managedObject
 }
 
 public protocol TaskKind {
@@ -24,7 +24,9 @@ public protocol TaskKind {
     var linkedValue: Double? { get set }
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
+    
     var kindIdentifier: TaskKindIdentifier { get }
+    var isValueType: Bool { get }
     
     func toggleCompletion()
 }
@@ -80,7 +82,8 @@ public extension TaskKind {
               keyResultId: keyResultId,
               linkedValue: linkedValue,
               createdAt: createdAt,
-              updatedAt: updatedAt)
+              updatedAt: updatedAt,
+              kindIdentifier: kindIdentifier)
     }
     
     func testAreDatesSame(from task: TaskKind) -> Bool {
@@ -147,10 +150,9 @@ public struct TaskValue: TaskKind, Equatable {
     public var linkedValue: Double?
     public var createdAt: Date?
     public var updatedAt: Date?
+    public var isValueType: Bool = true
     
     public func toggleCompletion() {}
     
-    public var kindIdentifier: TaskKindIdentifier {
-        .value
-    }
+    public var kindIdentifier: TaskKindIdentifier
 }
