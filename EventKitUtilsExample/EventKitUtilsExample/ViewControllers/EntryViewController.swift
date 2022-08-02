@@ -26,9 +26,9 @@ class EntryViewController: DiffableListViewController {
         } testHasRepeatingTask: { task in
             false
         } saveTask: { task in
-            false
+            
         } deleteTask: { task in
-            false
+            
         }
     }
     
@@ -90,9 +90,9 @@ extension EventManager {
         } testHasRepeatingTask: { task in
             false
         } saveTask: { task in
-            false
+            
         } deleteTask: { task in
-            false
+            
         }
     }
     

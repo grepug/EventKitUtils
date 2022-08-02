@@ -17,6 +17,14 @@ public protocol RecordKind {
 }
 
 public struct RecordValue: RecordKind, Hashable {
+    public init(id: String, value: Double, date: Date, createdAt: Date, updatedAt: Date) {
+        self.id = id
+        self.value = value
+        self.date = date
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+    
     public var id: String
     public var value: Double
     public var date: Date

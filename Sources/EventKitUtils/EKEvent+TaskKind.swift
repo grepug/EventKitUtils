@@ -8,6 +8,10 @@
 import EventKit
 
 extension EKEvent: TaskKind {
+    public var kindIdentifier: TaskKindIdentifier {
+        .event
+    }
+    
     public var normalizedID: String {
         eventIdentifier
     }

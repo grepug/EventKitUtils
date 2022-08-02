@@ -7,6 +7,10 @@
 
 import Foundation
 
+public enum TaskKindIdentifier {
+    case event, managedObject, value
+}
+
 public protocol TaskKind {
     var normalizedID: String { get }
     var normalizedTitle: String { get set }
@@ -20,6 +24,7 @@ public protocol TaskKind {
     var linkedValue: Double? { get set }
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
+    var kindIdentifier: TaskKindIdentifier { get }
     
     func toggleCompletion()
 }
@@ -144,4 +149,8 @@ public struct TaskValue: TaskKind, Equatable {
     public var updatedAt: Date?
     
     public func toggleCompletion() {}
+    
+    public var kindIdentifier: TaskKindIdentifier {
+        .value
+    }
 }

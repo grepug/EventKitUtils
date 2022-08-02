@@ -16,7 +16,7 @@ public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Bool, deleteTask: @escaping (TaskKind) -> Bool) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
@@ -38,8 +38,8 @@ public struct TaskConfig {
     var createNonEventTask: () -> TaskKind
     var taskById: (String) -> TaskKind?
     var testHasRepeatingTask: (TaskKind) -> Bool
-    var saveTask: (TaskKind) -> Bool
-    var deleteTask: (TaskKind) -> Bool
+    var saveTask: (TaskKind) -> Void
+    var deleteTask: (TaskKind) -> Void
 }
 
 extension TaskConfig {

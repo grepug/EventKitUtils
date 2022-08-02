@@ -81,38 +81,42 @@ extension EventManager {
         saveTask(taskObject)
     }
     
-    func saveTask(_ task: TaskKind) {
+    func saveTask(_ task: TaskKind, commit: Bool = true) {
         if let event = task as? EKEvent {
-            try! eventStore.save(event, span: .thisEvent, commit: true)
-        } else if config.saveTask(task) {
-            
-        } else if let task = taskObject(task) {
+            try! eventStore.save(event, span: .thisEvent, commit: commit)
+        } else if task.kindIdentifier == .managedObject {
+            config.saveTask(task)
+        } else if task.kindIdentifier == .value, let task = taskObject(task) {
             saveTask(task)
         } else {
             assertionFailure("no such task")
         }
     }
     
-    func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false) {
+    func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false, commit: Bool = true) {
         if let event = task as? EKEvent {
-            try! eventStore.remove(event, span: deletingRecurence ? .futureEvents : .thisEvent, commit: true)
-        } else if config.deleteTask(task) {
-            
-        } else if let task = taskObject(task) {
+            try! eventStore.remove(event, span: deletingRecurence ? .futureEvents : .thisEvent, commit: commit)
+        } else if task.kindIdentifier == .managedObject {
+            config.deleteTask(task)
+        } else if task.kindIdentifier == .value, let task = taskObject(task) {
             deleteTask(task, deletingRecurence: deletingRecurence)
         }
     }
     
     func deleteTasks(_ tasks: [TaskKind]) {
         for task in tasks {
-            deleteTask(task, deletingRecurence: true)
+            deleteTask(task, deletingRecurence: true, commit: false)
         }
+        
+        try! eventStore.commit()
     }
     
     func saveTasks(_ tasks: [TaskKind]) {
         for task in tasks {
-            saveTask(task)
+            saveTask(task, commit: false)
         }
+        
+        try! eventStore.commit()
     }
     
     func testHasRepeatingTasks(with task: TaskKind) -> Bool {

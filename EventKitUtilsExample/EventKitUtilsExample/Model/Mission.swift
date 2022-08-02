@@ -47,4 +47,8 @@ extension Mission: ManagedObject, TaskKind {
     public func toggleCompletion() {
         isCompleted.toggle()
     }
+    
+    public var kindIdentifier: TaskKindIdentifier {
+        .managedObject
+    }
 }
