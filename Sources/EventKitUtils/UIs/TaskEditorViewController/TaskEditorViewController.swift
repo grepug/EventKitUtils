@@ -114,7 +114,7 @@ open class TaskEditorViewController: DiffableListViewController {
                 }
                 .tag("link kr")
                 .onTapAndDeselect { [unowned self] _ in
-                    presentKeyResultSelector { [unowned self] krID in
+                    em.config.presentKeyResultSelector { [unowned self] krID in
                         task.keyResultId = krID
                     }
                 }
@@ -156,8 +156,6 @@ open class TaskEditorViewController: DiffableListViewController {
         reload(animating: false)
         becomeFirstResponder(at: [0, 0])
     }
-    
-    open func presentKeyResultSelector(action: @escaping (String) -> Void) {}
 }
 
 extension TaskEditorViewController {

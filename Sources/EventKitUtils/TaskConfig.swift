@@ -13,10 +13,11 @@ public enum FetchTasksType: Hashable {
 }
 
 public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> Void) -> Void
+public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) -> Void
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, testHasRepeatingTask: @escaping (TaskKind) -> Bool, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void, presentKeyResultSelector: @escaping PresentKeyResultSelectorHandler) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
@@ -25,6 +26,7 @@ public struct TaskConfig {
         self.fetchNonEventTasks = fetchNonEventTasks
         self.saveTask = saveTask
         self.deleteTask = deleteTask
+        self.presentKeyResultSelector = presentKeyResultSelector
         
         let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
         let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
@@ -40,6 +42,7 @@ public struct TaskConfig {
     var testHasRepeatingTask: (TaskKind) -> Bool
     var saveTask: (TaskKind) -> Void
     var deleteTask: (TaskKind) -> Void
+    var presentKeyResultSelector: PresentKeyResultSelectorHandler
 }
 
 extension TaskConfig {

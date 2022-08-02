@@ -29,6 +29,8 @@ class EntryViewController: DiffableListViewController {
             
         } deleteTask: { task in
             
+        } presentKeyResultSelector: { completion in
+            
         }
     }
     
@@ -92,6 +94,8 @@ extension EventManager {
         } saveTask: { task in
             
         } deleteTask: { task in
+            
+        } presentKeyResultSelector: { completion in
             
         }
     }

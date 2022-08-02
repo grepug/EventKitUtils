@@ -8,7 +8,4 @@
 import EventKitUtils
 
 class TaskEditor: TaskEditorViewController {
-    override func presentKeyResultSelector(action: @escaping (String) -> Void) {
-        
-    }
 }
