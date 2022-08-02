@@ -25,25 +25,27 @@ extension EventManager {
                 let predicate = eventsPredicate()
                 
                 enumerateEvents(matching: predicate) { event in
-                    if let keyResultId = event.keyResultId {
-                        if dict[keyResultId] == nil {
-                            dict[keyResultId] = []
-                        }
-                        
+                    guard let keyResultId = event.keyResultId else {
+                        return false
+                    }
+                    
+                    if dict[keyResultId] == nil {
+                        dict[keyResultId] = []
+                    }
+                    
+                    dict[keyResultId]!.append(event.value)
+                    
+                    if let value = event.linkedValue, let completedAt = event.completedAt {
                         if dict2[keyResultId] == nil {
                             dict2[keyResultId] = []
                         }
                         
-                        dict[keyResultId]!.append(event.value)
-                        
-                        if let value = event.linkedValue, let completedAt = event.completedAt {
-                            let recordValue = RecordValue(id: UUID().uuidString,
-                                                          value: value,
-                                                          date: completedAt,
-                                                          createdAt: Date(),
-                                                          updatedAt: Date())
-                            dict2[keyResultId]!.append(recordValue)
-                        }
+                        let recordValue = RecordValue(id: UUID().uuidString,
+                                                      value: value,
+                                                      date: completedAt,
+                                                      createdAt: Date(),
+                                                      updatedAt: Date())
+                        dict2[keyResultId]!.append(recordValue)
                     }
                     
                     return false
