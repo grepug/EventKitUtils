@@ -168,6 +168,14 @@ extension EventManager {
         }
     }
     
+    func fetchTasks(with type:FetchTasksType) async -> [TaskValue] {
+        await withCheckedContinuation { continuation in
+            fetchTasksAsync(with: type) { tasks in
+                continuation.resume(returning: tasks)
+            }
+        }
+    }
+    
     func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
         guard let predicate = precidate ?? eventsPredicate() else {
             return

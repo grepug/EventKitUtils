@@ -12,7 +12,7 @@ import UIKitUtils
 
 extension TaskListViewController {
     @ListBuilder
-    func taskSection(_ tasks: [TaskGroup], groupedState: TaskKindState?) -> [DLSection] {
+    func taskSection(_ tasks: [TaskValue], groupedState: TaskKindState?) -> [DLSection] {
         DLSection { [unowned self] in
             let headerTag = self.taskHeaderTag(state: groupedState, count: tasks.count)
             
@@ -28,12 +28,11 @@ extension TaskListViewController {
             
             for (index, task) in tasks.enumerated() {
                 DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task.first, recurenceCount: task.recurrenceCount) { [unowned self] in
-                        em.toggleCompletion(task.first)
+                    TaskListCell(task: task, recurenceCount: task.repeatingCount) { [unowned self] in
+                        em.toggleCompletion(task)
                         reloadList()
                     } presentEditor: { [unowned self] in
-                        let index = isRepeatingList ? index : 0
-                        presentTaskEditor(taskGroup: task, at: index)
+                        presentTaskEditor(task: task)
                     }
                 }))
                 .tag(task.cellTag)
@@ -94,7 +93,7 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     @MenuBuilder
-    func taskMenu(for taskGroup: TaskGroup, at index: Int = 0, isContextMenu: Bool = false) -> [MBMenu] {
+    func taskMenu(for task: TaskValue, at index: Int = 0, isContextMenu: Bool = false) -> [MBMenu] {
 //        if isContextMenu, let kr = task.sortedKeyResults.first {
 //            MBButton("v3_task_open_kr".loc, image: kr.displayEmoji.textToImage()!) { [unowned self] in
 //                let vc = KeyResultDetail(kr: kr)
@@ -103,10 +102,10 @@ extension TaskListViewController {
 //            }
 //        }
         
-        if isContextMenu && em.testHasRepeatingTasks(with: taskGroup.first) {
+        if isContextMenu && em.testHasRepeatingTasks(with: task) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
-                    guard let vc = makeRepeatingListViewController(title: taskGroup.normalizedTitle) else {
+                    guard let vc = makeRepeatingListViewController(title: task.normalizedTitle) else {
                         return
                     }
                     
@@ -114,7 +113,7 @@ extension TaskListViewController {
                     
                     nav.modalPresentationStyle = .popover
                     
-                    let indexPath = listView.indexPath(forItemIdentifier: taskGroup.cellTag)!
+                    let indexPath = listView.indexPath(forItemIdentifier: task.cellTag)!
                     nav.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
                     
                     present(nav, animated: true)
@@ -123,33 +122,33 @@ extension TaskListViewController {
         }
         
         MBButton.edit { [unowned self] in
-            presentTaskEditor(taskGroup: taskGroup, at: index)
+//            presentTaskEditor(taskGroup: taskGroup, at: index)
         }
         
         MBButton.delete { [unowned self] completion in
-            if taskGroup.hasFutureTasks {
+            if let count = task.repeatingCount, count > 0 {
                 presentDeletingTaskGroupAlert {
                     completion(false)
                 } deletingThis: { [unowned self] in
-                    em.deleteTask(taskGroup.first)
+                    em.deleteTask(task)
                     completion(true)
                     reloadList()
                 } deletingAll: { [unowned self] in
-                    em.deleteTasks(taskGroup.tasks)
+//                    em.deleteTasks(taskGroup.tasks)
                     completion(true)
                     reloadList()
                 }
             } else {
-                removeTaskGroup(taskGroup)
+                removeTask(task)
                 completion(true)
-                em.deleteTask(taskGroup.first)
+                em.deleteTask(task)
             }
         }
     }
     
-    func removeTaskGroup(_ taskGroup: TaskGroup) {
+    func removeTask(_ task: TaskValue) {
         for (key, _) in groupedTasks {
-            groupedTasks[key]?.removeAll { $0.normalizedTitle == taskGroup.normalizedTitle }
+            groupedTasks[key]?.removeAll { $0.normalizedTitle == task.normalizedTitle }
         }
         
         reload()

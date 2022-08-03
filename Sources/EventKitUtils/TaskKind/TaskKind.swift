@@ -136,23 +136,3 @@ extension Date {
         return components == selfComponents
     }
 }
-
-public struct TaskValue: TaskKind, Equatable {
-    public var normalizedID: String
-    public var normalizedTitle: String
-    public var normalizedStartDate: Date?
-    public var normalizedEndDate: Date?
-    public var isAllDay: Bool
-    public var isCompleted: Bool
-    public var completedAt: Date?
-    public var notes: String?
-    public var keyResultId: String?
-    public var linkedValue: Double?
-    public var createdAt: Date?
-    public var updatedAt: Date?
-    public var isValueType: Bool = true
-    
-    public func toggleCompletion() {}
-    
-    public var kindIdentifier: TaskKindIdentifier
-}

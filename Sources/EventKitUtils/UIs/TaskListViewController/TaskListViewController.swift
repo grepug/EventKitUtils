@@ -11,8 +11,8 @@ import EventKit
 import Combine
 
 open class TaskListViewController: DiffableListViewController, ObservableObject {
-    public typealias TaskGroupsByState = [TaskKindState?: [TaskGroup]]
-    typealias TasksByState = [TaskKindState?: [TaskKind]]
+    public typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
+    typealias TasksByState = [TaskKindState?: [TaskValue]]
     
     public var groupedTasks: TaskGroupsByState = [:]
     @Published public var segment: SegmentType = .today
@@ -118,10 +118,6 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
         .init(task: task, eventManager: em)
     }
     
-    open func taskEditorViewController(taskGroup: TaskGroup, taskAt index: Int) -> TaskEditorViewController {
-        .init(taskGroup: taskGroup, taskAt: index, eventManager: em)
-    }
-    
     open func makeRepeatingListViewController(title: String) -> TaskListViewController? {
         nil
     }
@@ -161,7 +157,7 @@ extension TaskListViewController {
 }
 
 extension TaskListViewController {
-    func addToCache(_ state: TaskKindState?, _ task: TaskKind, in cache: inout TasksByState) {
+    func addToCache(_ state: TaskKindState?, _ task: TaskValue, in cache: inout TasksByState) {
         if cache[state] == nil {
             cache[state] = []
         }
@@ -169,7 +165,7 @@ extension TaskListViewController {
         cache[state]!.append(task)
     }
     
-    func groupTasks(_ tasks: [TaskKind]) -> TaskGroupsByState {
+    func groupTasks(_ tasks: [TaskValue]) -> TaskGroupsByState {
         var dict: TaskGroupsByState = [:]
         var cache: TasksByState = [:]
         let current = Date()
@@ -214,9 +210,9 @@ extension TaskListViewController {
         
         for (state, tasks) in cache {
             if isRepeatingList {
-                dict[state] = tasks.map { .init(tasks: [$0]) }
+                dict[state] = tasks
             } else {
-                dict[state] = tasks.makeTaskGroups()
+                dict[state] = tasks.repeatingMerged()
             }
         }
         
@@ -236,12 +232,10 @@ extension TaskListViewController {
         }
     }
     
-    func presentTaskEditor(taskGroup: TaskGroup? = nil, at index: Int = 0) {
-        let taskGroup = isRepeatingList ? groupedTasks[nil]!.merged() : taskGroup
-        let isCreating = taskGroup == nil
+    func presentTaskEditor(task: TaskValue? = nil) {
         var taskObject: TaskKind
         
-        if let task = taskGroup?.tasks[index] {
+        if let task = task {
             taskObject = em.taskObject(task)!
         } else {
             taskObject = em.config.createNonEventTask()
@@ -249,7 +243,7 @@ extension TaskListViewController {
         
         taskObject.isDateEnabled = true
         
-        let vc = isCreating ? taskEditorViewController(task: taskObject) : taskEditorViewController(taskGroup: taskGroup!, taskAt: index)
+        let vc = taskEditorViewController(task: taskObject)
         let nav = vc.navigationControllerWrapped()
         
         vc.onDismiss = { [unowned self] in

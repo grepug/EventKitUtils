@@ -67,7 +67,7 @@ struct TaskListCell: View {
                         Text(dateString)
                             .foregroundColor(relativeDateColor)
                             
-                        if let recurenceCount = recurenceCount {
+                        if let recurenceCount = recurenceCount, recurenceCount > 1 {
                             Label("\(recurenceCount)", systemImage: "repeat")
                                 .foregroundColor(.secondary)
                         }

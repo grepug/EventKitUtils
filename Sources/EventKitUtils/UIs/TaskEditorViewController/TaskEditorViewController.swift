@@ -12,28 +12,17 @@ import EventKit
 
 open class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind!
-    let taskGroup: TaskGroup?
-    let originalTaskValue: TaskValue?
+    let originalTaskValue: TaskValue
     unowned let em: EventManager
     
     var onDismiss: (() -> Void)?
     
     public init(task: TaskKind, eventManager: EventManager) {
-        self.task = task
+        self.task = task.isValueType ? eventManager.taskObject(task) : task
         self.em = eventManager
-        self.taskGroup = nil
-        self.originalTaskValue = nil
+        self.originalTaskValue = task.value
         
         super.init(nibName: nil, bundle: nil)
-    }
-    
-    public init(taskGroup: TaskGroup, taskAt index: Int, eventManager: EventManager) {
-        self.taskGroup = taskGroup
-        self.em = eventManager
-        self.originalTaskValue = taskGroup.tasks[index].value
-        super.init(nibName: nil, bundle: nil)
-        
-        self.task = eventManager.taskObject(taskGroup.tasks[index])!
     }
     
     required public init?(coder: NSCoder) {
@@ -53,7 +42,7 @@ open class TaskEditorViewController: DiffableListViewController {
     }
     
     var isEvent: Bool {
-        task as? EKEvent != nil
+        task.kindIdentifier == .event
     }
     
     open override var list: DLList {
@@ -164,29 +153,32 @@ extension TaskEditorViewController {
         
         navigationItem.rightBarButtonItems = [
             makeDoneButton { [unowned self] in
-                doneEditor()
+                Task {
+                    await doneEditor()
+                }
             }
         ]
     }
     
-    func doneEditor() {
-        if let taskGroup = taskGroup,
-           let originalTaskValue = originalTaskValue,
-           let endDate = originalTaskValue.normalizedEndDate,
-           task.value != originalTaskValue,
-           task.testAreDatesSame(from: originalTaskValue) {
-            let futureTasks = taskGroup.incompletedTasksAfter(endDate)
+    func doneEditor() async {
+        if task.value != originalTaskValue,
+           task.testAreDatesSame(from: originalTaskValue),
+           let endDate = originalTaskValue.normalizedEndDate {
+            let tasks = await em.fetchTasks(with: .title(originalTaskValue.normalizedTitle))
+            let futureTasks = tasks.incompletedTasksAfter(endDate)
             
             if !futureTasks.isEmpty {
                 presentSaveRepeatingTaskAlert(count: futureTasks.count) { [unowned self] in
+                    var savingTaskObjects: [TaskKind] = []
+                    
                     for task in futureTasks {
                         var taskObject = em.taskObject(task)!
                         
                         taskObject.saveAsRepeatingTask(from: self.task)
-                        em.saveTask(taskObject)
+                        savingTaskObjects.append(taskObject)
                     }
                     
-                    em.saveTask(self.task)
+                    em.saveTasks(savingTaskObjects + [self.task])
                 }
                 
                 return
