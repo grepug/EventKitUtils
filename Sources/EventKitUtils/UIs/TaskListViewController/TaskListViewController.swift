@@ -166,13 +166,16 @@ extension TaskListViewController {
     }
     
     func groupTasks(_ tasks: [TaskValue]) -> TaskGroupsByState {
-        var dict: TaskGroupsByState = [:]
         var cache: TasksByState = [:]
         let current = Date()
         
         if isRepeatingList {
             cache[nil] = tasks
-        } else if segment == .completed {
+            
+            return cache
+        }
+        
+        if segment == .completed {
             cache[nil] = tasks.filter { $0.isCompleted }
         } else {
             for task in tasks {
@@ -208,12 +211,11 @@ extension TaskListViewController {
             }
         }
         
+        var dict: TaskGroupsByState = [:]
+        let tasksGroupedByTitle = tasks.titleGrouped()
+        
         for (state, tasks) in cache {
-            if isRepeatingList {
-                dict[state] = tasks
-            } else {
-                dict[state] = tasks.repeatingMerged()
-            }
+            dict[state] = tasks.repeatingMerged { tasksGroupedByTitle[$0]?.count } 
         }
         
         return dict

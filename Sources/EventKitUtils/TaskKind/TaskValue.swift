@@ -44,26 +44,40 @@ extension Array where Element == TaskValue {
         }
     }
     
-    func repeatingMerged() -> [TaskValue] {
-        var taskValues: [TaskValue] = []
-        var completedTaskValues: [TaskValue] = []
-        var cache: OrderedDictionary<String, [TaskValue]> = .init()
+    typealias TitleGrouped = OrderedDictionary<String, [TaskValue]>
+    
+    func titleGrouped(iterator: ((Element) -> Void)? = nil) -> TitleGrouped {
+        var cache: TitleGrouped = .init()
         
         for task in self {
+            iterator?(task)
+            
+            guard !task.isCompleted else {
+                continue
+            }
+            
+            if cache[task.normalizedTitle] == nil {
+                cache[task.normalizedTitle] = []
+            }
+            
+            cache[task.normalizedTitle]!.append(task)
+        }
+        
+        return cache
+    }
+    
+    func repeatingMerged(repeatingCount: (String) -> Int?) -> [TaskValue] {
+        var taskValues: [TaskValue] = []
+        var completedTaskValues: [TaskValue] = []
+        let cache = titleGrouped { task in
             if task.isCompleted {
                 completedTaskValues.append(task)
-            } else {
-                if cache[task.normalizedTitle] == nil {
-                    cache[task.normalizedTitle] = []
-                }
-                
-                cache[task.normalizedTitle]!.append(task)
             }
         }
         
         for (_, tasks) in cache {
             if var first = tasks.first {
-                first.repeatingCount = tasks.count
+                first.repeatingCount = repeatingCount(first.normalizedTitle) ?? tasks.count
                 
                 taskValues.append(first)
             }
