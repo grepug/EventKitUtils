@@ -14,9 +14,9 @@ let package = Package(
             targets: ["EventKitUtils"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/grepug/DiffableList", branch: "dev_3.1.0"),
-        .package(url: "https://github.com/grepug/MenuBuilder", branch: "master"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
+        // Dependencies declare other packages that this package depends on.
+        // .package(url: /* package url */, from: "1.0.0"),
+        .package(url: "https://github.com/grepug/UIKitUtils", branch: "dev_3.1.0"),
         .package(
            url: "https://github.com/apple/swift-collections.git",
            .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
@@ -27,11 +27,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "EventKitUtils",
-            dependencies: ["DiffableList",
-                           "MenuBuilder",
-                           "SnapKit",
-                           .product(name: "Collections",
-                                    package: "swift-collections")]),
+            dependencies: ["UIKitUtils", .product(name: "Collections", package: "swift-collections")]),
         .testTarget(
             name: "EventKitUtilsTests",
             dependencies: ["EventKitUtils"]),
