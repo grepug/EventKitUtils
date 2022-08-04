@@ -9,6 +9,7 @@ import DiffableList
 import EventKit
 import UIKit
 import UIKitUtils
+import EventKitUtils
 
 public class EventSettingsViewController: DiffableListViewController {
     unowned let em: EventManager

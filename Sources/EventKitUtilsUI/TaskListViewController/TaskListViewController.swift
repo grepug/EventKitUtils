@@ -8,6 +8,7 @@
 import DiffableList
 import UIKit
 import EventKit
+import EventKitUtils
 import Combine
 
 open class TaskListViewController: DiffableListViewController, ObservableObject {
@@ -15,7 +16,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
     typealias TasksByState = [TaskKindState?: [TaskValue]]
     
     public var groupedTasks: TaskGroupsByState = [:]
-    @Published public var segment: SegmentType = .today
+    @Published public var segment: FetchTasksSegmentType = .today
     unowned public let em: EventManager
     public var fetchingTitle: String?
     
@@ -23,7 +24,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
     var canAccessEventStore = false
     var cancellables = Set<AnyCancellable>()
     
-    private let reloadingSubject = PassthroughSubject<SegmentType, Never>()
+    private let reloadingSubject = PassthroughSubject<FetchTasksSegmentType, Never>()
     
     var isRepeatingList: Bool {
         fetchingTitle != nil
@@ -40,7 +41,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
     }
     
     lazy var segmentControl: UISegmentedControl = {
-        let sc = UISegmentedControl(items: SegmentType.allCases.map(\.text))
+        let sc = UISegmentedControl(items: FetchTasksSegmentType.allCases.map(\.text))
         sc.selectedSegmentIndex = segment.rawValue
         sc.addAction(.init { [unowned self] _ in
             segment = .init(rawValue: sc.selectedSegmentIndex)!
@@ -124,7 +125,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
 }
 
 extension TaskListViewController {
-    func reloadList(of segment: SegmentType? = nil) {
+    func reloadList(of segment: FetchTasksSegmentType? = nil) {
         reloadingSubject.send(segment ?? self.segment)
     }
     
@@ -136,7 +137,7 @@ extension TaskListViewController {
         return .segment(segment)
     }
     
-    func fetchTasksPublisher(for segment: SegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
+    func fetchTasksPublisher(for segment: FetchTasksSegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
         Future { [unowned self] promise in
             em.fetchTasksAsync(with: fetchingType) { tasks in
                 promise(.success(tasks))
@@ -147,7 +148,7 @@ extension TaskListViewController {
         .eraseToAnyPublisher()
     }
     
-    var eventsChangedPublisher: AnyPublisher<SegmentType, Never> {
+    var eventsChangedPublisher: AnyPublisher<FetchTasksSegmentType, Never> {
         NotificationCenter.default
             .publisher(for: .EKEventStoreChanged)
             .debounce(for: 1, scheduler: RunLoop.current)
@@ -255,5 +256,11 @@ extension TaskListViewController {
         present(nav, animated: true) { [unowned self] in
             em.saveTask(taskObject)
         }
+    }
+}
+
+extension Date {
+    var startOfDay: Self {
+        Calendar.current.startOfDay(for: self)
     }
 }

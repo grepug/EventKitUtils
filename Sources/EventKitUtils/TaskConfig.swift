@@ -8,8 +8,20 @@
 import Foundation
 import Combine
 
+public enum FetchTasksSegmentType: Int, CaseIterable {
+    case today, incompleted, completed
+    
+    public var text: String {
+        switch self {
+        case .today: return "v3_task_list_segment_today".loc
+        case .incompleted: return "v3_task_list_segment_incompleted".loc
+        case .completed: return "v3_task_list_segment_completed".loc
+        }
+    }
+}
+
 public enum FetchTasksType: Hashable {
-    case segment(TaskListViewController.SegmentType), title(String)
+    case segment(FetchTasksSegmentType), title(String)
 }
 
 public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> Void) -> Void
@@ -33,25 +45,14 @@ public struct TaskConfig {
         self.eventRequestRange = start..<end
     }
     
-    let eventBaseURL: URL
-    let appGroup: String?
-    var eventRequestRange: Range<Date>
-    var fetchNonEventTasks: FetchTasksHandler
-    var createNonEventTask: () -> TaskKind
-    var taskById: (String) -> TaskKind?
-    var taskCountWithTitle: (TaskKind) -> Int
-    var saveTask: (TaskKind) -> Void
-    var deleteTask: (TaskKind) -> Void
-    var presentKeyResultSelector: PresentKeyResultSelectorHandler
-}
-
-extension TaskConfig {
-    var userDefaults: UserDefaults {
-        if let appGroup = appGroup,
-        let userDefaults = UserDefaults(suiteName: appGroup) {
-            return userDefaults
-        }
-        
-        return UserDefaults.standard
-    }
+    public let eventBaseURL: URL
+    public let appGroup: String?
+    public var eventRequestRange: Range<Date>
+    public var fetchNonEventTasks: FetchTasksHandler
+    public var createNonEventTask: () -> TaskKind
+    public var taskById: (String) -> TaskKind?
+    public var taskCountWithTitle: (TaskKind) -> Int
+    public var saveTask: (TaskKind) -> Void
+    public var deleteTask: (TaskKind) -> Void
+    public var presentKeyResultSelector: PresentKeyResultSelectorHandler
 }

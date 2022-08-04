@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A43AC56289A7F7B00E47A4A /* EventKitUtilsUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2A43AC55289A7F7B00E47A4A /* EventKitUtilsUI */; };
 		2A5B41A2288D36C20089A70D /* StorageProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 2A5B41A1288D36C20089A70D /* StorageProvider */; };
 		2A5B41A5288D37080089A70D /* EventKitUtils.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */; };
 		2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A6288D37870089A70D /* StorageProvider.swift */; };
@@ -51,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A43AC56289A7F7B00E47A4A /* EventKitUtilsUI in Frameworks */,
 				2AF5D7682887B9A200778D98 /* EventKitUtils in Frameworks */,
 				2A5B41A2288D36C20089A70D /* StorageProvider in Frameworks */,
 				2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */,
@@ -151,6 +153,7 @@
 				2AF5D7672887B9A200778D98 /* EventKitUtils */,
 				2A84D4B7288A36070017D5C5 /* UIKitUtils */,
 				2A5B41A1288D36C20089A70D /* StorageProvider */,
+				2A43AC55289A7F7B00E47A4A /* EventKitUtilsUI */,
 			);
 			productName = EventKitUtilsExample;
 			productReference = 2AF5D74A2886584D00778D98 /* EventKitUtilsExample.app */;
@@ -465,6 +468,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2A43AC55289A7F7B00E47A4A /* EventKitUtilsUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EventKitUtilsUI;
+		};
 		2A5B41A1288D36C20089A70D /* StorageProvider */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2A5B41A0288D36C20089A70D /* XCRemoteSwiftPackageReference "StorageProvider" */;

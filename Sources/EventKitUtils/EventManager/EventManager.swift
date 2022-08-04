@@ -10,7 +10,7 @@ import EventKit
 import Combine
 
 public class EventManager {
-    var config: TaskConfig
+    public var config: TaskConfig
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public let recordsOfKeyResult: Cache<String, [RecordValue]> = .init()
     
@@ -43,7 +43,7 @@ public class EventManager {
     }
 }
 
-extension EventManager {
+public extension EventManager {
     var selectedCalendarIdentifier: String? {
         get { config.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
         set { config.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
@@ -63,7 +63,7 @@ extension EventManager {
     }
 }
 
-extension EventManager {
+public extension EventManager {
     func taskObject(_ task: TaskKind) -> TaskKind? {
         if let task = config.taskById(task.normalizedID) {
             return task
@@ -226,5 +226,16 @@ extension EventManager {
         }
         
         return foundEvent
+    }
+}
+
+extension TaskConfig {
+    var userDefaults: UserDefaults {
+        if let appGroup = appGroup,
+        let userDefaults = UserDefaults(suiteName: appGroup) {
+            return userDefaults
+        }
+        
+        return UserDefaults.standard
     }
 }

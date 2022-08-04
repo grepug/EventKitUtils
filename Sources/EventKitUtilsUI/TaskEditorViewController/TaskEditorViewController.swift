@@ -9,6 +9,8 @@ import DiffableList
 import UIKit
 import SwiftUI
 import EventKit
+import EventKitUtils
+import TextEditorCellConfiguration
 
 open class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind!

@@ -12,6 +12,8 @@ let package = Package(
         .library(
             name: "EventKitUtils",
             targets: ["EventKitUtils"]),
+        .library(name: "EventKitUtilsUI",
+                 targets: ["EventKitUtilsUI"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -27,7 +29,11 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "EventKitUtils",
-            dependencies: ["UIKitUtils", .product(name: "Collections", package: "swift-collections")]),
+            dependencies: [.product(name: "Collections", package: "swift-collections")],
+            path: "Sources/EventKitUtils"),
+        .target(name: "EventKitUtilsUI",
+                dependencies: ["UIKitUtils", .product(name: "TextEditorCellConfiguration", package: "UIKitUtils")],
+                path: "Sources/EventKitUtilsUI"),
         .testTarget(
             name: "EventKitUtilsTests",
             dependencies: ["EventKitUtils"]),

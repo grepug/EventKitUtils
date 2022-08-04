@@ -7,16 +7,6 @@
 
 import Foundation
 
-extension String {
-    var loc: Self {
-        String(format: NSLocalizedString(self, bundle: .module, comment: ""), "")
-    }
-    
-    func loc(_ string: String) -> Self {
-        String(format: NSLocalizedString(self, bundle: .module, comment: ""), string)
-    }
-}
-
 extension Date {
     func formatted(in type: DateFormatter.Style, timeStyle: DateFormatter.Style = .none) -> String {
         let formatter = DateFormatter()
@@ -55,5 +45,15 @@ extension Date {
         case 1: return "task_date_tomorrow".loc
         default: return formatted(in: .medium)
         }
+    }
+}
+
+extension String {
+    var loc: Self {
+        String(format: NSLocalizedString(self, bundle: .module, comment: ""), "")
+    }
+    
+    func loc(_ string: String) -> Self {
+        String(format: NSLocalizedString(self, bundle: .module, comment: ""), string)
     }
 }

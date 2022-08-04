@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EventKitUtils
 
 struct TaskListCell: View {
     var task: TaskKind

@@ -29,7 +29,7 @@ public struct TaskValue: TaskKind, Equatable {
     public var repeatingCount: Int?
 }
 
-extension Array where Element == TaskValue {
+public extension Array where Element == TaskValue {
     func incompletedTasksAfter(_ date: Date) -> [TaskValue] {
         filter { task in
             guard !task.isCompleted else {

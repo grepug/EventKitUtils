@@ -1,0 +1,12 @@
+"v3_task_state_overdued" = "Overdued";
+"v3_task_state_today" = "Today";
+"v3_task_state_after_today" = "After Today";
+"v3_task_state_unscheduled" = "Unscheduled";
+
+"v3_task_list_segment_today" = "Today";
+"v3_task_list_segment_incompleted" = "Incompleted";
+"v3_task_list_segment_completed" = "Completed";
+
+"v3_task_postpone" = "Postpone";
+"v3_task_editor_title_ph" = "Title";
+"v3_task_editor_remark" = "Note";
