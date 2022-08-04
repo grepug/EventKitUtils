@@ -87,7 +87,6 @@ public struct TaskSummaryCard: View {
             Spacer()
         }
         .animation(.default)
-        .padding(.horizontal)
     }
     
     func taskItem(_ task: TaskKind) -> some View {
@@ -102,6 +101,29 @@ public struct TaskSummaryCard: View {
             presentTaskEditor(task: task)
         }
         .padding(.top, 12)
+        .contextMenu {
+            if #available(iOS 15.0, *) {
+                if em.testHasRepeatingTasks(with: task) {
+                    Button("查看重复任务") {
+                        
+                    }
+                    
+                    Divider()
+                }
+                
+                Button {
+                    presentTaskEditor(task: task)
+                } label: {
+                    Label("编辑", systemImage: "pencil")
+                }
+                    
+                Button(role: .destructive) {
+                    
+                } label: {
+                    Label("删除", systemImage: "trash")
+                }
+            }
+        }
     }
     
     var content: some View {

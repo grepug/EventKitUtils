@@ -50,7 +50,7 @@ struct TaskListCell: View {
                 content
             }
         }
-        .padding(isSummaryCard ? 0 : 16)
+        .padding(isSummaryCard ? [.horizontal] : .all)
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())

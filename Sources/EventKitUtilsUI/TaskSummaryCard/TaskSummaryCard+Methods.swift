@@ -14,7 +14,7 @@ extension TaskSummaryCard {
             let tasksGroupedByTitle = tasks.titleGrouped()
             
             self.tasks = tasks
-                .repeatingMerged(repeatingCount: { tasksGroupedByTitle[$0]?.count })
+                .repeatingMerged { tasksGroupedByTitle[$0]?.count }
                 .prefix(3).map { $0 }
         }
     }
