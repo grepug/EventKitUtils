@@ -122,7 +122,7 @@ extension TaskListViewController {
         }
         
         MBButton.edit { [unowned self] in
-//            presentTaskEditor(taskGroup: taskGroup, at: index)
+            presentTaskEditor(task: task)
         }
         
         MBButton.delete { [unowned self] completion in
@@ -134,9 +134,12 @@ extension TaskListViewController {
                     completion(true)
                     reloadList()
                 } deletingAll: { [unowned self] in
-//                    em.deleteTasks(taskGroup.tasks)
-                    completion(true)
-                    reloadList()
+                    Task {
+                        let tasks = await em.fetchTasks(with:.title(task.normalizedTitle))
+                        em.deleteTasks(tasks)
+                        completion(true)
+                        reloadList()
+                    }
                 }
             } else {
                 removeTask(task)
