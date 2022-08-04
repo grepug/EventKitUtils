@@ -21,11 +21,6 @@ extension TaskSummaryCard {
 }
 
 extension TaskSummaryCard {
-    func showMore() {
-        let vc = TaskListViewController(eventManager: em)
-        parentVC.push(vc)
-    }
-    
     func presentTaskEditor(task: TaskKind? = nil) {
         let task = task ?? em.config.createNonEventTask()
         let vc = TaskEditorViewController(task: task, eventManager: em)

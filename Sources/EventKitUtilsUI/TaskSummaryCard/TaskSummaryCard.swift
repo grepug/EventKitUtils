@@ -9,13 +9,15 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskSummaryCard: View {
-    public init(eventManager: EventManager, parentVC: UIViewController) {
+    public init(eventManager: EventManager, parentVC: UIViewController, showMore: @escaping () -> Void) {
         self.em = eventManager
         self.parentVC = parentVC
+        self.showMore = showMore
     }
     
     let em: EventManager
     let parentVC: UIViewController
+    var showMore: () -> Void
     
     @AppStorage("showingTodayTasks") var showingTodayTasks = true
     @State var tasks: [TaskKind] = []

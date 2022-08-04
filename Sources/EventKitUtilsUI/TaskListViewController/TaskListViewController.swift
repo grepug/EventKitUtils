@@ -122,6 +122,8 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
     func makeRepeatingListViewController(title: String) -> TaskListViewController {
         .init(eventManager: em, fetchingTitle: title)
     }
+    
+    open func presentKeyResultDetail(idString: String) {}
 }
 
 extension TaskListViewController {

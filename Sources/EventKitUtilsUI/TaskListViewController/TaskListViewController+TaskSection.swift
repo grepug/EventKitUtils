@@ -97,7 +97,7 @@ extension TaskListViewController {
         if isContextMenu, let krId = task.keyResultId {
             MBGroup {
                 MBButton("v3_task_open_kr".loc) { [unowned self] in
-                    em.config.presentKeyResultDetail(krId)
+                    presentKeyResultDetail(idString: krId)
                 }
             }
         }

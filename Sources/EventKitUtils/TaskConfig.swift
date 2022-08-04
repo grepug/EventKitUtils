@@ -29,7 +29,7 @@ public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void, presentKeyResultSelector: @escaping PresentKeyResultSelectorHandler, presentKeyResultDetail: @escaping (String) -> Void) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void, presentKeyResultSelector: @escaping PresentKeyResultSelectorHandler) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
@@ -39,7 +39,6 @@ public struct TaskConfig {
         self.saveTask = saveTask
         self.deleteTask = deleteTask
         self.presentKeyResultSelector = presentKeyResultSelector
-        self.presentKeyResultDetail = presentKeyResultDetail
         
         let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
         let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
@@ -56,5 +55,4 @@ public struct TaskConfig {
     public var saveTask: (TaskKind) -> Void
     public var deleteTask: (TaskKind) -> Void
     public var presentKeyResultSelector: PresentKeyResultSelectorHandler
-    public var presentKeyResultDetail: (String) -> Void
 }
