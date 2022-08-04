@@ -14,8 +14,8 @@ public struct TaskSummaryCard: View {
         self.parentVC = parentVC
     }
     
-    var em: EventManager
-    var parentVC: UIViewController
+    let em: EventManager
+    let parentVC: UIViewController
     
     @AppStorage("showingTodayTasks") var showingTodayTasks = true
     @State var tasks: [TaskKind] = []
