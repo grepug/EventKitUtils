@@ -11,12 +11,6 @@ extension View {
     func border(width: CGFloat, edges: [Edge], color: Color) -> some View {
         overlay(EdgeBorder(width: width, edges: edges).foregroundColor(color))
     }
-    
-    func summaryItemStyled(backgroundColor: Color = Color(UIColor.systemBackground)) -> some View {
-        background(backgroundColor)
-            .cornerRadius(12)
-            .padding(.top)
-    }
 }
 
 struct EdgeBorder: Shape {

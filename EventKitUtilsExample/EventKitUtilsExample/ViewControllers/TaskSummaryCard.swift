@@ -18,18 +18,11 @@ class TaskSummaryCardList: DiffableListViewController {
     override var list: DLList {
         DLList {
             DLSection { [unowned self] in
-                DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskSummaryCard(tasks: self.tasks) { showingTodayTasks in
-                        /// show more button
-                        
-                    } createTask: { [unowned self] in
-                        presentTaskEditor()
-                    } presentTaskEdtor: { [unowned self] task in
-                        let vc = TaskEditorViewController(task: task, eventManager: em)
-                        present(vc, animated: true)
-                    }
+                DLCell(using: .swiftUI(movingTo: self, content: { [unowned self] in
+                    TaskSummaryCard(eventManager: self.em,
+                                    parentVC: self)
                 }))
-                .tag("tasks \(tasks.description)")
+                .tag("tasks")
             }
             .tag("0")
         }
@@ -37,27 +30,6 @@ class TaskSummaryCardList: DiffableListViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        reloadList()
-    }
-    
-    func reloadList() {
-        Task {
-            let tasks = await em.fetchTasks(with: .segment(.today))
-            let tasksGroupedByTitle = tasks.titleGrouped()
-            
-            self.tasks = tasks
-                .repeatingMerged(repeatingCount: { tasksGroupedByTitle[$0]?.count })
-                .prefix(3).map { $0 }
-            
-            reload(animating: false)
-        }
-    }
-}
-
-extension TaskSummaryCardList {
-    func presentTaskEditor() {
-        let task = em.config.createNonEventTask()
-        let vc = TaskEditorViewController(task: task, eventManager: em)
-        present(vc, animated: true)
+        reload()
     }
 }

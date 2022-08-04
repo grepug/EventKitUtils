@@ -9,34 +9,34 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskSummaryCard: View {
-    public init(tasks: [TaskKind] = [], showMore: @escaping (Bool) -> Void, createTask: @escaping () -> Void, presentTaskEdtor: @escaping (TaskKind) -> Void) {
-        self.tasks = tasks
-        self.showMore = showMore
-        self.createTask = createTask
-        self.presentTaskEdtor = presentTaskEdtor
+    public init(eventManager: EventManager, parentVC: UIViewController) {
+        self.em = eventManager
+        self.parentVC = parentVC
     }
     
-    var tasks: [TaskKind] = []
-    var showMore: (Bool) -> Void
-    var createTask: () -> Void
-    var presentTaskEdtor: (TaskKind) -> Void
+    var em: EventManager
+    var parentVC: UIViewController
     
     @AppStorage("showingTodayTasks") var showingTodayTasks = true
+    @State var tasks: [TaskKind] = []
     @State var checkedDict: [String: Bool] = [:]
     
     public var body: some View {
         VStack {
             header
-            empty
+            content
             footer
         }
-        .summaryItemStyled()
+        .onAppear {
+            reload()
+        }
     }
     
     var header: some View {
         HStack {
             Button {
                 showingTodayTasks.toggle()
+                reload()
             } label: {
                 HStack {
                     HStack(spacing: 2) {
@@ -54,7 +54,7 @@ public struct TaskSummaryCard: View {
             Spacer()
             
             Button {
-                showMore(showingTodayTasks)
+                showMore()
             } label: {
                 Text("\("v3_task_view_more".loc) >")
                     .font(.caption)
@@ -69,7 +69,7 @@ public struct TaskSummaryCard: View {
             Spacer()
             
             Button {
-                createTask()
+                presentTaskEditor()
             } label: {
                 Label("v3_task_create_task".loc, systemImage: "plus.circle")
                     .font(.subheadline)
@@ -99,17 +99,17 @@ public struct TaskSummaryCard: View {
                 checkedDict.removeAll()
             }
         } presentEditor: {
-            presentTaskEdtor(task)
+            presentTaskEditor(task: task)
         }
         .padding(.top, 12)
     }
     
-    var empty: some View {
+    var content: some View {
         Group {
             if tasks.isEmpty {
                 Text(showingTodayTasks ?
-                     "v3_task_today_no_tasks" :
-                        "v3_task_no_tasks")
+                     "v3_task_today_no_tasks".loc :
+                        "v3_task_no_tasks".loc)
                 .foregroundColor(.secondary)
             } else {
                 list
