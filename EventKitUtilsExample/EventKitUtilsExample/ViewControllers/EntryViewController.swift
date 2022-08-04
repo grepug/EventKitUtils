@@ -106,6 +106,8 @@ extension EventManager {
             mission.delete()
         } presentKeyResultSelector: { completion in
             
+        } presentKeyResultDetail: { idString in
+            
         }
     }
     

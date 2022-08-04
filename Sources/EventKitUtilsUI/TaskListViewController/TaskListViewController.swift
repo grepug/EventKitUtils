@@ -115,12 +115,12 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
             .store(in: &cancellables)
     }
     
-    open func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
+    func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
         .init(task: task, eventManager: em)
     }
     
-    open func makeRepeatingListViewController(title: String) -> TaskListViewController? {
-        nil
+    func makeRepeatingListViewController(title: String) -> TaskListViewController {
+        .init(eventManager: em, fetchingTitle: title)
     }
 }
 

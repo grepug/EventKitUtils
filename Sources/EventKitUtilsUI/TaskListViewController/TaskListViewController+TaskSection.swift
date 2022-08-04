@@ -26,7 +26,7 @@ extension TaskListViewController {
                     .backgroundConfiguration(.clear())
             }
             
-            for (index, task) in tasks.enumerated() {
+            for task in tasks {
                 DLCell(using: .swiftUI(movingTo: self, content: {
                     TaskListCell(task: task, recurenceCount: task.repeatingCount) { [unowned self] in
                         em.toggleCompletion(task)
@@ -38,8 +38,8 @@ extension TaskListViewController {
                 .tag(task.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(self.taskMenu(for: task, at: index, isContextMenu: true)).children)
-                .swipeTrailingActions(.makeActions(taskMenu(for: task, at: index)).reversed())
+                .contextMenu(.makeMenu(self.taskMenu(for: task, isContextMenu: true)).children)
+                .swipeTrailingActions(.makeActions(taskMenu(for: task)).reversed())
             }
         }
         .tag(groupedState?.title ?? "tasks")
@@ -93,22 +93,19 @@ extension TaskListViewController {
 
 extension TaskListViewController {
     @MenuBuilder
-    func taskMenu(for task: TaskValue, at index: Int = 0, isContextMenu: Bool = false) -> [MBMenu] {
-//        if isContextMenu, let kr = task.sortedKeyResults.first {
-//            MBButton("v3_task_open_kr".loc, image: kr.displayEmoji.textToImage()!) { [unowned self] in
-//                let vc = KeyResultDetail(kr: kr)
-//                let nav = vc.navigationControllerWrapped()
-//                present(nav, animated: true)
-//            }
-//        }
+    func taskMenu(for task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
+        if isContextMenu, let krId = task.keyResultId {
+            MBGroup {
+                MBButton("v3_task_open_kr".loc) { [unowned self] in
+                    em.config.presentKeyResultDetail(krId)
+                }
+            }
+        }
         
         if isContextMenu && em.testHasRepeatingTasks(with: task) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
-                    guard let vc = makeRepeatingListViewController(title: task.normalizedTitle) else {
-                        return
-                    }
-                    
+                    let vc = makeRepeatingListViewController(title: task.normalizedTitle)
                     let nav = vc.navigationControllerWrapped()
                     
                     nav.modalPresentationStyle = .popover

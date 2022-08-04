@@ -30,6 +30,8 @@ class TaskSummaryCardList: DiffableListViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        reload()
+        title = "Summary"
+        setTopPadding()
+        reload(animating: false)
     }
 }
