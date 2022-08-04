@@ -24,6 +24,7 @@
 		2AF5D7682887B9A200778D98 /* EventKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2AF5D7672887B9A200778D98 /* EventKitUtils */; };
 		2AF5D76B2888424300778D98 /* Mission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D76A2888424300778D98 /* Mission.swift */; };
 		2AF5D76D2889404000778D98 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D76C2889404000778D98 /* EntryViewController.swift */; };
+		2AFA1DA7289B807300758525 /* TaskSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFA1DA6289B807300758525 /* TaskSummaryCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 		2AF5D7622886589D00778D98 /* EventKitUtils */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = EventKitUtils; path = ..; sourceTree = "<group>"; };
 		2AF5D76A2888424300778D98 /* Mission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mission.swift; sourceTree = "<group>"; };
 		2AF5D76C2889404000778D98 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
+		2AFA1DA6289B807300758525 /* TaskSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +71,7 @@
 				2AD089F32890C69F003002E6 /* EventSettings.swift */,
 				2A5B41AB288D42320089A70D /* TaskEditor.swift */,
 				2A5B41A8288D40C70089A70D /* TaskList.swift */,
+				2AFA1DA6289B807300758525 /* TaskSummaryCard.swift */,
 				2AF5D7512886584D00778D98 /* ViewController.swift */,
 			);
 			path = ViewControllers;
@@ -215,6 +218,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AFA1DA7289B807300758525 /* TaskSummaryCard.swift in Sources */,
 				2A5B41A9288D40C70089A70D /* TaskList.swift in Sources */,
 				2AD089F42890C69F003002E6 /* EventSettings.swift in Sources */,
 				2A5B41AC288D42320089A70D /* TaskEditor.swift in Sources */,

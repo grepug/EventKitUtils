@@ -8,7 +8,7 @@
 import Foundation
 import Collections
 
-public struct TaskValue: TaskKind, Equatable {
+public struct TaskValue: TaskKind, Hashable {
     public var normalizedID: String
     public var normalizedTitle: String
     public var normalizedStartDate: Date?

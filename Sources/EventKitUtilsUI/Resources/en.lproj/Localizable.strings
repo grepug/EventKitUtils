@@ -10,3 +10,10 @@
 "v3_task_postpone" = "Postpone";
 "v3_task_editor_title_ph" = "Title";
 "v3_task_editor_remark" = "Note";
+
+"v3_task_today_tasks" = "Today Task";
+"v3_task_recent_tasks" = "Recent Tasks";
+"v3_task_view_more" = "View More";
+"v3_task_no_tasks" = "No Tasks";
+"v3_task_today_no_tasks" = "All Completed";
+"v3_task_create_task" = "Add Task";

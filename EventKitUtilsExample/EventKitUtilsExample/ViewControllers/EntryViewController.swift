@@ -35,6 +35,16 @@ class EntryViewController: DiffableListViewController {
                     let vc = EventSettingsViewController(eventManager: .shared)
                     push(vc)
                 }
+                
+                DLCell {
+                    DLText("TaskSummaryCard")
+                }
+                .tag("taskSummaryCard")
+                .accessories([.disclosureIndicator()])
+                .onTapAndDeselect { [unowned self] _ in
+                    let vc = TaskSummaryCardList()
+                    push(vc)
+                }
             }
             .tag("0")
         }

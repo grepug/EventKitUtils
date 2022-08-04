@@ -10,3 +10,10 @@
 
 "v3_task_editor_title_ph" = "标题";
 "v3_task_editor_remark" = "备忘";
+
+"v3_task_today_tasks" = "今日任务";
+"v3_task_recent_tasks" = "最近任务";
+"v3_task_view_more" = "查看更多";
+"v3_task_no_tasks" = "暂无任务";
+"v3_task_today_no_tasks" = "今日任务已完成";
+"v3_task_create_task" = "新建任务";
