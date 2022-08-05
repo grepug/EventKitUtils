@@ -57,3 +57,16 @@ extension String {
         String(format: NSLocalizedString(self, bundle: .module, comment: ""), string)
     }
 }
+
+extension Double {
+    func toString(toFixed fixed: Int, dropingDotZero: Bool = false) -> String {
+        let string = String(format: "%.\(fixed)f", self)
+        let decimal = truncatingRemainder(dividingBy: 1)
+        
+        if dropingDotZero && decimal == 0 {
+            return String(Int(self))
+        }
+        
+        return string
+    }
+}

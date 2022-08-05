@@ -40,11 +40,13 @@ extension EventManager {
                             dict2[keyResultId] = []
                         }
                         
-                        let recordValue = RecordValue(id: UUID().uuidString,
+                        let recordValue = RecordValue(normalizedID: UUID().uuidString,
                                                       value: value,
                                                       date: completedAt,
+                                                      notes: event.notes,
                                                       createdAt: Date(),
-                                                      updatedAt: Date())
+                                                      updatedAt: Date(),
+                                                      hasLinkedTask: true)
                         dict2[keyResultId]!.append(recordValue)
                     }
                     

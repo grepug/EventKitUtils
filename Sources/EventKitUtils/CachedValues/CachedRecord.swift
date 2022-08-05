@@ -8,27 +8,51 @@
 import Foundation
 
 public protocol RecordKind {
-    var id: String { get }
+    var normalizedID: String { get }
     var value: Double { get set }
-    var date: Date { get set }
-    var createdAt: Date { get set }
-    var updatedAt: Date { get set }
+    var date: Date? { get set }
+    var createdAt: Date? { get set }
+    var updatedAt: Date? { get set }
+    var notes: String? { get set }
+    var hasLinkedTask: Bool { get }
+    
     var recordValue: RecordValue { get }
 }
 
-public struct RecordValue: RecordKind, Hashable {
-    public init(id: String, value: Double, date: Date, createdAt: Date, updatedAt: Date) {
-        self.id = id
-        self.value = value
-        self.date = date
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
+public extension RecordKind {
+    var valueString: String {
+        get { value.toString(toFixed: 2) }
+        set { value = Double(newValue) ?? 0 }
     }
     
-    public var id: String
+    var dateString: String {
+        (date ?? Date()).formatted(in: .short)
+    }
+}
+
+public struct RecordValue: RecordKind, Hashable {
+    public init(normalizedID: String, value: Double, date: Date? = nil, notes: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, hasLinkedTask: Bool) {
+        self.normalizedID = normalizedID
+        self.value = value
+        self.date = date
+        self.notes = notes
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.hasLinkedTask = hasLinkedTask
+    }
+
+    public var normalizedID: String
     public var value: Double
-    public var date: Date
-    public var createdAt: Date
-    public var updatedAt: Date
+    public var date: Date?
+    public var notes: String?
+    public var createdAt: Date?
+    public var updatedAt: Date?
     public var recordValue: RecordValue { self }
+    public var hasLinkedTask: Bool
+}
+
+public extension Collection where Element: RecordKind {
+    var recordValues: [RecordValue] {
+        map(\.recordValue)
+    }
 }
