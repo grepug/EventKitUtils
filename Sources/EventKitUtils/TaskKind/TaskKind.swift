@@ -73,6 +73,24 @@ public extension TaskKind {
         return start..<end
     }
     
+    var linkedValueString: String? {
+        get {
+            guard let value = linkedValue else {
+                return nil
+            }
+            
+            return value.toString(toFixed: 2)
+        }
+        
+        set {
+            if let valueString = newValue {
+                linkedValue = Double(valueString)
+            } else {
+                linkedValue = nil
+            }
+        }
+    }
+    
     var cellTag: String {
         normalizedID +
         normalizedTitle +
