@@ -98,21 +98,40 @@ open class TaskEditorViewController: DiffableListViewController {
             }
             .tag("2")
             
-            DLSection {
-                DLCell {
-                    DLText("关联关键结果")
-                        .color(.accentColor)
-                }
-                .tag("link kr")
-                .onTapAndDeselect { [unowned self] _ in
-                    guard let vc = em.config.makeKeyResultSelector?({ [unowned self] krID in
-                        task.keyResultId = krID
-                    }) else {
-                        return
+            DLSection { [unowned self] in
+                if let krId = task.keyResultId,
+                   let krInfo = em.config.fetchKeyResultInfo?(krId) {
+                    DLCell {
+                        DLImage(krInfo.emojiImage)
+                        DLText(krInfo.title)
+                        DLText(krInfo.goalTitle)
+                            .secondary()
+                            .color(.secondaryLabel)
                     }
-                    
-                    present(vc, animated: true)
+                    .tag(krId)
+                    .accessories([.imageButton(image: .init(systemName: "xmark.circle.fill")!.colored(.secondaryLabel),
+                                               action: { [unowned self] in
+                        task.keyResultId = nil
+                        reload()
+                    })])
+                } else {
+                    DLCell {
+                        DLText("关联关键结果")
+                            .color(.accentColor)
+                    }
+                    .tag("link kr")
+                    .onTapAndDeselect { [unowned self] _ in
+                        guard let vc = em.config.makeKeyResultSelector?({ [unowned self] krID in
+                            task.keyResultId = krID
+                            reload()
+                        }) else {
+                            return
+                        }
+                        
+                        present(vc, animated: true)
+                    }
                 }
+                
             }
             .tag("3")
             
@@ -125,7 +144,7 @@ open class TaskEditorViewController: DiffableListViewController {
                 }
                 .tag("calendar \(isEvent)")
                 .accessories([.label(isEvent ? "已开启" : "开启"), .disclosureIndicator()])
-                .onTapAndDeselect {  [unowned self] _ in
+                .onTapAndDeselect { [unowned self] _ in
                     presentEventEditor()
                 }
             }

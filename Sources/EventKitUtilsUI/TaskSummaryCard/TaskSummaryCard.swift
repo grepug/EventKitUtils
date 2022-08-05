@@ -103,6 +103,7 @@ public struct TaskSummaryCard: View {
             presentTaskEditor(task: task)
         }
         .padding(.top, 12)
+        .background(Color(UIColor.systemBackground))
         .contextMenu {
             if #available(iOS 15.0, *) {
                 if em.testHasRepeatingTasks(with: task) {

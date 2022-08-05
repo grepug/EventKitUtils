@@ -56,4 +56,21 @@ public struct TaskConfig {
     public var deleteTask: (TaskKind) -> Void
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
+    
+    public struct KeyResultInfo: Hashable {
+        public init(id: String, title: String, emojiImage: UIImage, goalTitle: String) {
+            self.id = id
+            self.title = title
+            self.emojiImage = emojiImage
+            self.goalTitle = goalTitle
+        }
+        
+        
+        public let id: String
+        public let title: String
+        public let emojiImage: UIImage
+        public let goalTitle: String
+    }
+    
+    public var fetchKeyResultInfo: ((String) -> KeyResultInfo?)?
 }
