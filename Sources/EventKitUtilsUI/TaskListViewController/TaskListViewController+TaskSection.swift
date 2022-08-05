@@ -127,7 +127,7 @@ extension TaskListViewController {
         }
         
         MBButton.delete { [unowned self] completion in
-            if let count = task.repeatingCount, count > 0 {
+            if let count = task.repeatingCount, count > 1 {
                 presentDeletingTaskGroupAlert {
                     completion(false)
                 } deletingThis: { [unowned self] in

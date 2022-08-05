@@ -32,6 +32,10 @@ public protocol TaskKind {
 }
 
 public extension TaskKind {
+    var isEmpty: Bool {
+        normalizedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
     var isDateEnabled: Bool {
         get {
             normalizedStartDate != nil && normalizedEndDate != nil
@@ -40,8 +44,11 @@ public extension TaskKind {
         set {
             if newValue {
                 let date = Date()
-                normalizedStartDate = normalizedStartDate ?? date
-                normalizedEndDate = normalizedEndDate ?? Calendar.current.date(byAdding: .day, value: 1, to: date)
+                
+                if normalizedStartDate == nil || normalizedEndDate == nil {
+                    normalizedStartDate = date
+                    normalizedEndDate = date.tomorrow
+                }
             } else {
                 normalizedStartDate = nil
                 normalizedEndDate = nil

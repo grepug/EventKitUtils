@@ -186,6 +186,12 @@ extension TaskEditorViewController {
     }
     
     func doneEditor() async {
+        guard !task.isEmpty else {
+            em.deleteTask(task)
+            dismissEditor()
+            return
+        }
+        
         if task.value != originalTaskValue,
            task.testAreDatesSame(from: originalTaskValue),
            let endDate = originalTaskValue.normalizedEndDate {
