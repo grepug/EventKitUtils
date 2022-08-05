@@ -17,3 +17,9 @@
 "v3_task_no_tasks" = "暂无任务";
 "v3_task_today_no_tasks" = "今日任务已完成";
 "v3_task_create_task" = "新建任务";
+
+"v3_task_editor_link_kr_title" = "关联关键结果";
+"v3_task_editor_select_linked_kr_title" = "选择关键结果";
+"v3_task_editor_linked_record" = "关联记录值";
+"v3_task_editor_linked_record_ph" = "记录值";
+"v3_task_editor_linked_record_footer" = "开启后完成该任务将自动在该关键结果下添加一条记录";

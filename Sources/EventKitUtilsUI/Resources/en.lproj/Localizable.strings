@@ -17,3 +17,9 @@
 "v3_task_no_tasks" = "No Tasks";
 "v3_task_today_no_tasks" = "All Completed";
 "v3_task_create_task" = "Add Task";
+
+"v3_task_editor_link_kr_title" = "Linked Key Result";
+"v3_task_editor_select_linked_kr_title" = "Select Key Result";
+"v3_task_editor_linked_record" = "Linked Record Value";
+"v3_task_editor_linked_record_ph" = "Value";
+"v3_task_editor_linked_record_footer" = "It'll automatically a record to the key result when you complete the task";

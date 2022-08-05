@@ -147,11 +147,11 @@ extension TaskEditorViewController {
     @ListBuilder
     var linkRecordSection: [DLSection] {
         DLSection { [unowned self] in
-            DLCell(using: .header("v3_task_editor_linked_record".loc, using: .groupedHeader()))
-                .tag("link record header")
-            
             DLCell {
                 DLText("开启关联记录值")
+                DLText("v3_task_editor_linked_record_footer".loc)
+                    .secondary()
+                    .color(.secondaryLabel)
             }
             .tag("isLinkedRecord \(self.task.linkedValue != nil)")
             .accessories([.toggle(isOn: self.task.linkedValue != nil,
@@ -174,7 +174,5 @@ extension TaskEditorViewController {
             }
         }
         .tag("link record")
-        .firstCellAsHeader()
-        .footer("v3_task_editor_linked_record_footer".loc)
     }
 }
