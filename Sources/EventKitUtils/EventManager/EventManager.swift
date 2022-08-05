@@ -156,7 +156,15 @@ public extension EventManager {
                         if title == event.normalizedTitle {
                             tasks.append(event.value)
                         }
-                    default:
+                    case .recordValue(let recordValue):
+                        if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
+                            if taskID == event.normalizedID && completedAt == event.completedAt {
+                                tasks.append(event.value)
+                                
+                                return true
+                            }
+                        }
+                    case .segment:
                         tasks.append(event.value)
                     }
                     
@@ -168,7 +176,7 @@ public extension EventManager {
         }
     }
     
-    func fetchTasks(with type:FetchTasksType) async -> [TaskValue] {
+    func fetchTasks(with type: FetchTasksType) async -> [TaskValue] {
         await withCheckedContinuation { continuation in
             fetchTasksAsync(with: type) { tasks in
                 continuation.resume(returning: tasks)

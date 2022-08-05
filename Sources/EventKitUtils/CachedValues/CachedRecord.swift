@@ -18,7 +18,7 @@ public protocol RecordKind {
     var createdAt: Date? { get set }
     var updatedAt: Date? { get set }
     var notes: String? { get set }
-    var hasLinkedTask: Bool { get }
+    var linkedTaskID: String? { get }
     var isValueType: Bool { get }
     var kindIdentifier: RecordKindIdentifier { get }
     
@@ -37,14 +37,14 @@ public extension RecordKind {
 }
 
 public struct RecordValue: RecordKind, Hashable {
-    public init(normalizedID: String, value: Double, date: Date? = nil, notes: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, hasLinkedTask: Bool, kindIdentifier: RecordKindIdentifier) {
+    public init(normalizedID: String, value: Double, date: Date? = nil, notes: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, linkedTaskID: String? = nil, kindIdentifier: RecordKindIdentifier) {
         self.normalizedID = normalizedID
         self.value = value
         self.date = date
         self.notes = notes
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.hasLinkedTask = hasLinkedTask
+        self.linkedTaskID = linkedTaskID
         self.kindIdentifier = kindIdentifier
     }
 
@@ -55,7 +55,7 @@ public struct RecordValue: RecordKind, Hashable {
     public var createdAt: Date?
     public var updatedAt: Date?
     public var recordValue: RecordValue { self }
-    public var hasLinkedTask: Bool
+    public var linkedTaskID: String?
     public var kindIdentifier: RecordKindIdentifier
     
     public var isValueType: Bool { true }
