@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 public enum FetchTasksSegmentType: Int, CaseIterable {
     case today, incompleted, completed
@@ -25,11 +26,11 @@ public enum FetchTasksType: Hashable {
 }
 
 public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> Void) -> Void
-public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) -> Void
+public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) -> UIViewController?
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void, presentKeyResultSelector: @escaping PresentKeyResultSelectorHandler) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskKind) -> Void, deleteTask: @escaping (TaskKind) -> Void) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
@@ -38,7 +39,6 @@ public struct TaskConfig {
         self.fetchNonEventTasks = fetchNonEventTasks
         self.saveTask = saveTask
         self.deleteTask = deleteTask
-        self.presentKeyResultSelector = presentKeyResultSelector
         
         let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
         let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
@@ -54,5 +54,6 @@ public struct TaskConfig {
     public var taskCountWithTitle: (TaskKind) -> Int
     public var saveTask: (TaskKind) -> Void
     public var deleteTask: (TaskKind) -> Void
-    public var presentKeyResultSelector: PresentKeyResultSelectorHandler
+    public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
+    public var makeKeyResultDetail: ((String) -> UIViewController?)?
 }

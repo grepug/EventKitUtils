@@ -105,9 +105,13 @@ open class TaskEditorViewController: DiffableListViewController {
                 }
                 .tag("link kr")
                 .onTapAndDeselect { [unowned self] _ in
-                    em.config.presentKeyResultSelector { [unowned self] krID in
+                    guard let vc = em.config.makeKeyResultSelector?({ [unowned self] krID in
                         task.keyResultId = krID
+                    }) else {
+                        return
                     }
+                    
+                    present(vc, animated: true)
                 }
             }
             .tag("3")
