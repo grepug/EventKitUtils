@@ -46,7 +46,8 @@ extension EventManager {
                                                       notes: event.notes,
                                                       createdAt: Date(),
                                                       updatedAt: Date(),
-                                                      hasLinkedTask: true)
+                                                      hasLinkedTask: true,
+                                                      kindIdentifier: .event)
                         dict2[keyResultId]!.append(recordValue)
                     }
                     
