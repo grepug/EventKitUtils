@@ -8,6 +8,7 @@
 import Foundation
 import EventKit
 import Combine
+import UIKit
 
 public class EventManager {
     public var config: TaskConfig
@@ -237,7 +238,43 @@ extension EventManager {
     }
 }
 
-extension TaskConfig {
+extension EventManager {
+    public func handleDeleteTask(task: TaskValue, on vc: UIViewController, completion: ((Bool) -> Void)? = nil, removeTask: (() -> Void)? = nil) {
+        if let count = task.repeatingCount, count > 1 {
+            presentDeletingTasksAlert(parentVC: vc) {
+                completion?(false)
+            } deletingThis: { [unowned self] in
+                deleteTask(task)
+                completion?(true)
+            } deletingAll: { [unowned self] in
+                Task {
+                    let tasks = await fetchTasks(with: .title(task.normalizedTitle))
+                    deleteTasks(tasks)
+                    completion?(true)
+                }
+            }
+        } else {
+            removeTask?()
+            deleteTask(task)
+            completion?(true)
+        }
+    }
+    
+    private func presentDeletingTasksAlert(parentVC: UIViewController, canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {
+        let ac = UIAlertController(title: "删除所有？", message: "", preferredStyle: .alert)
+        ac.addAction(.init(title: "action_cancel".loc, style: .cancel))
+        ac.addAction(.init(title: "仅删除当前", style: .destructive, handler: { _ in
+            deletingThis()
+        }))
+        ac.addAction(.init(title: "删除所有", style: .destructive, handler: { _ in
+            deletingAll()
+        }))
+        
+        parentVC.present(ac, animated: true)
+    }
+}
+
+fileprivate extension TaskConfig {
     var userDefaults: UserDefaults {
         if let appGroup = appGroup,
         let userDefaults = UserDefaults(suiteName: appGroup) {

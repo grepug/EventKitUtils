@@ -11,10 +11,10 @@ extension TaskSummaryCard {
     func reload() {
         Task {
             let tasks = await em.fetchTasks(with: .segment(.today))
-            
-            self.tasks = tasks
                 .repeatingMerged()
                 .prefix(3).map { $0 }
+            
+            self.tasks = tasks
         }
     }
 }

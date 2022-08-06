@@ -122,7 +122,11 @@ public struct TaskSummaryCard: View {
                 }
                     
                 Button(role: .destructive) {
-                    
+                    em.handleDeleteTask(task: task, on: parentVC) { _ in
+                        reload()
+                    } removeTask: {
+                        tasks.removeAll { $0.normalizedID == task.normalizedID }
+                    }
                 } label: {
                     Label("删除", systemImage: "trash")
                 }

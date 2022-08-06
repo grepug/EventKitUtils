@@ -126,25 +126,11 @@ extension TaskListViewController {
         }
         
         MBButton.delete { [unowned self] completion in
-            if let count = task.repeatingCount, count > 1 {
-                presentDeletingTaskGroupAlert {
-                    completion(false)
-                } deletingThis: { [unowned self] in
-                    em.deleteTask(task)
-                    completion(true)
-                    reloadList()
-                } deletingAll: { [unowned self] in
-                    Task {
-                        let tasks = await em.fetchTasks(with:.title(task.normalizedTitle))
-                        em.deleteTasks(tasks)
-                        completion(true)
-                        reloadList()
-                    }
-                }
-            } else {
+            em.handleDeleteTask(task: task, on: self) { [unowned self] in
+                completion($0)
+                reloadList()
+            } removeTask: { [unowned self] in
                 removeTask(task)
-                completion(true)
-                em.deleteTask(task)
             }
         }
     }
@@ -155,21 +141,5 @@ extension TaskListViewController {
         }
         
         reload()
-    }
-    
-    func presentDeletingTaskGroupAlert(canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {
-        presentAlertController(title: "删除所有？",
-                               message: "",
-                               actions: [
-                                .cancel {
-                                    canceled()
-                                },
-                                .init(title: "仅删除当前", style: .destructive) { _ in
-                                    deletingThis()
-                                },
-                                .init(title: "删除所有", style: .destructive) { _ in
-                                    deletingAll()
-                                }
-                               ])
     }
 }
