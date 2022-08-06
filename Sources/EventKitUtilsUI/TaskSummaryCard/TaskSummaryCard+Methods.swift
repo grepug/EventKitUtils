@@ -21,9 +21,16 @@ extension TaskSummaryCard {
 
 extension TaskSummaryCard {
     func presentTaskEditor(task: TaskKind? = nil) {
-        let task = task ?? em.config.createNonEventTask()
+        let task = em.taskKind()
         let vc = TaskEditorViewController(task: task, eventManager: em)
         let nav = vc.navigationControllerWrapped()
+        
+        vc.onDismiss = {
+            let vc = TaskListViewController(eventManager: em)
+            vc.segment = showingTodayTasks ? .today : .incompleted
+            
+            parentVC.navigationController?.pushViewController(vc, animated: true)
+        }
         
         parentVC.present(nav, animated: true)
     }

@@ -109,7 +109,7 @@ extension TaskListViewController {
         if isContextMenu && em.testHasRepeatingTasks(with: task) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
-                    let vc = em.config.makeRepeatingListViewController!(task.value)
+                    let vc = TaskListViewController(eventManager: em, fetchingTitle: task.normalizedTitle)
                     
                     vc.modalPresentationStyle = .popover
                     

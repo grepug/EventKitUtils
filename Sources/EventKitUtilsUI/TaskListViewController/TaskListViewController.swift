@@ -30,10 +30,13 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
         fetchingTitle != nil
     }
     
-    public init(eventManager: EventManager, fetchingTitle: String? = nil) {
+    public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, fetchingTitle: String? = nil) {
         self.em = eventManager
         self.fetchingTitle = fetchingTitle
         super.init(nibName: nil, bundle: nil)
+        
+        segment = initialSegment
+        hidesBottomBarWhenPushed = true
     }
     
     required public init?(coder: NSCoder) {
@@ -231,15 +234,7 @@ extension TaskListViewController {
     }
     
     func presentTaskEditor(task: TaskValue? = nil) {
-        var taskObject: TaskKind
-        
-        if let task = task {
-            taskObject = em.taskObject(task)!
-        } else {
-            taskObject = em.config.createNonEventTask()
-        }
-        
-        taskObject.isDateEnabled = true
+        let taskObject = em.taskKind(from: task)
         
         let vc = taskEditorViewController(task: taskObject)
         let nav = vc.navigationControllerWrapped()

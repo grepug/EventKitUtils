@@ -200,6 +200,20 @@ public extension EventManager {
             }
         }
     }
+    
+    func taskKind(from taskValue: TaskValue? = nil) -> TaskKind {
+        var taskObject: TaskKind
+        
+        if let task = taskValue {
+            taskObject = self.taskObject(task)!
+        } else {
+            taskObject = config.createNonEventTask()
+        }
+        
+        taskObject.isDateEnabled = true
+        
+        return taskObject
+    }
 }
 
 extension EventManager {
