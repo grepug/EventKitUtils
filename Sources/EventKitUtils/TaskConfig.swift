@@ -56,6 +56,7 @@ public struct TaskConfig {
     public var deleteTask: (TaskKind) -> Void
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
+    public var makeRepeatingListViewController: ((TaskValue) -> UIViewController)?
     
     public struct KeyResultInfo: Hashable {
         public init(id: String, title: String, emojiImage: UIImage, goalTitle: String) {

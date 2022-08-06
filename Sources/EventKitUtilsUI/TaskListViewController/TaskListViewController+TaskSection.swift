@@ -97,7 +97,7 @@ extension TaskListViewController {
         if isContextMenu, let krId = task.keyResultId {
             MBGroup {
                 MBButton("v3_task_open_kr".loc) { [unowned self] in
-                    guard let vc = em.config.makeKeyResultDetail?(krId) else {
+                    guard let vc = em.config.makeKeyResultDetail!(krId) else {
                         return
                     }
                     
@@ -109,15 +109,14 @@ extension TaskListViewController {
         if isContextMenu && em.testHasRepeatingTasks(with: task) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
-                    let vc = makeRepeatingListViewController(title: task.normalizedTitle)
-                    let nav = vc.navigationControllerWrapped()
+                    let vc = em.config.makeRepeatingListViewController!(task.value)
                     
-                    nav.modalPresentationStyle = .popover
+                    vc.modalPresentationStyle = .popover
                     
                     let indexPath = listView.indexPath(forItemIdentifier: task.cellTag)!
-                    nav.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
+                    vc.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
                     
-                    present(nav, animated: true)
+                    present(vc, animated: true)
                 }
             }
         }

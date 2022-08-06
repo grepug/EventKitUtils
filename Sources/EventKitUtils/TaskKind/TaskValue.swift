@@ -30,7 +30,6 @@ public struct TaskValue: TaskKind, Hashable {
 }
 
 public extension Array where Element == TaskValue {
-    #warning("need refactor, and improvement")
     func incompletedTasksAfter(_ date: Date) -> [TaskValue] {
         filter { task in
             guard !task.isCompleted else {

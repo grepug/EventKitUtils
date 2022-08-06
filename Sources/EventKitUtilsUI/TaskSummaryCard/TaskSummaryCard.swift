@@ -108,7 +108,8 @@ public struct TaskSummaryCard: View {
             if #available(iOS 15.0, *) {
                 if em.testHasRepeatingTasks(with: task) {
                     Button("查看重复任务") {
-                        
+                        let vc = em.config.makeRepeatingListViewController!(task)
+                        parentVC.present(vc, animated: true)
                     }
                     
                     Divider()
