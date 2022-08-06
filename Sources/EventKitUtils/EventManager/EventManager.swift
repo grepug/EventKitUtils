@@ -29,11 +29,12 @@ public class EventManager {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
             .prepend(())
-            .flatMap { [unowned self] in
+            .map { [unowned self] in
                 valuesByKeyResultID
                     .compactMap { $0 }
                     .receive(on: DispatchQueue.main)
             }
+            .switchToLatest()
             .sink { [unowned self] a, b in
                 tasksOfKeyResult.assignWithDictionary(a)
                 recordsOfKeyResult.assignWithDictionary(b)
