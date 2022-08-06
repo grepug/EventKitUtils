@@ -86,6 +86,13 @@ extension TaskEditorViewController {
     }
     
     func doneEditor() async {
+        if task.isDateEnabled {
+            guard task.dateRange != nil else {
+                presentDateRangeErrorAlert()
+                return
+            }
+        }
+        
         guard !task.isEmpty else {
             em.deleteTask(task)
             dismissEditor()
@@ -132,6 +139,10 @@ extension TaskEditorViewController {
             },
             .cancel
         ])
+    }
+    
+    func presentDateRangeErrorAlert() {
+        presentAlertController(title: "结束日期不能早于开始日期", message: nil, actions: [.ok()])
     }
     
     func dismissEditor() {
