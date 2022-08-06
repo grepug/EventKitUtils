@@ -9,10 +9,9 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskListCell: View {
-    public init(task: TaskKind, isSummaryCard: Bool = false, recurenceCount: Int? = nil, linkedKeyResultTitle: String? = nil, hidingGoal: Bool = false, hidingDate: Bool = false, check: @escaping () -> Void, presentEditor: (() -> Void)? = nil) {
+    public init(task: TaskValue, isSummaryCard: Bool = false, linkedKeyResultTitle: String? = nil, hidingGoal: Bool = false, hidingDate: Bool = false, check: @escaping () -> Void, presentEditor: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
-        self.recurenceCount = recurenceCount
         self.linkedKeyResultTitle = linkedKeyResultTitle
         self.hidingGoal = hidingGoal
         self.hidingDate = hidingDate
@@ -20,9 +19,8 @@ public struct TaskListCell: View {
         self.presentEditor = presentEditor
     }
     
-    var task: TaskKind
+    var task: TaskValue
     var isSummaryCard: Bool = false
-    var recurenceCount: Int?
     var linkedKeyResultTitle: String?
     var hidingGoal: Bool = false
     var hidingDate: Bool = false
@@ -98,8 +96,8 @@ public struct TaskListCell: View {
                     Text(dateString)
                         .foregroundColor(relativeDateColor)
                         
-                    if let recurenceCount = recurenceCount, recurenceCount > 1 {
-                        Label("\(recurenceCount)", systemImage: "repeat")
+                    if let repeatingCount = task.repeatingCount, repeatingCount > 1 {
+                        Label("\(repeatingCount)", systemImage: "repeat")
                             .foregroundColor(.secondary)
                     }
                 }

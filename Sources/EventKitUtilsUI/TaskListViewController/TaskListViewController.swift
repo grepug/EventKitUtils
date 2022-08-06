@@ -213,10 +213,9 @@ extension TaskListViewController {
         }
         
         var dict: TaskGroupsByState = [:]
-        let tasksGroupedByTitle = tasks.titleGrouped()
         
         for (state, tasks) in cache {
-            dict[state] = tasks.repeatingMerged { tasksGroupedByTitle[$0]?.count } 
+            dict[state] = tasks.repeatingMerged()
         }
         
         return dict

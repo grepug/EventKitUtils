@@ -20,7 +20,7 @@ public struct TaskSummaryCard: View {
     var showMore: () -> Void
     
     @AppStorage("showingTodayTasks") var showingTodayTasks = true
-    @State var tasks: [TaskKind] = []
+    @State var tasks: [TaskValue] = []
     @State var checkedDict: [String: Bool] = [:]
     
     public var body: some View {
@@ -91,7 +91,7 @@ public struct TaskSummaryCard: View {
         .animation(.default)
     }
     
-    func taskItem(_ task: TaskKind) -> some View {
+    func taskItem(_ task: TaskValue) -> some View {
         TaskListCell(task: task, isSummaryCard: true) {
             checkedDict[task.normalizedID] = true
             

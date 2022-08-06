@@ -11,10 +11,9 @@ extension TaskSummaryCard {
     func reload() {
         Task {
             let tasks = await em.fetchTasks(with: .segment(.today))
-            let tasksGroupedByTitle = tasks.titleGrouped()
             
             self.tasks = tasks
-                .repeatingMerged { tasksGroupedByTitle[$0]?.count }
+                .repeatingMerged()
                 .prefix(3).map { $0 }
         }
     }

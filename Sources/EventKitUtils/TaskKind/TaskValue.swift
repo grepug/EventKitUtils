@@ -67,7 +67,7 @@ public extension Array where Element == TaskValue {
         return cache
     }
     
-    func repeatingMerged(repeatingCount: (String) -> Int?) -> [TaskValue] {
+    func repeatingMerged() -> [TaskValue] {
         var taskValues: [TaskValue] = []
         var completedTaskValues: [TaskValue] = []
         let cache = titleGrouped { task in
@@ -78,7 +78,7 @@ public extension Array where Element == TaskValue {
         
         for (_, tasks) in cache {
             if var first = tasks.first {
-                first.repeatingCount = repeatingCount(first.normalizedTitle) ?? tasks.count
+                first.repeatingCount = cache[first.normalizedTitle]?.count ?? tasks.count
                 
                 taskValues.append(first)
             }
