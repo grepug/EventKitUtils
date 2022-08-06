@@ -8,7 +8,18 @@
 import SwiftUI
 import EventKitUtils
 
-struct TaskListCell: View {
+public struct TaskListCell: View {
+    public init(task: TaskKind, isSummaryCard: Bool = false, recurenceCount: Int? = nil, linkedKeyResultTitle: String? = nil, hidingGoal: Bool = false, hidingDate: Bool = false, check: @escaping () -> Void, presentEditor: (() -> Void)? = nil) {
+        self.task = task
+        self.isSummaryCard = isSummaryCard
+        self.recurenceCount = recurenceCount
+        self.linkedKeyResultTitle = linkedKeyResultTitle
+        self.hidingGoal = hidingGoal
+        self.hidingDate = hidingDate
+        self.check = check
+        self.presentEditor = presentEditor
+    }
+    
     var task: TaskKind
     var isSummaryCard: Bool = false
     var recurenceCount: Int?
@@ -16,7 +27,7 @@ struct TaskListCell: View {
     var hidingGoal: Bool = false
     var hidingDate: Bool = false
     var check: () -> Void
-    var presentEditor: () -> Void
+    var presentEditor: (() -> Void)?
     
     var relativeDateColor: Color {
 //        let days = task.plannedDate.map { Date.current.days(to: $0, includingLastDay: false) } ?? 1
@@ -32,7 +43,7 @@ struct TaskListCell: View {
         return .accentColor
     }
     
-    var body: some View {
+    public var body: some View {
         HStack(alignment: .top) {
             Button {
                 check()
@@ -55,7 +66,7 @@ struct TaskListCell: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {
-            presentEditor()
+            presentEditor?()
         }
     }
     

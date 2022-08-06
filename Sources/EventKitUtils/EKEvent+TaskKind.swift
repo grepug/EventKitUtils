@@ -20,13 +20,9 @@ extension EKEvent: TaskKind {
         eventIdentifier
     }
     
-    var titlePrefixEmoji: String {
-        isCompleted ? "✅" : "⭕️"
-    }
-    
     public var normalizedTitle: String {
         get { (title ?? "").statusEmojiTrimmed() }
-        set { title = "\(titlePrefixEmoji) \(newValue)" }
+        set { title = "\(emoji) \(newValue)" }
     }
     
     public var normalizedStartDate: Date? {

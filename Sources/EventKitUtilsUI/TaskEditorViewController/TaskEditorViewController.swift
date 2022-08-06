@@ -17,7 +17,7 @@ open class TaskEditorViewController: DiffableListViewController {
     let originalTaskValue: TaskValue
     unowned let em: EventManager
     
-    var onDismiss: (() -> Void)?
+    public var onDismiss: (() -> Void)?
     
     public init(task: TaskKind, eventManager: EventManager) {
         self.task = task.isValueType ? eventManager.taskObject(task) : task

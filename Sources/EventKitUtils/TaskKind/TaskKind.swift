@@ -36,6 +36,10 @@ public extension TaskKind {
         normalizedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    var emoji: String {
+        isCompleted ? "✅" : "⭕️"
+    }
+    
     var isDateEnabled: Bool {
         get {
             normalizedStartDate != nil && normalizedEndDate != nil
