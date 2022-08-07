@@ -11,8 +11,6 @@
 		2A5B41A2288D36C20089A70D /* StorageProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 2A5B41A1288D36C20089A70D /* StorageProvider */; };
 		2A5B41A5288D37080089A70D /* EventKitUtils.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */; };
 		2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A6288D37870089A70D /* StorageProvider.swift */; };
-		2A5B41A9288D40C70089A70D /* TaskList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A8288D40C70089A70D /* TaskList.swift */; };
-		2A5B41AC288D42320089A70D /* TaskEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41AB288D42320089A70D /* TaskEditor.swift */; };
 		2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2A84D4B7288A36070017D5C5 /* UIKitUtils */; };
 		2AD089F42890C69F003002E6 /* EventSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD089F32890C69F003002E6 /* EventSettings.swift */; };
 		2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF5D74D2886584D00778D98 /* AppDelegate.swift */; };
@@ -30,8 +28,6 @@
 /* Begin PBXFileReference section */
 		2A5B41A4288D37080089A70D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		2A5B41A6288D37870089A70D /* StorageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProvider.swift; sourceTree = "<group>"; };
-		2A5B41A8288D40C70089A70D /* TaskList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskList.swift; sourceTree = "<group>"; };
-		2A5B41AB288D42320089A70D /* TaskEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditor.swift; sourceTree = "<group>"; };
 		2A703F8728993B6200D3C401 /* EventKitUtilsExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EventKitUtilsExample.entitlements; sourceTree = "<group>"; };
 		2AD089F32890C69F003002E6 /* EventSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSettings.swift; sourceTree = "<group>"; };
 		2AD089F52892647D003002E6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -69,8 +65,6 @@
 			children = (
 				2AF5D76C2889404000778D98 /* EntryViewController.swift */,
 				2AD089F32890C69F003002E6 /* EventSettings.swift */,
-				2A5B41AB288D42320089A70D /* TaskEditor.swift */,
-				2A5B41A8288D40C70089A70D /* TaskList.swift */,
 				2AFA1DA6289B807300758525 /* TaskSummaryCard.swift */,
 				2AF5D7512886584D00778D98 /* ViewController.swift */,
 			);
@@ -219,9 +213,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AFA1DA7289B807300758525 /* TaskSummaryCard.swift in Sources */,
-				2A5B41A9288D40C70089A70D /* TaskList.swift in Sources */,
 				2AD089F42890C69F003002E6 /* EventSettings.swift in Sources */,
-				2A5B41AC288D42320089A70D /* TaskEditor.swift in Sources */,
 				2AF5D7522886584D00778D98 /* ViewController.swift in Sources */,
 				2AF5D76D2889404000778D98 /* EntryViewController.swift in Sources */,
 				2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */,

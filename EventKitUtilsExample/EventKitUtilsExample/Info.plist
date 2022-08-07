@@ -2,8 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSCalendarsUsageDescription</key>
-    <string>We need your permission to sync calendars</string>
+	<key>NSContactsUsageDescription</key>
+	<string>We need your permission to sync contacts</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>We need your permission to sync reminders</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>We need your permission to sync calendars</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

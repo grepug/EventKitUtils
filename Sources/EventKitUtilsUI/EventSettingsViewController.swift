@@ -93,11 +93,15 @@ public class EventSettingsViewController: DiffableListViewController {
         title = "日历任务"
         
         setTopPadding()
+        reload(animating: false)
+    }
+    
+    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
         isGranted = status == .authorized
         calendars = em.eventStore.calendars(for: .event)
             .filter { $0.allowsContentModifications }
         
-        reload(animating: false)
+        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
     
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {
@@ -108,7 +112,6 @@ public class EventSettingsViewController: DiffableListViewController {
 
 extension EventSettingsViewController {
     func determineAuthorizationStatus() {
-        let status = EKEventStore.authorizationStatus(for: .event)
         switch status {
         case .notDetermined:
             requestAccess()
@@ -123,10 +126,14 @@ extension EventSettingsViewController {
     
     func requestAccess() {
         em.eventStore.requestAccess(to: .event) { [unowned self] isGranted, error in
-            if error != nil {
-                self.isGranted = false
-            } else {
-                self.isGranted = isGranted
+            DispatchQueue.main.async {
+                if error != nil {
+                    self.isGranted = false
+                } else {
+                    self.isGranted = isGranted
+                }
+                
+                self.reload()
             }
         }
     }

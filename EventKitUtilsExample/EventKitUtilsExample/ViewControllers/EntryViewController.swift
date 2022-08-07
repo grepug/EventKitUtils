@@ -22,7 +22,7 @@ class EntryViewController: DiffableListViewController {
                 .tag("taskList")
                 .accessories([.disclosureIndicator()])
                 .onTapAndDeselect { [unowned self] _ in
-                    let vc = TaskList(eventManager: .shared)
+                    let vc = TaskListViewController(eventManager: .shared)
                     push(vc)
                 }
                 
@@ -71,7 +71,7 @@ extension EventManager {
                 var predicate: NSPredicate? = nil
                 
                 switch type {
-                case .segment:
+                case .segment, .recordValue:
                     break
                 case .title(let title):
                     predicate = NSPredicate(format: "title = %@", title as CVarArg)
@@ -104,10 +104,6 @@ extension EventManager {
             }
             
             mission.delete()
-        } presentKeyResultSelector: { completion in
-            
-        } presentKeyResultDetail: { idString in
-            
         }
     }
     

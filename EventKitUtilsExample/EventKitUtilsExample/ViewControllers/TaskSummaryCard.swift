@@ -20,7 +20,9 @@ class TaskSummaryCardList: DiffableListViewController {
             DLSection { [unowned self] in
                 DLCell(using: .swiftUI(movingTo: self, content: { [unowned self] in
                     TaskSummaryCard(eventManager: self.em,
-                                    parentVC: self)
+                                    parentVC: self) {
+                        
+                    }
                 }))
                 .tag("tasks")
             }
