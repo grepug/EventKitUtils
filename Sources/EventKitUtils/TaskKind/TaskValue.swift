@@ -32,8 +32,12 @@ public struct TaskValue: TaskKind, Hashable {
 }
 
 public extension Array where Element == TaskValue {
-    func incompletedTasksAfter(_ date: Date) -> [TaskValue] {
+    func incompletedTasksAfter(_ date: Date, notEqualTo originalTaskValue: TaskValue) -> [TaskValue] {
         filter { task in
+            guard originalTaskValue.normalizedID != task.normalizedID else {
+                return false
+            }
+            
             guard !task.isCompleted else {
                 return false
             }

@@ -86,6 +86,10 @@ extension TaskEditorViewController {
     }
     
     func doneEditor() async {
+        view.endEditing(true)
+        
+        try? await Task.sleep(nanoseconds: UInt64(0.1 * 1_000_000_000))
+        
         if task.isDateEnabled {
             guard task.dateRange != nil else {
                 presentDateRangeErrorAlert()
@@ -103,7 +107,7 @@ extension TaskEditorViewController {
            task.testAreDatesSame(from: originalTaskValue),
            let endDate = originalTaskValue.normalizedEndDate {
             let tasks = await em.fetchTasks(with: .title(originalTaskValue.normalizedTitle))
-            let futureTasks = tasks.incompletedTasksAfter(endDate)
+            let futureTasks = tasks.incompletedTasksAfter(endDate, notEqualTo: originalTaskValue)
             
             if !futureTasks.isEmpty {
                 presentSaveRepeatingTaskAlert(count: futureTasks.count) { [unowned self] in
