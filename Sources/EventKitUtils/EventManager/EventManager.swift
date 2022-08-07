@@ -202,7 +202,7 @@ public extension EventManager {
         }
     }
     
-    func taskKind(from taskValue: TaskValue? = nil) -> TaskKind {
+    func taskObject(from taskValue: TaskValue? = nil) -> TaskKind {
         var taskObject: TaskKind
         
         if let task = taskValue {

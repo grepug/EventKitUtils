@@ -20,8 +20,8 @@ extension TaskSummaryCard {
 }
 
 extension TaskSummaryCard {
-    func presentTaskEditor(task: TaskKind? = nil) {
-        let task = em.taskKind()
+    func presentTaskEditor(task: TaskValue? = nil) {
+        let task = em.taskObject(from: task)
         let vc = TaskEditorViewController(task: task, eventManager: em)
         let nav = vc.navigationControllerWrapped()
         
