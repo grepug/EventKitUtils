@@ -13,7 +13,7 @@ import UIKit
 public class EventManager {
     public var config: TaskConfig
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
-    public let recordsOfKeyResult: Cache<String, [RecordValue]> = .init()
+    public var recordsOfKeyResult: Dictionary<String, [RecordValue]> = .init()
     
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
@@ -39,7 +39,7 @@ public class EventManager {
             .switchToLatest()
             .sink { [unowned self] a, b in
                 tasksOfKeyResult.assignWithDictionary(a)
-                recordsOfKeyResult.assignWithDictionary(b)
+                recordsOfKeyResult = b
                 
                 cachesReloaded.send()
             }
