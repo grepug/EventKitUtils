@@ -190,7 +190,7 @@ extension TaskListViewController {
                             addToCache(.today, task, in: &cache)
                         } else if endDate.startOfDay < current.startOfDay {
                             addToCache(.overdued, task, in: &cache)
-                        } else {
+                        } else if segment == .incompleted {
                             addToCache(.afterToday, task, in: &cache)
                         }
                     } else {
@@ -201,11 +201,11 @@ extension TaskListViewController {
                             if !task.isCompleted {
                                 addToCache(.overdued, task, in: &cache)
                             }
-                        } else {
+                        } else if segment == .incompleted {
                             addToCache(.afterToday, task, in: &cache)
                         }
                     }
-                } else {
+                } else if segment == .incompleted {
                     addToCache(.unscheduled, task, in: &cache)
                 }
             }

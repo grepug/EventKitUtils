@@ -32,7 +32,7 @@ let package = Package(
             dependencies: [.product(name: "Collections", package: "swift-collections")],
             path: "Sources/EventKitUtils"),
         .target(name: "EventKitUtilsUI",
-                dependencies: ["UIKitUtils", .product(name: "TextEditorCellConfiguration", package: "UIKitUtils")],
+                dependencies: ["EventKitUtils", .product(name: "TextEditorCellConfiguration", package: "UIKitUtils")],
                 path: "Sources/EventKitUtilsUI"),
         .testTarget(
             name: "EventKitUtilsTests",
