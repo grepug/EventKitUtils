@@ -234,7 +234,7 @@ extension TaskListViewController {
     }
     
     func presentTaskEditor(task: TaskValue? = nil) {
-        let taskObject = em.taskObject(from: task)
+        let taskObject = em.fetchOrCreateTaskObject(from: task)
         
         let vc = taskEditorViewController(task: taskObject)
         let nav = vc.navigationControllerWrapped()

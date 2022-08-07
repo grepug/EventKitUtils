@@ -15,7 +15,8 @@ public class EventManager {
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public let recordsOfKeyResult: Cache<String, [RecordValue]> = .init()
     
-    public let reloaded = PassthroughSubject<Void, Never>()
+    public let reloadCaches = PassthroughSubject<Void, Never>()
+    public let cachesReloaded = PassthroughSubject<Void, Never>()
     
     public lazy var eventStore = EKEventStore()
     var cancellables = Set<AnyCancellable>()
@@ -28,7 +29,7 @@ public class EventManager {
     func setupEventStore() {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
-            .prepend(())
+            .merge(with: reloadCaches)
             .map { [unowned self] in
                 valuesByKeyResultID
                     .compactMap { $0 }
@@ -39,7 +40,7 @@ public class EventManager {
                 tasksOfKeyResult.assignWithDictionary(a)
                 recordsOfKeyResult.assignWithDictionary(b)
                 
-                reloaded.send()
+                cachesReloaded.send()
             }
             .store(in: &cancellables)
     }
@@ -202,7 +203,7 @@ public extension EventManager {
         }
     }
     
-    func taskObject(from taskValue: TaskValue? = nil) -> TaskKind {
+    func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) -> TaskKind {
         var taskObject: TaskKind
         
         if let task = taskValue {

@@ -7,11 +7,12 @@
 
 import Foundation
 
-public final class Cache<Key: Hashable, Value> {
+public final class Cache<Key: Hashable, Value>: NSObject, NSCacheDelegate {
     private let wrapped = NSCache<WrappedKey, Entry>()
     
-    init() {
-        
+    override init() {
+        super.init()
+        wrapped.delegate = self
     }
     
     func insert(_ value: Value, forKey key: Key) {
@@ -25,6 +26,11 @@ public final class Cache<Key: Hashable, Value> {
     
     func removeValue(forKey key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
+    }
+    
+    public func cache(_ cache: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
+        print("willEvictObject", obj)
+        
     }
 }
 

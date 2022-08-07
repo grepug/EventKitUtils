@@ -23,7 +23,9 @@ public struct TaskValue: TaskKind, Hashable {
     public var updatedAt: Date?
     public var isValueType: Bool = true
     
-    public func toggleCompletion() {}
+    public func toggleCompletion() {
+        fatalError("cannot toggle a value' completion")
+    }
     
     public var kindIdentifier: TaskKindIdentifier
     public var repeatingCount: Int?

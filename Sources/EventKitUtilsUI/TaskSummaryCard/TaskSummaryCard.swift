@@ -96,7 +96,7 @@ public struct TaskSummaryCard: View {
             checkedDict[task.normalizedID] = true
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                task.toggleCompletion()
+                em.toggleCompletion(task)
                 checkedDict.removeAll()
             }
         } presentEditor: {
