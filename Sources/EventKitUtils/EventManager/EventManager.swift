@@ -30,6 +30,7 @@ public class EventManager {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
             .merge(with: reloadCaches)
+            .prepend(())
             .map { [unowned self] in
                 valuesByKeyResultID
                     .compactMap { $0 }
