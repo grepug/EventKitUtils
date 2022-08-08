@@ -108,7 +108,7 @@ public extension EventManager {
                                    span: deletingRecurence ? .futureEvents : .thisEvent,
                                    commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            await config.deleteTask(task)
+            await config.deleteTaskByID(task.normalizedID)
         }
     }
     

@@ -107,3 +107,64 @@ public extension Array where Element == TaskValue {
         return taskValues + completedTaskValues
     }
 }
+
+extension Array where Element == TaskValue {
+    enum SortType {
+        case endDateAsc, creationDateAsc, completionDesc
+        
+        func sorted(_ a: TaskValue, _ b: TaskValue) -> Bool? {
+            switch self {
+            case .endDateAsc:
+                if let date1 = a.normalizedEndDate, let date2 = b.normalizedEndDate {
+                    return date1 < date2
+                }
+            case .creationDateAsc:
+                if let date1 = a.createdAt, let date2 = b.createdAt {
+                    return date1 < date2
+                }
+            case .completionDesc:
+                if let d1 = a.completedAt, let d2 = b.completedAt {
+                    return d1 > d2
+                }
+            }
+            
+            return nil
+        }
+        
+        static func sortTypes(in state: TaskKindState?, of segment: FetchTasksSegmentType) -> [Self] {
+            if let state = state {
+                if segment == .today || segment == .incompleted && state == .afterToday {
+                    return [.endDateAsc, .creationDateAsc]
+                }
+                
+                if state == .unscheduled {
+                    return [.creationDateAsc]
+                }
+                
+                assert(false, "no way for this")
+            }
+            
+            assert(segment == .completed, "only Completed segment has state of nil")
+            
+            return [.completionDesc]
+        }
+        
+        static var keyResultDetailSortTypes: [Self] {
+            [.endDateAsc, creationDateAsc]
+        }
+    }
+    
+    public func sorted(in state: TaskKindState?, of segment: FetchTasksSegmentType) -> [TaskValue] {
+        let sortTypes = SortType.sortTypes(in: state, of: segment)
+        
+        return sorted { a, b in
+            for type in sortTypes {
+                if let type = type.sorted(a, b) {
+                    return type
+                }
+            }
+            
+            return false
+        }
+    }
+}
