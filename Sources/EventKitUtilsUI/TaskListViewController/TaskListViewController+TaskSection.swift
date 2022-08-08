@@ -125,11 +125,8 @@ extension TaskListViewController {
             presentTaskEditor(task: task)
         }
         
-        MBButton.delete { [unowned self] completion in
-            em.handleDeleteTask(task: task, on: self) { [unowned self] in
-                completion($0)
-                reloadList()
-            } removeTask: { [unowned self] in
+        MBButton.delete { [unowned self] in
+            await em.handleDeleteTask(task: task, on: self) { [unowned self] in
                 removeTask(task)
             }
         }
@@ -140,6 +137,8 @@ extension TaskListViewController {
             groupedTasks[key]?.removeAll { $0.normalizedTitle == task.normalizedTitle }
         }
         
-        reload()
+        DispatchQueue.main.async {
+            self.reload()
+        }
     }
 }

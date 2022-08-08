@@ -97,19 +97,21 @@ public extension EventManager {
         }
     }
     
-    func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false, commit: Bool = true) {
+    func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false, commit: Bool = true) async {
         if task.isValueType, let task = taskObject(task) {
-            deleteTask(task, deletingRecurence: deletingRecurence)
+            await deleteTask(task, deletingRecurence: deletingRecurence)
         } else if let event = task as? EKEvent {
-            try! eventStore.remove(event, span: deletingRecurence ? .futureEvents : .thisEvent, commit: commit)
+            try! eventStore.remove(event,
+                                   span: deletingRecurence ? .futureEvents : .thisEvent,
+                                   commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            config.deleteTask(task)
+            await config.deleteTask(task)
         }
     }
     
-    func deleteTasks(_ tasks: [TaskKind]) {
+    func deleteTasks(_ tasks: [TaskKind]) async {
         for task in tasks {
-            deleteTask(task, deletingRecurence: true, commit: false)
+            await deleteTask(task, deletingRecurence: true, commit: false)
         }
         
         try! eventStore.commit()
@@ -252,42 +254,6 @@ extension EventManager {
         }
         
         return foundEvent
-    }
-}
-
-extension EventManager {
-    public func handleDeleteTask(task: TaskValue, on vc: UIViewController, completion: ((Bool) -> Void)? = nil, removeTask: (() -> Void)? = nil) {
-        if let count = task.repeatingCount, count > 1 {
-            presentDeletingTasksAlert(parentVC: vc) {
-                completion?(false)
-            } deletingThis: { [unowned self] in
-                deleteTask(task)
-                completion?(true)
-            } deletingAll: { [unowned self] in
-                Task {
-                    let tasks = await fetchTasks(with: .title(task.normalizedTitle))
-                    deleteTasks(tasks)
-                    completion?(true)
-                }
-            }
-        } else {
-            removeTask?()
-            deleteTask(task)
-            completion?(true)
-        }
-    }
-    
-    private func presentDeletingTasksAlert(parentVC: UIViewController, canceled: @escaping () -> Void, deletingThis: @escaping () -> Void, deletingAll: @escaping () -> Void) {
-        let ac = UIAlertController(title: "删除所有？", message: "", preferredStyle: .alert)
-        ac.addAction(.init(title: "action_cancel".loc, style: .cancel))
-        ac.addAction(.init(title: "仅删除当前", style: .destructive, handler: { _ in
-            deletingThis()
-        }))
-        ac.addAction(.init(title: "删除所有", style: .destructive, handler: { _ in
-            deletingAll()
-        }))
-        
-        parentVC.present(ac, animated: true)
     }
 }
 

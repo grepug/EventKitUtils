@@ -123,7 +123,9 @@ extension TaskEditorViewController {
             .tag("calendar \(isEvent)")
             .accessories([.label(isEvent ? "已开启" : "开启"), .disclosureIndicator()])
             .onTapAndDeselect { [unowned self] _ in
-                presentEventEditor()
+                Task {
+                    await presentEventEditor()
+                }
             }
         }
         .tag("4")

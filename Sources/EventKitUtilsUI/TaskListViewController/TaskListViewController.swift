@@ -43,6 +43,14 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
         fatalError("init(coder:) has not been implemented")
     }
     
+    open override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+        guard Thread.current == Thread.main else {
+            fatalError()
+        }
+        
+        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
+    }
+    
     lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: FetchTasksSegmentType.allCases.map(\.text))
         sc.selectedSegmentIndex = segment.rawValue
@@ -148,8 +156,7 @@ extension TaskListViewController {
     }
     
     var eventsChangedPublisher: AnyPublisher<FetchTasksSegmentType, Never> {
-        NotificationCenter.default
-            .publisher(for: .EKEventStoreChanged)
+        em.cachesReloaded
             .debounce(for: 1, scheduler: RunLoop.current)
             .map { [unowned self] _ in segment }
             .eraseToAnyPublisher()

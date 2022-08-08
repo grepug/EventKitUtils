@@ -77,11 +77,18 @@ extension TaskEditorViewController {
         title = "Edit Task"
         
         navigationItem.rightBarButtonItems = [
-            makeDoneButton { [unowned self] in
-                Task {
-                    await doneEditor()
-                }
+            .makeDoneButton(on: self) { [unowned self] in
+                await doneEditor()
             }
+        ]
+        
+        navigationItem.leftBarButtonItems = [
+            .init(systemItem: .trash, primaryAction: .init { [unowned self] _ in
+                Task {
+                    await em.handleDeleteTask(task: task.value, on: self)
+                    dismissEditor()
+                }
+            })
         ]
     }
     
@@ -98,7 +105,7 @@ extension TaskEditorViewController {
         }
         
         guard !task.isEmpty else {
-            em.deleteTask(task)
+            await em.deleteTask(task)
             dismissEditor()
             return
         }

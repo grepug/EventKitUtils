@@ -20,7 +20,7 @@ extension TaskEditorViewController {
         ])
     }
     
-    func presentEventEditor() {
+    func presentEventEditor() async {
         guard em.isEventStoreAuthorized else {
             presentEventSettingsAlert()
             return
@@ -37,7 +37,9 @@ extension TaskEditorViewController {
         } else {
             event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
             event.copy(from: task)
-            em.deleteTask(task)
+            
+            await em.deleteTask(task)
+            
             self.task = event
         }
         
