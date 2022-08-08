@@ -24,7 +24,8 @@ public extension Date {
     }
     
     var endOfDay: Self {
-        Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let date1 = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        return Calendar.current.date(byAdding: .second, value: -1, to: date1)!
     }
     
     func days(to date: Date, includingLastDay: Bool = true) -> Int {
