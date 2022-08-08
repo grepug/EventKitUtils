@@ -19,10 +19,8 @@ extension TaskSummaryCard {
 extension TaskSummaryCard {
     func presentTaskEditor(task: TaskValue? = nil) {
         let task = em.fetchOrCreateTaskObject(from: task)
-        let vc = TaskEditorViewController(task: task, eventManager: em)
-        let nav = vc.navigationControllerWrapped()
         
-        vc.onDismiss = { shouldOpenTaskList in
+        let vc = em.makeTaskEditorViewController(task: task) { shouldOpenTaskList in
             guard shouldOpenTaskList else {
                 return
             }
@@ -33,6 +31,6 @@ extension TaskSummaryCard {
             parentVC.navigationController?.pushViewController(vc, animated: true)
         }
         
-        parentVC.present(nav, animated: true)
+        parentVC.present(vc, animated: true)
     }
 }

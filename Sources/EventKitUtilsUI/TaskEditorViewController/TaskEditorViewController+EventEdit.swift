@@ -50,6 +50,8 @@ extension TaskEditorViewController {
         vc.event = event
         vc.eventStore = eventStore
         vc.editViewDelegate = self
+        vc.modalPresentationStyle = .popover
+        vc.popoverPresentationController?.sourceView = listView.cellForItem(at: [3, 0])
         
         present(vc, animated: true) { [unowned self] in
             reload(animating: false)

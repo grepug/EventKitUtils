@@ -127,9 +127,9 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             .store(in: &cancellables)
     }
     
-    func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
-        .init(task: task, eventManager: em)
-    }
+//    func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
+//        .init(task: task, eventManager: em)
+//    }
 }
 
 extension TaskListViewController {
@@ -247,14 +247,11 @@ extension TaskListViewController {
     func presentTaskEditor(task: TaskValue? = nil) {
         let taskObject = em.fetchOrCreateTaskObject(from: task)
         
-        let vc = taskEditorViewController(task: taskObject)
-        let nav = vc.navigationControllerWrapped()
-        
-        vc.onDismiss = { [unowned self] _ in
+        let vc = em.makeTaskEditorViewController(task: taskObject) { [unowned self] _ in
             reloadList()
         }
         
-        present(nav, animated: true)
+        present(vc, animated: true)
     }
 }
 

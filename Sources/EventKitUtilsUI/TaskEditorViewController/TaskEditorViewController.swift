@@ -185,3 +185,15 @@ extension TaskEditorViewController {
         presentingViewController?.dismiss(animated: true)
     }
 }
+
+public extension EventManager {
+    func makeTaskEditorViewController(task: TaskKind, onDismiss: ((Bool) -> Void)? = nil) -> UIViewController {
+        let vc = TaskEditorViewController(task: task, eventManager: self)
+        let navVC = UINavigationController(rootViewController: vc)
+        
+        navVC.modalPresentationStyle = .formSheet
+        vc.onDismiss = onDismiss
+        
+        return navVC
+    }
+}
