@@ -11,7 +11,7 @@ import EventKit
 import EventKitUtils
 import Combine
 
-open class TaskListViewController: DiffableListViewController, ObservableObject {
+public class TaskListViewController: DiffableListViewController, ObservableObject {
     public typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
     typealias TasksByState = [TaskKindState?: [TaskValue]]
     
@@ -43,7 +43,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
         fatalError("init(coder:) has not been implemented")
     }
     
-    open override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
         guard Thread.current == Thread.main else {
             fatalError()
         }
@@ -76,7 +76,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
         return button
     }()
     
-    open override var list: DLList {
+    public override var list: DLList {
         DLList { [unowned self] in
             if isRepeatingList {
                 if let tasks = self.groupedTasks[nil] {
@@ -99,7 +99,7 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
         }
     }
     
-    open override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         
         listView.contentInset.bottom = 64

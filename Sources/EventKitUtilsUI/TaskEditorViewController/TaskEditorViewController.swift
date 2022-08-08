@@ -12,7 +12,7 @@ import EventKit
 import EventKitUtils
 import TextEditorCellConfiguration
 
-open class TaskEditorViewController: DiffableListViewController {
+public class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind!
     let originalTaskValue: TaskValue
     unowned let em: EventManager
@@ -47,7 +47,7 @@ open class TaskEditorViewController: DiffableListViewController {
         task.kindIdentifier == .event
     }
     
-    open override var list: DLList {
+    public override var list: DLList {
         DLList { [unowned self] in
             self.titleSection
             self.plannedDateSection
@@ -62,7 +62,7 @@ open class TaskEditorViewController: DiffableListViewController {
         }
     }
     
-    open override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         
         isModalInPresentation = true
