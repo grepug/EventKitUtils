@@ -121,17 +121,19 @@ public struct TaskSummaryCard: View {
                 Label("编辑", systemImage: "pencil")
             }
             
+            let label = Label("删除", systemImage: "trash")
+            
             if #available(iOS 15.0, *) {
                 Button(role: .destructive) {
                     removeTask(task)
                 } label: {
-                    Label("删除", systemImage: "trash")
+                    label
                 }
             } else {
                 Button {
                     removeTask(task)
                 } label: {
-                    Label("删除", systemImage: "trash")
+                    label
                 }
             }
         }
