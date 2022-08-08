@@ -68,7 +68,7 @@ extension TaskEditorViewController: EKEventEditViewDelegate {
             reload()
             dismiss(animated: true)
         case .deleted:
-            break
+            dismissEditor()
         case .cancelled:
             break
         @unknown default:
