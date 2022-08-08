@@ -133,7 +133,7 @@ extension Array where Element == TaskValue {
         
         static func sortTypes(in state: TaskKindState?, of segment: FetchTasksSegmentType) -> [Self] {
             if let state = state {
-                if segment == .today || segment == .incompleted && state == .afterToday {
+                if [.today, .overdued, .afterToday].contains(state) {
                     return [.endDateAsc, .creationDateAsc]
                 }
                 
@@ -159,12 +159,12 @@ extension Array where Element == TaskValue {
         
         return sorted { a, b in
             for type in sortTypes {
-                if let type = type.sorted(a, b) {
-                    return type
+                if let res = type.sorted(a, b) {
+                    return res
                 }
             }
             
-            return false
+            return true
         }
     }
 }
