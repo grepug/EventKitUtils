@@ -17,7 +17,7 @@ open class TaskEditorViewController: DiffableListViewController {
     let originalTaskValue: TaskValue
     unowned let em: EventManager
     
-    public var onDismiss: (() -> Void)?
+    public var onDismiss: ((Bool) -> Void)?
     
     public init(task: TaskKind, eventManager: EventManager) {
         self.task = task.isValueType ? eventManager.taskObject(task) : task
@@ -112,7 +112,7 @@ extension TaskEditorViewController {
         
         guard !task.isEmpty else {
             await em.deleteTask(task)
-            dismissEditor()
+            dismissEditor(deleted: true)
             return
         }
         
@@ -167,7 +167,7 @@ extension TaskEditorViewController {
             em.saveTask(task)
         }
         
-        onDismiss?()
+        onDismiss?(deleted)
         presentingViewController?.dismiss(animated: true)
     }
 }

@@ -25,7 +25,11 @@ extension TaskSummaryCard {
         let vc = TaskEditorViewController(task: task, eventManager: em)
         let nav = vc.navigationControllerWrapped()
         
-        vc.onDismiss = {
+        vc.onDismiss = { isDeleted in
+            guard !isDeleted else {
+                return
+            }
+            
             let vc = TaskListViewController(eventManager: em)
             vc.segment = showingTodayTasks ? .today : .incompleted
             

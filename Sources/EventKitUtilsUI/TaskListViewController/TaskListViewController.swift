@@ -250,7 +250,7 @@ extension TaskListViewController {
         let vc = taskEditorViewController(task: taskObject)
         let nav = vc.navigationControllerWrapped()
         
-        vc.onDismiss = { [unowned self] in
+        vc.onDismiss = { [unowned self] _ in
             reloadList()
         }
         
