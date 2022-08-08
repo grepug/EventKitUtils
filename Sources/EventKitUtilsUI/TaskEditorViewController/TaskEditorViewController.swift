@@ -86,7 +86,7 @@ extension TaskEditorViewController {
             .init(systemItem: .trash, primaryAction: .init { [unowned self] _ in
                 Task {
                     await em.handleDeleteTask(task: task.value, on: self)
-                    dismissEditor()
+                    dismissEditor(deleted: true)
                 }
             })
         ]
@@ -156,8 +156,11 @@ extension TaskEditorViewController {
         presentAlertController(title: "结束日期不能早于开始日期", message: nil, actions: [.ok()])
     }
     
-    func dismissEditor() {
-        em.saveTask(task)
+    func dismissEditor(deleted: Bool = false) {
+        if !deleted {
+            em.saveTask(task)
+        }
+        
         onDismiss?()
         presentingViewController?.dismiss(animated: true)
     }
