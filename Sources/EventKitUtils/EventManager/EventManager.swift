@@ -34,14 +34,17 @@ public class EventManager {
             .map { [unowned self] in
                 valuesByKeyResultID
                     .compactMap { $0 }
-                    .receive(on: DispatchQueue.main)
             }
+            /// FIXME: 这里并没有取消到上一个线程里的执行，可能会浪费一点点计算时间
+            /// 好在不影响主线程
             .switchToLatest()
             .sink { [unowned self] a, b in
                 tasksOfKeyResult.assignWithDictionary(a)
                 recordsOfKeyResult = b
                 
-                cachesReloaded.send()
+                DispatchQueue.main.async {
+                    self.cachesReloaded.send()
+                }
             }
             .store(in: &cancellables)
     }

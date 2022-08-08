@@ -57,6 +57,7 @@ extension EventManager {
         ac.addAction(.init(title: "仅删除当前", style: .destructive, handler: { _ in
             handler(.deletingThis)
         }))
+        
         ac.addAction(.init(title: "删除所有", style: .destructive, handler: { _ in
             handler(.deletingAll)
         }))
