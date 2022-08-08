@@ -95,10 +95,9 @@ public struct TaskSummaryCard: View {
         TaskListCell(task: task, isSummaryCard: true) {
             checkedDict[task.normalizedID] = true
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                em.toggleCompletion(task)
-                checkedDict.removeAll()
-            }
+            try! await Task.sleep(nanoseconds: 100_000_000)
+            await em.toggleCompletion(task)
+            checkedDict.removeAll()
         } presentEditor: {
             presentTaskEditor(task: task)
         }

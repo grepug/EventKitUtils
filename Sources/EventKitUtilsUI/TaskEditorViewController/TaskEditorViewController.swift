@@ -11,9 +11,19 @@ import SwiftUI
 import EventKit
 import EventKitUtils
 import TextEditorCellConfiguration
+import CoreData
 
 public class TaskEditorViewController: DiffableListViewController {
-    var task: TaskKind!
+    var task: TaskKind! {
+        willSet {
+            if let managedObject = newValue as? NSManagedObject {
+                if managedObject.managedObjectContext?.concurrencyType != .mainQueueConcurrencyType {
+                    fatalError("managed task object in editor should be in main queue type")
+                }
+            }
+        }
+    }
+    
     let originalTaskValue: TaskValue
     unowned let em: EventManager
     
@@ -87,7 +97,7 @@ extension TaskEditorViewController {
                let button = UIBarButtonItem.init(systemItem: .trash, primaryAction: .init { [unowned self] _ in
                     Task {
                         await em.handleDeleteTask(task: task.value, on: self)
-                        dismissEditor(deleted: true)
+                        dismissEditor()
                     }
                 })
                 
@@ -112,7 +122,7 @@ extension TaskEditorViewController {
         
         guard !task.isEmpty else {
             await em.deleteTask(task)
-            dismissEditor(deleted: true)
+            dismissEditor()
             return
         }
         
@@ -123,51 +133,55 @@ extension TaskEditorViewController {
             let futureTasks = tasks.incompletedTasksAfter(endDate, notEqualTo: originalTaskValue)
             
             if !futureTasks.isEmpty {
-                presentSaveRepeatingTaskAlert(count: futureTasks.count) { [unowned self] in
+                let savingFutureTasks = await presentSaveRepeatingTaskAlert(count: futureTasks.count)
+                
+                if savingFutureTasks {
                     var savingTaskObjects: [TaskKind] = []
                     
                     for task in futureTasks {
                         var taskObject = em.taskObject(task)!
                         
-                        taskObject.saveAsRepeatingTask(from: self.task)
+                        taskObject.assignAsRepeatingTask(from: self.task)
                         savingTaskObjects.append(taskObject)
                     }
                     
-                    em.saveTasks(savingTaskObjects + [self.task])
+                    await em.saveTasks(savingTaskObjects + [self.task])
+                } else {
+                    await em.saveTask(task)
                 }
+                
+                dismissEditor()
                 
                 return
             }
         }
         
-        em.saveTask(task)
-        dismissEditor()
+        await em.saveTask(task)
+        dismissEditor(shouldOpenTaskList: originalTaskValue.isEmpty)
     }
     
-    func presentSaveRepeatingTaskAlert(count: Int, savingFutureTasks: @escaping () -> Void) {
-        presentAlertController(title: "重复任务", message: "", actions: [
-            .init(title: "仅保存此任务", style: .default) { [unowned self] _ in
-                em.saveTask(task)
-                dismissEditor()
-            },
-            .init(title: "保存将来所有未完成的任务(\(count))", style: .default) { [unowned self] _ in
-                savingFutureTasks()
-                dismissEditor()
-            },
-            .cancel
-        ])
+    func presentSaveRepeatingTaskAlert(count: Int) async -> Bool {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { [unowned self] in
+                presentAlertController(title: "重复任务", message: "", actions: [
+                    .init(title: "仅保存此任务", style: .default) { _ in
+                        continuation.resume(returning: false)
+                    },
+                    .init(title: "保存将来所有未完成的任务(\(count))", style: .default) { _ in
+                        continuation.resume(returning: true)
+                    },
+                    .cancel
+                ])
+            }
+        }
     }
     
     func presentDateRangeErrorAlert() {
         presentAlertController(title: "结束日期不能早于开始日期", message: nil, actions: [.ok()])
     }
     
-    func dismissEditor(deleted: Bool = false) {
-        if !deleted {
-            em.saveTask(task)
-        }
-        
-        onDismiss?(deleted)
+    func dismissEditor(shouldOpenTaskList: Bool = false) {
+        onDismiss?(shouldOpenTaskList)
         presentingViewController?.dismiss(animated: true)
     }
 }

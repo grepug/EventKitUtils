@@ -79,22 +79,22 @@ public extension EventManager {
         return fetchEvent(withTaskValue: task.value)
     }
     
-    func toggleCompletion(_ task: TaskKind) {
+    func toggleCompletion(_ task: TaskKind) async {
         guard let taskObject = taskObject(task) else {
             return
         }
         
         taskObject.toggleCompletion()
-        saveTask(taskObject)
+        await saveTask(taskObject)
     }
     
-    func saveTask(_ task: TaskKind, commit: Bool = true) {
+    func saveTask(_ task: TaskKind, commit: Bool = true) async {
         if task.isValueType, let task = taskObject(task) {
-            saveTask(task)
+            await saveTask(task)
         } else if let event = task as? EKEvent {
             try! eventStore.save(event, span: .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            config.saveTask(task)
+            await config.saveTask(task.value)
         } else {
             assertionFailure("no such task")
         }
@@ -120,9 +120,9 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func saveTasks(_ tasks: [TaskKind]) {
+    func saveTasks(_ tasks: [TaskKind]) async {
         for task in tasks {
-            saveTask(task, commit: false)
+            await saveTask(task, commit: false)
         }
         
         try! eventStore.commit()
@@ -221,6 +221,10 @@ public extension EventManager {
         taskObject.isDateEnabled = true
         
         return taskObject
+    }
+    
+    func postpondTasks(_ tasks: [TaskValue]) async {
+        
     }
 }
 

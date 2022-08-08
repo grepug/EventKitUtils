@@ -30,13 +30,13 @@ extension TaskEditorViewController {
             return
         }
         
-        let event: EKEvent
+        var event: EKEvent
         
         if let _event = task as? EKEvent {
             event = _event
         } else {
             event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
-            event.copy(from: task)
+            event.assignFromTaskKind(task)
             
             await em.deleteTask(task)
             
@@ -44,7 +44,7 @@ extension TaskEditorViewController {
         }
         
         event.calendar = calendar
-        em.saveTask(event)
+        await em.saveTask(event)
             
         let vc = EKEventEditViewController()
         vc.event = event

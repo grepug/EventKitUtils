@@ -254,9 +254,7 @@ extension TaskListViewController {
             reloadList()
         }
         
-        present(nav, animated: true) { [unowned self] in
-            em.saveTask(taskObject)
-        }
+        present(nav, animated: true)
     }
 }
 

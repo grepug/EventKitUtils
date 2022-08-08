@@ -167,9 +167,11 @@ extension TaskEditorViewController {
             .tag("isLinkedRecord \(self.task.linkedValue != nil)")
             .accessories([.toggle(isOn: self.task.linkedValue != nil,
                                   action: { [unowned self] isOn in
-                task.linkedValue = isOn ? 1 : nil
-                em.saveTask(task)
-                reload()
+                Task {
+                    task.linkedValue = isOn ? 1 : nil
+                    await em.saveTask(task)
+                    reload()
+                }
             })])
             
             if let linkedValueString = task.linkedValueString {

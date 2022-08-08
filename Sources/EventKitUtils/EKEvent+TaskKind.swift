@@ -112,18 +112,6 @@ extension EKEvent: TaskKind {
         isCompleted.toggle()
         normalizedTitle = normalizedTitle
     }
-            
-    public func copy(from task: TaskKind) {
-        normalizedTitle = task.normalizedTitle
-        normalizedStartDate = task.normalizedStartDate
-        normalizedEndDate = task.normalizedEndDate
-        isAllDay = task.isAllDay
-        isCompleted = task.isCompleted
-        completedAt = task.completedAt
-        notes = task.notes
-        keyResultId = task.keyResultId
-        linkedValue = task.linkedValue
-    }
 }
 
 extension EKEvent {

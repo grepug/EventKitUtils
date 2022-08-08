@@ -25,8 +25,8 @@ extension TaskSummaryCard {
         let vc = TaskEditorViewController(task: task, eventManager: em)
         let nav = vc.navigationControllerWrapped()
         
-        vc.onDismiss = { isDeleted in
-            guard !isDeleted else {
+        vc.onDismiss = { shouldOpenTaskList in
+            guard shouldOpenTaskList else {
                 return
             }
             

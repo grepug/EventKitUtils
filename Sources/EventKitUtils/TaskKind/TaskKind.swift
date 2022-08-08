@@ -143,6 +143,18 @@ public extension TaskKind {
               kindIdentifier: kindIdentifier)
     }
     
+    mutating func assignFromTaskKind(_ task: TaskKind) {
+        normalizedTitle = task.normalizedTitle
+        normalizedStartDate = task.normalizedStartDate
+        normalizedEndDate = task.normalizedEndDate
+        isAllDay = task.isAllDay
+        isCompleted = task.isCompleted
+        completedAt = task.completedAt
+        notes = task.notes
+        keyResultId = task.keyResultId
+        linkedValue = task.linkedValue
+    }
+    
     func testAreDatesSame(from task: TaskKind) -> Bool {
         guard let startDate = normalizedStartDate,
               let startDate2 = task.normalizedStartDate,
@@ -154,7 +166,7 @@ public extension TaskKind {
         return startDate.testIsDateSame(from: startDate2) && endDate.testIsDateSame(from: endDate2)
     }
     
-    mutating func saveAsRepeatingTask(from task: TaskKind) {
+    mutating func assignAsRepeatingTask(from task: TaskKind) {
         normalizedTitle = task.normalizedTitle
         isAllDay = task.isAllDay
         notes = task.notes
