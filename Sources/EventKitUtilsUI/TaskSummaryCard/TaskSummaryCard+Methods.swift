@@ -8,14 +8,11 @@
 import EventKitUtils
 
 extension TaskSummaryCard {
-    func reload() {
-        Task {
-            let tasks = await em.fetchTasks(with: .segment(.today))
-                .repeatingMerged()
-                .prefix(3).map { $0 }
-            
-            self.tasks = tasks
-        }
+    @MainActor
+    func reload() async {
+        tasks = await em.fetchTasks(with: .segment(.today))
+            .repeatingMerged()
+            .prefix(3).map { $0 }
     }
 }
 

@@ -30,15 +30,19 @@ public struct TaskSummaryCard: View {
             footer
         }
         .onAppear {
-            reload()
+            Task {
+                await reload()
+            }
         }
     }
     
     var header: some View {
         HStack {
             Button {
-                showingTodayTasks.toggle()
-                reload()
+                Task {
+                    showingTodayTasks.toggle()
+                    await reload()
+                }
             } label: {
                 HStack {
                     HStack(spacing: 2) {
@@ -102,30 +106,30 @@ public struct TaskSummaryCard: View {
         .padding(.top, 12)
         .background(Color(UIColor.systemBackground))
         .contextMenu {
-            if #available(iOS 15.0, *) {
-                if em.testHasRepeatingTasks(with: task) {
-                    Button("查看重复任务") {
-                        let vc = TaskListViewController(eventManager: em, fetchingTitle: task.normalizedTitle)
-                        parentVC.present(vc, animated: true)
-                    }
-                    
-                    Divider()
+            if em.testHasRepeatingTasks(with: task) {
+                Button("查看重复任务") {
+                    let vc = TaskListViewController(eventManager: em, fetchingTitle: task.normalizedTitle)
+                    parentVC.present(vc, animated: true)
                 }
                 
-                Button {
-                    presentTaskEditor(task: task)
-                } label: {
-                    Label("编辑", systemImage: "pencil")
-                }
-                    
+                Divider()
+            }
+            
+            Button {
+                presentTaskEditor(task: task)
+            } label: {
+                Label("编辑", systemImage: "pencil")
+            }
+            
+            if #available(iOS 15.0, *) {
                 Button(role: .destructive) {
-                    Task {
-                        await em.handleDeleteTask(task: task, on: parentVC) {
-                            tasks.removeAll { $0.normalizedID == task.normalizedID }
-                        }
-                        
-                        reload()
-                    }
+                    removeTask(task)
+                } label: {
+                    Label("删除", systemImage: "trash")
+                }
+            } else {
+                Button {
+                    removeTask(task)
                 } label: {
                     Label("删除", systemImage: "trash")
                 }
@@ -160,8 +164,17 @@ extension TaskSummaryCard {
         }
         
         checkedTaskIds.removeAll()
-        
-        reload()
+        await reload()
+    }
+    
+    func removeTask(_ task: TaskValue) {
+        Task {
+            await em.handleDeleteTask(task: task, on: parentVC) {
+                tasks.removeAll { $0.normalizedID == task.normalizedID }
+            }
+            
+            await reload()
+        }
     }
     
     func relativeDateColor(_ task: TaskKind) -> Color {
