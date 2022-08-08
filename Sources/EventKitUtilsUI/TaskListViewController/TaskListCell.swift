@@ -9,18 +9,20 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskListCell: View {
-    public init(task: TaskValue, isSummaryCard: Bool = false, linkedKeyResultTitle: String? = nil, hidingGoal: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
+    public init(task: TaskValue, checked: Bool? = nil, isSummaryCard: Bool = false, linkedKeyResultTitle: String? = nil, hidingGoal: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
         self.linkedKeyResultTitle = linkedKeyResultTitle
         self.hidingGoal = hidingGoal
         self.hidingDate = hidingDate
         self.check = check
+        self.checked = checked
         self.presentEditor = presentEditor
     }
     
     var task: TaskValue
     var isSummaryCard: Bool = false
+    var checked: Bool?
     var linkedKeyResultTitle: String?
     var hidingGoal: Bool = false
     var hidingDate: Bool = false
@@ -48,7 +50,7 @@ public struct TaskListCell: View {
                    await check()
                 }
             } label: {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                Image(systemName: (task.isCompleted || checked == true) ? "checkmark.circle.fill" : "circle")
             }
             .foregroundColor(task.isCompleted ? .gray : .accentColor)
             .offset(y: 2.5)

@@ -21,7 +21,7 @@ public struct TaskSummaryCard: View {
     
     @AppStorage("showingTodayTasks") var showingTodayTasks = true
     @State var tasks: [TaskValue] = []
-    @State var checkedDict: [String: Bool] = [:]
+    @State var checkedTaskIds: Set<String> = []
     
     public var body: some View {
         VStack {
@@ -92,12 +92,10 @@ public struct TaskSummaryCard: View {
     }
     
     func taskItem(_ task: TaskValue) -> some View {
-        TaskListCell(task: task, isSummaryCard: true) {
-            checkedDict[task.normalizedID] = true
-            
-            try! await Task.sleep(nanoseconds: 100_000_000)
-            await em.toggleCompletion(task)
-            checkedDict.removeAll()
+        TaskListCell(task: task,
+                     checked: checkedTaskIds.contains(task.normalizedID),
+                     isSummaryCard: true) {
+            await checkTask(task)
         } presentEditor: {
             presentTaskEditor(task: task)
         }
@@ -151,6 +149,21 @@ public struct TaskSummaryCard: View {
 }
 
 extension TaskSummaryCard {
+    func checkTask(_ task: TaskValue) async {
+        checkedTaskIds.insert(task.normalizedID)
+
+        try! await Task.sleep(nanoseconds: 300_000_000)
+        
+        for taskID in checkedTaskIds {
+            let task = tasks.first(where: { $0.normalizedID == taskID })!
+            await em.toggleCompletion(task)
+        }
+        
+        checkedTaskIds.removeAll()
+        
+        reload()
+    }
+    
     func relativeDateColor(_ task: TaskKind) -> Color {
         let days = task.normalizedEndDate.map { Date().days(to: $0, includingLastDay: false) } ?? 1
             
@@ -161,9 +174,5 @@ extension TaskSummaryCard {
         }
         
         return .secondary
-    }
-    
-    func isTaskChecked(_ task: TaskKind) -> Bool {
-        checkedDict[task.normalizedID] == true
     }
 }
