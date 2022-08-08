@@ -21,10 +21,12 @@ public enum EventURLKeys {
 
 extension EventURLKeys {
     func value(ofQueryItems queryItems: [URLQueryItem]) -> String? {
-        queryItems.first { $0.name == key }?.value
+        let value = queryItems.first { $0.name == key }?.value
+        
+        return value?.isEmpty == true ? nil : value
     }
     
-    func setValue(_ value: String, of queryItems: [URLQueryItem]) -> [URLQueryItem] {
+    func setValue(_ value: String?, of queryItems: [URLQueryItem]) -> [URLQueryItem] {
         var queryItems = queryItems
         
         for (index, item) in queryItems.enumerated() {

@@ -26,7 +26,13 @@ extension EKEvent: TaskKind {
     }
     
     public var normalizedStartDate: Date? {
-        get { startDate }
+        get {
+            if isAllDay {
+                return startDate.startOfDay
+            }
+            
+            return startDate
+        }
         set { startDate = newValue }
     }
     
@@ -61,13 +67,8 @@ extension EKEvent: TaskKind {
         }
         
         set {
-            var value: String = ""
-            
-            if let date = newValue {
-                value = String(date.timeIntervalSince1970)
-            }
-            
-            setValue(value, forKey: .completedAt)
+            setValue(newValue.map { String($0.timeIntervalSince1970) },
+                     forKey: .completedAt)
         }
     }
     
@@ -81,11 +82,7 @@ extension EKEvent: TaskKind {
         }
         
         set {
-            guard let value = newValue else {
-                return
-            }
-            
-            setValue(value, forKey: .keyResultId)
+            setValue(newValue, forKey: .keyResultId)
         }
     }
     
@@ -99,7 +96,7 @@ extension EKEvent: TaskKind {
         }
         
         set {
-            setValue(newValue.map { String($0) } ?? "", forKey: .linkedQuantity)
+            setValue(newValue.map { String($0) }, forKey: .linkedQuantity)
         }
     }
     
@@ -163,7 +160,7 @@ private extension EKEvent {
         urlComponents?.queryItems ?? []
     }
     
-    func setValue(_ value: String, forKey key: EventURLKeys) {
+    func setValue(_ value: String?, forKey key: EventURLKeys) {
         setQueryItems(
             key.setValue(value, of: queryItems)
         )

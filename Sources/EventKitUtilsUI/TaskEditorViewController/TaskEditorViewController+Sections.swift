@@ -89,6 +89,9 @@ extension TaskEditorViewController {
                     task.keyResultId = nil
                     reload()
                 })])
+                .onTapAndDeselect { [unowned self] _ in
+                    presentKeyResultSelector()
+                }
             } else {
                 DLCell {
                     DLText("关联关键结果")
@@ -96,19 +99,23 @@ extension TaskEditorViewController {
                 }
                 .tag("link kr")
                 .onTapAndDeselect { [unowned self] _ in
-                    guard let vc = em.config.makeKeyResultSelector?({ [unowned self] krID in
-                        task.keyResultId = krID
-                        reload()
-                    }) else {
-                        return
-                    }
-                    
-                    present(vc, animated: true)
+                    presentKeyResultSelector()
                 }
             }
             
         }
         .tag("3")
+    }
+    
+    func presentKeyResultSelector() {
+        guard let vc = em.config.makeKeyResultSelector?({ [unowned self] krID in
+            task.keyResultId = krID
+            reload()
+        }) else {
+            return
+        }
+        
+        present(vc, animated: true)
     }
 }
 
