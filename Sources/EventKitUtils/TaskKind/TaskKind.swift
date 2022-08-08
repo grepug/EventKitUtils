@@ -51,12 +51,36 @@ public extension TaskKind {
                 
                 if normalizedStartDate == nil || normalizedEndDate == nil {
                     normalizedStartDate = date
-                    normalizedEndDate = Calendar.current.date(byAdding: .hour, value: 1, to: date)
+                    normalizedEndDate = date.oneHourLater
                 }
             } else {
                 normalizedStartDate = nil
                 normalizedEndDate = nil
             }
+        }
+    }
+    
+    mutating func setStartDate(_ date: Date?) {
+        if let startDate = date {
+            normalizedStartDate = startDate
+            
+            if let endDate = normalizedEndDate, endDate <= startDate {
+                normalizedEndDate = startDate.oneHourLater
+            }
+        } else {
+            normalizedStartDate = nil
+        }
+    }
+    
+    mutating func setEndDate(_ date: Date?) {
+        if let endDate = date {
+            normalizedEndDate = endDate
+            
+            if let startDate = normalizedStartDate, endDate <= startDate {
+                normalizedStartDate = endDate.oneHourEarlier
+            }
+        } else {
+            normalizedEndDate = nil
         }
     }
     

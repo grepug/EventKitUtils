@@ -48,20 +48,22 @@ extension TaskEditorViewController {
                 })])
                 
                 DLCell(using: .datePicker(labelText: "开始时间",
-                                          date: task.normalizedStartDate ?? Date(),
+                                          date: task.normalizedStartDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
-                    task.normalizedStartDate = date
+                    task.setStartDate(date)
+                    reload()
                 }))
-                .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate?.description ?? "") \(datePickerMode.rawValue)")
+                .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
                 
                 DLCell(using: .datePicker(labelText: "结束时间",
-                                          date: task.normalizedEndDate ?? Date(),
+                                          date: task.normalizedEndDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
-                    task.normalizedEndDate = date
+                    task.setEndDate(date)
+                    reload()
                 }))
-                .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate?.description ?? "") \(datePickerMode)")
+                .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode)")
             }
         }
         .tag("2")

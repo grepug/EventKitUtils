@@ -28,6 +28,14 @@ public extension Date {
         return Calendar.current.date(byAdding: .second, value: -1, to: date1)!
     }
     
+    var oneHourLater: Self {
+        Calendar.current.date(byAdding: .hour, value: 1, to: self)!
+    }
+    
+    var oneHourEarlier: Self {
+        Calendar.current.date(byAdding: .hour, value: -1, to: self)!
+    }
+    
     func days(to date: Date, includingLastDay: Bool = true) -> Int {
         let days = Calendar.current.dateComponents([.day], from: startOfDay, to: date.tomorrow.startOfDay).day ?? 0
         
