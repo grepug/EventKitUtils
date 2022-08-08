@@ -41,8 +41,10 @@ extension EventManager {
     
     private func presentDeletingTasksAlert(parentVC: UIViewController) async -> DeletionTasksAlertOption {
         await withCheckedContinuation { continuation in
-            presentDeletingTasksAlert(parentVC: parentVC) { option in
-                continuation.resume(returning: option)
+            DispatchQueue.main.async { [unowned self] in
+                presentDeletingTasksAlert(parentVC: parentVC) { option in
+                    continuation.resume(returning: option)
+                }
             }
         }
     }
@@ -62,8 +64,6 @@ extension EventManager {
             handler(.deletingAll)
         }))
         
-        DispatchQueue.main.async {
-            parentVC.present(ac, animated: true)
-        }
+        parentVC.present(ac, animated: true)
     }
 }

@@ -110,13 +110,14 @@ extension TaskListViewController {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
                     let vc = TaskListViewController(eventManager: em, fetchingTitle: task.normalizedTitle)
+                    let nav = vc.navigationControllerWrapped()
                     
-                    vc.modalPresentationStyle = .popover
+                    nav.modalPresentationStyle = .popover
                     
                     let indexPath = listView.indexPath(forItemIdentifier: task.cellTag)!
-                    vc.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
+                    nav.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
                     
-                    present(vc, animated: true)
+                    present(nav, animated: true)
                 }
             }
         }

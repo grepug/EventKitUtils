@@ -83,12 +83,18 @@ extension TaskEditorViewController {
         ]
         
         navigationItem.leftBarButtonItems = [
-            .init(systemItem: .trash, primaryAction: .init { [unowned self] _ in
-                Task {
-                    await em.handleDeleteTask(task: task.value, on: self)
-                    dismissEditor(deleted: true)
-                }
-            })
+            {
+               let button = UIBarButtonItem.init(systemItem: .trash, primaryAction: .init { [unowned self] _ in
+                    Task {
+                        await em.handleDeleteTask(task: task.value, on: self)
+                        dismissEditor(deleted: true)
+                    }
+                })
+                
+                button.tintColor = .systemRed
+                
+                return button
+            }()
         ]
     }
     

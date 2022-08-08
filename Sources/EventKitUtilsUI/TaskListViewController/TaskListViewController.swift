@@ -114,9 +114,10 @@ open class TaskListViewController: DiffableListViewController, ObservableObject 
             .merge(with: reloadingSubject)
             .merge(with: eventsChangedPublisher)
             .prepend(segment)
-            .flatMap { [unowned self] segment in
+            .map { [unowned self] segment in
                 fetchTasksPublisher(for: segment)
             }
+            .switchToLatest()
             .sink { [weak self] groups in
                 guard let self = self else { return }
                 
@@ -219,9 +220,10 @@ extension TaskListViewController {
         }
         
         var dict: TaskGroupsByState = [:]
+        let countsOfTitleGrouped = tasks.countsOfTitleGrouped
         
         for (state, tasks) in cache {
-            dict[state] = tasks.repeatingMerged()
+            dict[state] = tasks.repeatingMerged(withCountsOfTitleGrouped: countsOfTitleGrouped)
         }
         
         return dict

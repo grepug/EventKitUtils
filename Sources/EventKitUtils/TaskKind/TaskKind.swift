@@ -51,7 +51,7 @@ public extension TaskKind {
                 
                 if normalizedStartDate == nil || normalizedEndDate == nil {
                     normalizedStartDate = date
-                    normalizedEndDate = date.tomorrow
+                    normalizedEndDate = Calendar.current.date(byAdding: .hour, value: 1, to: date)
                 }
             } else {
                 normalizedStartDate = nil
