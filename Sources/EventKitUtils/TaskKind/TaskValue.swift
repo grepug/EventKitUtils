@@ -114,6 +114,10 @@ extension Array where Element == TaskValue {
         case endDateAsc, creationDateAsc, completionDesc
         
         func sorted(_ a: TaskValue, _ b: TaskValue) -> Bool? {
+            if a.isCompleted != b.isCompleted {
+                return b.isCompleted
+            }
+            
             switch self {
             case .endDateAsc:
                 if let date1 = a.normalizedEndDate, let date2 = b.normalizedEndDate {
