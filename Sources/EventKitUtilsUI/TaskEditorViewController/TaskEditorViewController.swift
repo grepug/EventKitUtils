@@ -76,7 +76,10 @@ public class TaskEditorViewController: DiffableListViewController {
                 self.linkRecordSection
             }
             
-            self.calendarLinkingSection
+            if self.task.isDateEnabled {
+                self.calendarLinkingSection
+            }
+            
             self.remarkSection
             self.deleteButton
         }

@@ -21,6 +21,10 @@ extension TaskEditorViewController {
     }
     
     func presentEventEditor() async {
+        guard task.isDateEnabled else {
+            return
+        }
+        
         if let errorMessage = task.dateErrorMessage {
             presentDateRangeErrorAlert(title: errorMessage)
             return
