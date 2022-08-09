@@ -181,8 +181,6 @@ public extension EventManager {
                 }
             }
             
-            
-            
             handler(tasks)
         }
     }
