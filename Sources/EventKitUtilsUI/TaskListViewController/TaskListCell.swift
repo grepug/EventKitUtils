@@ -43,6 +43,10 @@ public struct TaskListCell: View {
         return .accentColor
     }
     
+    var showingNotes: Bool {
+        !isSummaryCard
+    }
+    
     public var body: some View {
         HStack(alignment: .top) {
             Button {
@@ -124,6 +128,13 @@ public struct TaskListCell: View {
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
+            }
+            
+            if showingNotes, let notes = task.notes, !notes.isEmpty {
+                Text(notes)
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .lineLimit(5)
             }
         }
     }
