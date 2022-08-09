@@ -126,10 +126,6 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             }
             .store(in: &cancellables)
     }
-    
-//    func taskEditorViewController(task: TaskKind) -> TaskEditorViewController {
-//        .init(task: task, eventManager: em)
-//    }
 }
 
 extension TaskListViewController {

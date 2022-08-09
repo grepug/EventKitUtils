@@ -34,6 +34,11 @@ public struct TaskSummaryCard: View {
                 await reload()
             }
         }
+        .onReceive(em.cachesReloaded) {
+            Task {
+                await reload()
+            }
+        }
     }
     
     var header: some View {

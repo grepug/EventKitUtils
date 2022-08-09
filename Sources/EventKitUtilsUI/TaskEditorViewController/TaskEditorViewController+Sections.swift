@@ -18,6 +18,7 @@ extension TaskEditorViewController {
                                      placeholder: "v3_task_editor_title_ph".loc,
                                      editingDidEnd: { [unowned self] value in
                 task.normalizedTitle = value
+                reload(animating: false)
             }))
             .tag(task.normalizedTitle)
         }
@@ -53,7 +54,7 @@ extension TaskEditorViewController {
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
                     task.normalizedStartDate = date
-                    reload()
+                    reload(animating: false)
                 }))
                 .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
                 
@@ -62,7 +63,7 @@ extension TaskEditorViewController {
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
                     task.normalizedEndDate = date
-                    reload()
+                    reload(animating: false)
                 }))
                 .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode)")
             }
@@ -180,6 +181,25 @@ extension TaskEditorViewController {
             .tag("remarkEditor")
         }
         .tag("remark \(task.notes ?? "")")
+    }
+    
+    @ListBuilder
+    var deleteButton: [DLSection] {
+        DLSection {
+            DLCell(using: .swiftUI(movingTo: self, content: {
+                Text("删除任务")
+                    .foregroundColor(.red)
+                    .frame(height: 44)
+            }))
+            .tag("deletion")
+            .onTapAndDeselect { [unowned self] _ in
+                Task {
+                    await em.handleDeleteTask(task: task.value, on: self)
+                    dismissEditor()
+                }
+            }
+        }
+        .tag("deletion")
     }
 }
 

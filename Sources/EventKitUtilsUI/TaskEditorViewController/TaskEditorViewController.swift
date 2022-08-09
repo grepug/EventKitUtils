@@ -61,6 +61,10 @@ public class TaskEditorViewController: DiffableListViewController {
         originalTaskValue.isEmpty
     }
     
+    var hasChanges: Bool {
+        task.value != originalTaskValue
+    }
+    
     public override var list: DLList {
         DLList { [unowned self] in
             self.titleSection
@@ -73,6 +77,7 @@ public class TaskEditorViewController: DiffableListViewController {
             
             self.calendarLinkingSection
             self.remarkSection
+            self.deleteButton
         }
     }
     
@@ -111,8 +116,8 @@ extension TaskEditorViewController {
             {
                let button = UIBarButtonItem.init(systemItem: .cancel, primaryAction: .init { [unowned self] _ in
                     Task {
-                        await em.handleDeleteTask(task: task.value, on: self)
-                        dismissEditor()
+                        view.endEditing(true)
+                        await handleCancelEditor()
                     }
                 })
                 
@@ -122,10 +127,6 @@ extension TaskEditorViewController {
     }
     
     func doneEditor() async {
-        view.endEditing(true)
-        
-        try? await Task.sleep(nanoseconds: UInt64(0.1 * 1_000_000_000))
-        
         if let errorMessage = task.dateErrorMessage {
             presentDateRangeErrorAlert(title: errorMessage)
             return
@@ -137,7 +138,7 @@ extension TaskEditorViewController {
             return
         }
         
-        if task.value != originalTaskValue,
+        if hasChanges,
            task.testAreDatesSame(from: originalTaskValue),
            let endDate = originalTaskValue.normalizedEndDate {
             let tasks = await em.fetchTasks(with: .title(originalTaskValue.normalizedTitle))
@@ -187,6 +188,35 @@ extension TaskEditorViewController {
         case actions[1]: return true
         case actions[2]: return false
         default: fatalError()
+        }
+    }
+    
+    func handleCancelEditor() async {
+        guard isCreating || hasChanges else {
+            dismissEditor()
+            return
+        }
+        
+        let actions: [ActionValue]
+        let discard = ActionValue(title: "放弃更改", style: .destructive)
+        
+        if isCreating {
+            actions = [.delete, .cancel]
+        } else {
+            actions = [discard, .cancel]
+        }
+        
+        let result = await presentAlertController(title: "取消后编辑丢失", message: nil, actions: actions)
+        
+        switch result {
+        case .delete:
+            let deleted = await em.handleDeleteTask(task: task.value, on: self)
+            if deleted {
+                dismissEditor()
+            }
+        case discard:
+            dismissEditor()
+        default: break
         }
     }
     
