@@ -219,7 +219,7 @@ public extension TaskKind {
     }
 }
 
-extension TaskKind {
+public extension TaskKind {
     var state: TaskKindState {
         if let endDate = normalizedEndDate {
             let current = Date()
@@ -252,6 +252,17 @@ extension TaskKind {
         }
         
         return .unscheduled
+    }
+    
+    func displayInSegment(_ segment: FetchTasksSegmentType) -> Bool {
+        switch segment {
+        case .today:
+            return [.today, .overdued].contains(state)
+        case .incompleted:
+            return !isCompleted
+        case .completed:
+            return isCompleted
+        }
     }
 }
 

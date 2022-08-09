@@ -20,3 +20,12 @@ public enum TaskKindState: Int, CaseIterable {
     }
 }
 
+public extension FetchTasksSegmentType {
+    var displayStates: [TaskKindState] {
+        switch self {
+        case .today: return [.overdued, .today]
+        case .incompleted: return [.overdued, .today, .afterToday, .unscheduled]
+        case .completed: return TaskKindState.allCases
+        }
+    }
+}

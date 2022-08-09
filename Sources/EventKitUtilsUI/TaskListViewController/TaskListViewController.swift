@@ -171,7 +171,6 @@ extension TaskListViewController {
     
     func groupTasks(_ tasks: [TaskValue]) -> TaskGroupsByState {
         var cache: TasksByState = [:]
-        let current = Date()
         
         if isRepeatingList {
             cache[nil] = tasks
@@ -183,34 +182,8 @@ extension TaskListViewController {
             cache[nil] = tasks.filter { $0.isCompleted }
         } else {
             for task in tasks {
-                if segment == .incompleted && task.isCompleted {
-                    continue
-                }
-                
-                if task.isDateEnabled, let endDate = task.normalizedEndDate {
-                    /// 兼容没有开始时间的情况
-                    if task.normalizedStartDate == nil || task.isAllDay {
-                        if endDate.startOfDay == current.startOfDay {
-                            addToCache(.today, task, in: &cache)
-                        } else if endDate.startOfDay < current.startOfDay {
-                            addToCache(.overdued, task, in: &cache)
-                        } else if segment == .incompleted {
-                            addToCache(.afterToday, task, in: &cache)
-                        }
-                    } else {
-                        /// 包含今天，则为今天
-                        if let range = task.dateRange, range.contains(current) {
-                            addToCache(.today, task, in: &cache)
-                        } else if endDate < current {
-                            if !task.isCompleted {
-                                addToCache(.overdued, task, in: &cache)
-                            }
-                        } else if segment == .incompleted {
-                            addToCache(.afterToday, task, in: &cache)
-                        }
-                    }
-                } else if segment == .incompleted {
-                    addToCache(.unscheduled, task, in: &cache)
+                if task.displayInSegment(segment) {
+                    addToCache(task.state, task, in: &cache)
                 }
             }
         }
