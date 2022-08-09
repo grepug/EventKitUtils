@@ -10,13 +10,24 @@ import EventKitUtils
 extension TaskSummaryCard {
     @MainActor
     func reload() async {
-        tasks = await em.fetchTasks(with: .segment(.today))
+        let segment: FetchTasksSegmentType = showingTodayTasks ? .today : .incompleted
+        
+        tasks = await em.fetchTasks(with: .segment(segment))
+            .filter { $0.displayInSegment(segment) }
             .repeatingMerged()
+            .sorted(in: .today, of: segment)
             .prefix(3).map { $0 }
     }
 }
 
 extension TaskSummaryCard {
+    func pushToTaskListViewController() {
+        let vc = TaskListViewController(eventManager: em,
+                                        initialSegment: showingTodayTasks ? .today : .incompleted)
+        
+        parentVC.navigationController?.pushViewController(vc, animated: true)
+    }
+    
     func presentTaskEditor(task: TaskValue? = nil) {
         let task = em.fetchOrCreateTaskObject(from: task)
         
@@ -25,10 +36,7 @@ extension TaskSummaryCard {
                 return
             }
             
-            let vc = TaskListViewController(eventManager: em)
-            vc.segment = showingTodayTasks ? .today : .incompleted
-            
-            parentVC.navigationController?.pushViewController(vc, animated: true)
+            pushToTaskListViewController()
         }
         
         parentVC.present(vc, animated: true)

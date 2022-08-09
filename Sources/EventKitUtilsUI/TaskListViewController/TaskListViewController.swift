@@ -12,16 +12,14 @@ import EventKitUtils
 import Combine
 
 public class TaskListViewController: DiffableListViewController, ObservableObject {
-    public typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
+    typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
     typealias TasksByState = [TaskKindState?: [TaskValue]]
     
-    public var groupedTasks: TaskGroupsByState = [:]
-    @Published public var segment: FetchTasksSegmentType = .today
-    unowned public let em: EventManager
-    public var fetchingTitle: String?
+    var groupedTasks: TaskGroupsByState = [:]
+    @Published var segment: FetchTasksSegmentType
+    unowned let em: EventManager
+    var fetchingTitle: String?
     
-    public lazy var eventStore = EKEventStore()
-    var canAccessEventStore = false
     var cancellables = Set<AnyCancellable>()
     
     private let reloadingSubject = PassthroughSubject<FetchTasksSegmentType, Never>()
@@ -33,9 +31,9 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, fetchingTitle: String? = nil) {
         self.em = eventManager
         self.fetchingTitle = fetchingTitle
+        self.segment = initialSegment
         super.init(nibName: nil, bundle: nil)
         
-        segment = initialSegment
         hidesBottomBarWhenPushed = true
     }
     
