@@ -144,7 +144,8 @@ extension TaskListViewController {
     
     func fetchTasksPublisher(for segment: FetchTasksSegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
         Future { [unowned self] promise in
-            em.fetchTasksAsync(with: fetchingType) { tasks in
+            Task {
+                let tasks = await em.fetchTasks(with: fetchingType)
                 promise(.success(tasks))
             }
         }

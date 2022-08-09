@@ -154,7 +154,7 @@ public extension EventManager {
         return isTrue
     }
     
-    func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
+    private func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
         config.fetchNonEventTasks(type) { [unowned self] tasks in
             var tasks = tasks.map(\.value)
             
@@ -181,16 +181,29 @@ public extension EventManager {
                 }
             }
             
+            
+            
             handler(tasks)
         }
     }
     
-    func fetchTasks(with type: FetchTasksType) async -> [TaskValue] {
-        await withCheckedContinuation { continuation in
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> [TaskValue] {
+        var tasks = await withCheckedContinuation { continuation in
             fetchTasksAsync(with: type) { tasks in
                 continuation.resume(returning: tasks)
             }
         }
+        
+        if fetchingKRInfo {
+            for (index, task) in tasks.enumerated() {
+                if let krId = task.keyResultId {
+                    let krInfo = await config.fetchKeyResultInfo(krId)
+                    tasks[index].keyResultInfo = krInfo
+                }
+            }
+        }
+        
+        return tasks
     }
     
     func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {

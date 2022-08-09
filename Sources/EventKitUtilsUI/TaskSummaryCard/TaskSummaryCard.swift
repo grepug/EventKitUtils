@@ -155,7 +155,7 @@ public struct TaskSummaryCard: View {
                 list
             }
         }
-        .frame(height: 216)
+        .frame(height: 266)
     }
 }
 

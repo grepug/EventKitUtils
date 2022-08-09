@@ -9,11 +9,11 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskListCell: View {
-    public init(task: TaskValue, checked: Bool? = nil, isSummaryCard: Bool = false, linkedKeyResultTitle: String? = nil, hidingGoal: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
+    public init(task: TaskValue, checked: Bool? = nil, isSummaryCard: Bool = false, linkedKeyResultTitle: String? = nil, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
         self.linkedKeyResultTitle = linkedKeyResultTitle
-        self.hidingGoal = hidingGoal
+        self.hidingKRInfo = hidingKRInfo
         self.hidingDate = hidingDate
         self.check = check
         self.checked = checked
@@ -24,7 +24,7 @@ public struct TaskListCell: View {
     var isSummaryCard: Bool = false
     var checked: Bool?
     var linkedKeyResultTitle: String?
-    var hidingGoal: Bool = false
+    var hidingKRInfo: Bool = false
     var hidingDate: Bool = false
     var check: () async -> Void
     var presentEditor: (() -> Void)?
@@ -112,10 +112,11 @@ public struct TaskListCell: View {
                 .font(.caption)
             }
             
-            if !hidingGoal, let title = linkedKeyResultTitle {
+            if !hidingKRInfo, let krInfo = task.keyResultInfo {
                 HStack {
                     HStack(spacing: 4) {
-                        Text(title)
+                        Text(krInfo.title)
+                            .lineLimit(1)
 
                         if let value = task.linkedValue {
                             Rectangle()
@@ -128,6 +129,7 @@ public struct TaskListCell: View {
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
+                .padding(.bottom, task.notes.isEmpty != true ? 4 : 0)
             }
             
             if showingNotes, let notes = task.notes, !notes.isEmpty {

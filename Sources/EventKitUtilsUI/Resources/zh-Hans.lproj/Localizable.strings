@@ -23,3 +23,5 @@
 "v3_task_editor_linked_record" = "关联记录值";
 "v3_task_editor_linked_record_ph" = "记录值";
 "v3_task_editor_linked_record_footer" = "开启后完成该任务将自动在该关键结果下添加一条记录";
+
+"v3_task_list_reord_value" = "记录值：";

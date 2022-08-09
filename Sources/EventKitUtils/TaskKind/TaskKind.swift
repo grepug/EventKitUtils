@@ -145,7 +145,9 @@ public extension TaskKind {
         (normalizedStartDate?.description ?? "startDate") +
         (normalizedEndDate?.description ?? "endDate") +
         isCompleted.description +
-        (notes ?? "notes")
+        (notes ?? "notes") +
+        (keyResultId ?? "") +
+        (linkedValueString ?? "")
     }
     
     var value: TaskValue {

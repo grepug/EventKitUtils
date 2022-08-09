@@ -23,3 +23,5 @@
 "v3_task_editor_linked_record" = "Linked Record Value";
 "v3_task_editor_linked_record_ph" = "Value";
 "v3_task_editor_linked_record_footer" = "It'll automatically a record to the key result when you complete the task";
+
+"v3_task_list_reord_value" = "Record Value: ";
