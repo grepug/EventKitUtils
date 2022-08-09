@@ -24,7 +24,7 @@ public class TaskEditorViewController: DiffableListViewController {
         }
     }
     
-    let originalTaskValue: TaskValue
+    var originalTaskValue: TaskValue
     unowned let em: EventManager
     
     public var onDismiss: ((Bool) -> Void)?

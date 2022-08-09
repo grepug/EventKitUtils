@@ -41,15 +41,15 @@ extension TaskEditorViewController {
             event = _event
         } else {
             event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
+            event.calendar = calendar
             event.assignFromTaskKind(task)
+            await em.saveTask(event)
+            originalTaskValue = event.value
             
+            /// 删除本地 task
             await em.deleteTask(task)
-            
-            self.task = event
+            task = event
         }
-        
-        event.calendar = calendar
-        await em.saveTask(event)
             
         let vc = EKEventEditViewController()
         vc.event = event
