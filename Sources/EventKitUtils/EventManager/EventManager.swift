@@ -223,16 +223,19 @@ public extension EventManager {
         return taskObject
     }
     
-    func postpondTasks(_ tasks: [TaskValue]) async {
+    func postpondTasks(_ tasks: [TaskValue], fetchingMore: Bool = true) async {
         var afterTasks: [TaskKind] = []
         
         for task in tasks {
             var taskObject = taskObject(task)!
-
-//            let moreTasks = fetchTasks(with: .title(task.normalizedTitle))
-            
             taskObject.postpone()
             afterTasks.append(taskObject)
+            
+            if fetchingMore {
+                let moreOverduedTasks = await fetchTasks(with: .title(task.normalizedTitle))
+                    .filter { $0.state == .overdued }
+                await postpondTasks(moreOverduedTasks, fetchingMore: false)
+            }
         }
         
         await saveTasks(afterTasks)

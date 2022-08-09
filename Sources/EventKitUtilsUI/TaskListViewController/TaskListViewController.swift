@@ -118,6 +118,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
                 fetchTasksPublisher(for: segment)
             }
             .switchToLatest()
+            .receive(on: RunLoop.main)
             .sink { [weak self] groups in
                 guard let self = self else { return }
                 
@@ -148,7 +149,6 @@ extension TaskListViewController {
             }
         }
         .map { [unowned self] in groupTasks($0) }
-        .receive(on: RunLoop.main)
         .eraseToAnyPublisher()
     }
     

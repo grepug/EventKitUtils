@@ -219,6 +219,42 @@ public extension TaskKind {
     }
 }
 
+extension TaskKind {
+    var state: TaskKindState {
+        if let endDate = normalizedEndDate {
+            let current = Date()
+            
+            /// 兼容没有开始时间的情况
+            if normalizedStartDate == nil || isAllDay {
+                if endDate.startOfDay == current.startOfDay {
+                    return .today
+                }
+
+                if endDate.startOfDay < current.startOfDay {
+                    return .overdued
+                }
+                    
+                return .afterToday
+            }
+            
+            /// 包含今天，则为今天
+            if let range = dateRange, range.contains(current) {
+                return .today
+            }
+            
+            if endDate < current {
+                if !isCompleted {
+                    return .overdued
+                }
+            }
+            
+            return .afterToday
+        }
+        
+        return .unscheduled
+    }
+}
+
 extension Date {
     func timeAssigned(from date: Date) -> Date {
         let components = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond], from: date)
