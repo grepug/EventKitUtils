@@ -203,6 +203,20 @@ public extension TaskKind {
             normalizedEndDate = date
         }
     }
+    
+    mutating func postpone() {
+        guard isDateEnabled,
+              dateRange != nil,
+              let durationInSeconds = durationInSeconds else {
+            return
+        }
+        
+        let duration = Int(durationInSeconds)
+        let current = Date()
+        
+        normalizedStartDate = current
+        normalizedEndDate = Calendar.current.date(byAdding: .second, value: duration, to: current)
+    }
 }
 
 extension Date {

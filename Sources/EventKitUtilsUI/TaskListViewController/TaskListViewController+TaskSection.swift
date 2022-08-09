@@ -9,6 +9,7 @@ import DiffableList
 import SwiftUI
 import MenuBuilder
 import EventKitUtils
+import UIKitUtils
 
 extension TaskListViewController {
     @ListBuilder
@@ -60,7 +61,9 @@ extension TaskListViewController {
             HStack {
                 Spacer()
                 SwiftUI.Button("v3_task_postpone".loc) { [unowned self] in
-                    presentPostponedAlert()
+                    Task {
+                        await handlePostpone()
+                    }
                 }
                 .font(.subheadline)
             }
@@ -76,18 +79,19 @@ extension TaskListViewController {
         return nil
     }
     
-    func presentPostponedAlert() {
-        presentAlertController(title: "v3_task_postpone_alert_title",
-                               message: "v3_task_postpone_alert_message",
-                               actions: [
-                                .cancel,
-                                .ok { [unowned self] in
-//                                    Task.postpondOverdued()
-                                    DispatchQueue.main.async { [unowned self] in
-                                        reloadList()
-                                    }
-                                }
-                               ])
+    func handlePostpone() async {
+        let postponeAction = ActionValue(title: "顺延", style: .default)
+        let result = await presentAlertController(title: "v3_task_postpone_alert_title".loc,
+                                                  message: "v3_task_postpone_alert_message".loc,
+                                                  actions: [postponeAction, .cancel])
+        
+        if result == postponeAction {
+            if let taskValues = groupedTasks[.overdued] {
+                print(taskValues)
+                
+                await em.postpondTasks(taskValues)
+            }
+        }
     }
 }
 

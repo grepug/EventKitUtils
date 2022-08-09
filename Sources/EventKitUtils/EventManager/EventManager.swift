@@ -224,7 +224,18 @@ public extension EventManager {
     }
     
     func postpondTasks(_ tasks: [TaskValue]) async {
+        var afterTasks: [TaskKind] = []
         
+        for task in tasks {
+            var taskObject = taskObject(task)!
+
+//            let moreTasks = fetchTasks(with: .title(task.normalizedTitle))
+            
+            taskObject.postpone()
+            afterTasks.append(taskObject)
+        }
+        
+        await saveTasks(afterTasks)
     }
 }
 
