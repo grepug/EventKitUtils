@@ -159,7 +159,7 @@ extension TaskEditorViewController {
             .accessories([
                 .label(isEvent ? "已开启" : "开启",
                        color: !isEvent ? .systemBlue : .secondaryLabel),
-                .disclosureIndicator()
+                isEvent ? .disclosureIndicator() : nil
             ])
             .onTapAndDeselect { [unowned self] _ in
                 Task {
