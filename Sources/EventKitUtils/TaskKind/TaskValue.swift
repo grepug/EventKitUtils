@@ -29,6 +29,7 @@ public struct TaskValue: TaskKind, Hashable {
     
     public var kindIdentifier: TaskKindIdentifier
     public var repeatingCount: Int?
+    public var keyResultInfo: KeyResultInfo?
 }
 
 public extension Array where Element == TaskValue {

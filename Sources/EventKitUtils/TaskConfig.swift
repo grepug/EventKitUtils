@@ -30,7 +30,7 @@ public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskValue) async -> Void, deleteTaskByID: @escaping (String) async -> Void) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskValue) async -> Void, deleteTaskByID: @escaping (String) async -> Void, fetchKeyResultInfo: @escaping (String) async -> KeyResultInfo?) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
@@ -39,6 +39,7 @@ public struct TaskConfig {
         self.fetchNonEventTasks = fetchNonEventTasks
         self.saveTask = saveTask
         self.deleteTaskByID = deleteTaskByID
+        self.fetchKeyResultInfo = fetchKeyResultInfo
         
         let start = Calendar.current.date(byAdding: .year, value: -1, to: Date())!
         let end = Calendar.current.date(byAdding: .year, value: 1, to: Date())!
@@ -54,23 +55,22 @@ public struct TaskConfig {
     public var taskCountWithTitle: (TaskKind) -> Int
     public var saveTask: (TaskValue) async -> Void
     public var deleteTaskByID: (String) async -> Void
+    public var fetchKeyResultInfo: (String) async -> KeyResultInfo?
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
-    
-    public struct KeyResultInfo: Hashable {
-        public init(id: String, title: String, emojiImage: UIImage, goalTitle: String) {
-            self.id = id
-            self.title = title
-            self.emojiImage = emojiImage
-            self.goalTitle = goalTitle
-        }
-        
-        
-        public let id: String
-        public let title: String
-        public let emojiImage: UIImage
-        public let goalTitle: String
+}
+
+public struct KeyResultInfo: Hashable {
+    public init(id: String, title: String, emojiImage: UIImage, goalTitle: String) {
+        self.id = id
+        self.title = title
+        self.emojiImage = emojiImage
+        self.goalTitle = goalTitle
     }
     
-    public var fetchKeyResultInfo: ((String) -> KeyResultInfo?)?
+    
+    public let id: String
+    public let title: String
+    public let emojiImage: UIImage
+    public let goalTitle: String
 }

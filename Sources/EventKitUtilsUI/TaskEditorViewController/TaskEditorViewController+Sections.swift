@@ -101,7 +101,7 @@ extension TaskEditorViewController {
     var keyResultLinkingSection: [DLSection] {
         DLSection { [unowned self] in
             if let krId = task.keyResultId,
-               let krInfo = em.config.fetchKeyResultInfo?(krId) {
+               let krInfo = keyResultInfo {
                 DLCell {
                     DLImage(krInfo.emojiImage)
                     DLText(krInfo.title)
@@ -140,6 +140,9 @@ extension TaskEditorViewController {
         }) else {
             return
         }
+        
+        vc.modalPresentationStyle = .popover
+        vc.popoverPresentationController?.sourceView = listView.cellForItem(at: [2, 0])
         
         present(vc, animated: true)
     }

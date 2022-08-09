@@ -23,7 +23,8 @@ public class TaskEditorViewController: DiffableListViewController {
             }
         }
     }
-    
+
+    var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
     unowned let em: EventManager
     
@@ -91,8 +92,19 @@ public class TaskEditorViewController: DiffableListViewController {
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
-        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
-        setupNavigationBar()
+        Task {
+            await fetchKeyResultInfo()
+            super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
+            setupNavigationBar()
+        }
+    }
+    
+    func fetchKeyResultInfo() async {
+        guard let id = task.keyResultId else {
+            return
+        }
+        
+        keyResultInfo = await em.config.fetchKeyResultInfo(id)
     }
 }
 
