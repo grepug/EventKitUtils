@@ -101,6 +101,26 @@ public extension TaskKind {
         return start..<end
     }
     
+    var durationInSeconds: TimeInterval? {
+        guard let dateRange = dateRange else {
+            return nil
+        }
+
+        return dateRange.upperBound.timeIntervalSince1970 - dateRange.lowerBound.timeIntervalSince1970
+    }
+    
+    var durationString: String? {
+        guard let interval = durationInSeconds else {
+            return nil
+        }
+        
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour, .minute]
+        formatter.unitsStyle = .short
+
+        return formatter.string(from: interval)!
+    }
+    
     var linkedValueString: String? {
         get {
             guard let value = linkedValue else {

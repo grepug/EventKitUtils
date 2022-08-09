@@ -8,6 +8,7 @@
 import DiffableList
 import UIKit
 import EventKitUtils
+import SwiftUI
 
 extension TaskEditorViewController {
     @ListBuilder
@@ -51,7 +52,7 @@ extension TaskEditorViewController {
                                           date: task.normalizedStartDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
-                    task.setStartDate(date)
+                    task.normalizedStartDate = date
                     reload()
                 }))
                 .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
@@ -60,13 +61,37 @@ extension TaskEditorViewController {
                                           date: task.normalizedEndDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
-                    task.setEndDate(date)
+                    task.normalizedEndDate = date
                     reload()
                 }))
                 .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode)")
             }
         }
-        .tag("2")
+        .tag("2 \(self.task.durationString ?? "") \(self.task.isDateEnabled)")
+        .listConfig { config in
+            var config = config
+            config.footerMode = self.task.isDateEnabled ? .supplementary : .none
+            return config
+        }
+        .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: {
+            Group {
+                if let string = self.task.durationString {
+                    Text(string)
+                } else if let errorMessage = self.task.dateErrorMessage {
+                    Label {
+                        Text(errorMessage)
+                    } icon: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.red)
+                    }
+                }
+            }
+            .foregroundColor(.secondary)
+            .font(.footnote)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.trailing)
+            .padding([.top, .bottom], 8)
+        }))
     }
 }
 
@@ -130,7 +155,11 @@ extension TaskEditorViewController {
                     .color(.secondaryLabel)
             }
             .tag("calendar \(isEvent)")
-            .accessories([.label(isEvent ? "已开启" : "开启"), .disclosureIndicator()])
+            .accessories([
+                .label(isEvent ? "已开启" : "开启",
+                       color: !isEvent ? .systemBlue : .secondaryLabel),
+                .disclosureIndicator()
+            ])
             .onTapAndDeselect { [unowned self] _ in
                 Task {
                     await presentEventEditor()

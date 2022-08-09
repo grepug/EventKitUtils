@@ -80,6 +80,11 @@ public class TaskEditorViewController: DiffableListViewController {
         reload(animating: false)
         becomeFirstResponder(at: [0, 0])
     }
+    
+    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
+        setupNavigationBar()
+    }
 }
 
 extension TaskEditorViewController {
@@ -87,9 +92,15 @@ extension TaskEditorViewController {
         title = "Edit Task"
         
         navigationItem.rightBarButtonItems = [
-            .makeDoneButton(on: self) { [unowned self] in
-                await doneEditor()
-            }
+            { [unowned self] in
+                let button = UIBarButtonItem.makeDoneButton(on: self) { [unowned self] in
+                    await doneEditor()
+                }
+                
+                button.isEnabled = task.dateErrorMessage == nil
+                
+                return button
+            }()
         ]
         
         navigationItem.leftBarButtonItems = [
@@ -113,11 +124,9 @@ extension TaskEditorViewController {
         
         try? await Task.sleep(nanoseconds: UInt64(0.1 * 1_000_000_000))
         
-        if task.isDateEnabled {
-            guard task.dateRange != nil else {
-                presentDateRangeErrorAlert()
-                return
-            }
+        if let errorMessage = task.dateErrorMessage {
+            presentDateRangeErrorAlert(title: errorMessage)
+            return
         }
         
         guard !task.isEmpty else {
@@ -176,8 +185,8 @@ extension TaskEditorViewController {
         }
     }
     
-    func presentDateRangeErrorAlert() {
-        presentAlertController(title: "结束日期不能早于开始日期", message: nil, actions: [.ok()])
+    func presentDateRangeErrorAlert(title: String) {
+        presentAlertController(title: title, message: nil, actions: [.ok()])
     }
     
     func dismissEditor(shouldOpenTaskList: Bool = false) {
@@ -195,5 +204,17 @@ public extension EventManager {
         vc.onDismiss = onDismiss
         
         return navVC
+    }
+}
+
+extension TaskKind {
+    var dateErrorMessage: String? {
+        if isDateEnabled {
+            guard dateRange != nil else {
+                return "结束日期不能早于开始日期"
+            }
+        }
+        
+        return nil
     }
 }
