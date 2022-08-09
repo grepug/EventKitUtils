@@ -92,18 +92,18 @@ extension EventManager {
             return Mission.fetch(byId: uuid)
         } taskCountWithTitle: { task in
             Mission.fetchCount(where: NSPredicate(format: "title = %@", task.normalizedTitle as CVarArg))
-        } saveTask: { task in
-            guard let mission = task as? Mission else {
-                return
-            }
-            
-            mission.save()
-        } deleteTask: { task in
-            guard let mission = task as? Mission else {
-                return
-            }
-            
-            mission.delete()
+        } saveTask: { taskValue in
+//            guard let mission = task as? Mission else {
+//                return
+//            }
+//            
+//            mission.save()
+        } deleteTaskByID: { taskId in
+//            guard let mission = task as? Mission else {
+//                return
+//            }
+//
+//            mission.delete()
         }
     }
     

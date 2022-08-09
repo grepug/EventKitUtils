@@ -32,8 +32,10 @@ class ViewController: DiffableListViewController {
                         DLCell(using: .swiftUI(movingTo: self, content: {
                             HStack {
                                 Button { [unowned self] in
-                                    EventManager.shared.toggleCompletion(task)
-                                    reload()
+                                    Task {
+                                        await EventManager.shared.toggleCompletion(task)
+                                        reload()
+                                    }
                                 } label: {
                                     Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
                                 }

@@ -57,6 +57,10 @@ public class TaskEditorViewController: DiffableListViewController {
         task.kindIdentifier == .event
     }
     
+    var isCreating: Bool {
+        originalTaskValue.isEmpty
+    }
+    
     public override var list: DLList {
         DLList { [unowned self] in
             self.titleSection
@@ -105,14 +109,12 @@ extension TaskEditorViewController {
         
         navigationItem.leftBarButtonItems = [
             {
-               let button = UIBarButtonItem.init(systemItem: .trash, primaryAction: .init { [unowned self] _ in
+               let button = UIBarButtonItem.init(systemItem: .cancel, primaryAction: .init { [unowned self] _ in
                     Task {
                         await em.handleDeleteTask(task: task.value, on: self)
                         dismissEditor()
                     }
                 })
-                
-                button.tintColor = .systemRed
                 
                 return button
             }()
@@ -166,22 +168,25 @@ extension TaskEditorViewController {
         }
         
         await em.saveTask(task)
-        dismissEditor(shouldOpenTaskList: originalTaskValue.isEmpty)
+        dismissEditor(shouldOpenTaskList: isCreating)
     }
     
+    
+    
     func presentSaveRepeatingTaskAlert(count: Int) async -> Bool {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.main.async { [unowned self] in
-                presentAlertController(title: "重复任务", message: "", actions: [
-                    .init(title: "仅保存此任务", style: .default) { _ in
-                        continuation.resume(returning: false)
-                    },
-                    .init(title: "保存将来所有未完成的任务(\(count))", style: .default) { _ in
-                        continuation.resume(returning: true)
-                    },
-                    .cancel
-                ])
-            }
+        let actions: [ActionValue] = [
+            .init(title: "仅保存此任务", style: .destructive),
+            .init(title: "保存将来所有未完成的任务(\(count))", style: .destructive),
+            .cancel
+        ]
+        
+        let result = await presentAlertController(title: "重复任务", message: nil, actions: actions)
+        
+        switch result {
+        case actions[0]: return false
+        case actions[1]: return true
+        case actions[2]: return false
+        default: fatalError()
         }
     }
     
