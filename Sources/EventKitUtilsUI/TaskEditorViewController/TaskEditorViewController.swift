@@ -95,14 +95,19 @@ public class TaskEditorViewController: DiffableListViewController {
         isModalInPresentation = true
         setupNavigationBar()
         reload(animating: false)
-        becomeFirstResponder(at: [0, 0])
+        
+        DispatchQueue.main.async { [unowned self] in
+            becomeFirstResponder(at: [0, 0])
+        }
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
+        setupNavigationBar()
+        
         Task {
             await fetchKeyResultInfo()
             super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
-            setupNavigationBar()
         }
     }
     
@@ -117,7 +122,7 @@ public class TaskEditorViewController: DiffableListViewController {
 
 extension TaskEditorViewController {
     func setupNavigationBar() {
-        title = "Edit Task"
+        title = "编辑任务"
         
         navigationItem.rightBarButtonItems = [
             { [unowned self] in
