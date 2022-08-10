@@ -172,7 +172,7 @@ public extension TaskKind {
         normalizedEndDate = task.normalizedEndDate
         isAllDay = task.isAllDay
         isCompleted = task.isCompleted
-        completedAt = task.completedAt
+        completedAt = isCompleted ? task.completedAt : nil
         notes = task.notes
         keyResultId = task.keyResultId
         linkedValue = task.linkedValue

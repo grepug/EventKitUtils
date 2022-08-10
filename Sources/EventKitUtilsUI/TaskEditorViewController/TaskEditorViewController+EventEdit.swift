@@ -46,6 +46,7 @@ extension TaskEditorViewController {
         } else {
             event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
             event.calendar = calendar
+            print("task@@", task.isCompleted, task.completedAt)
             event.assignFromTaskKind(task)
             await em.saveTask(event)
             originalTaskValue = event.value
