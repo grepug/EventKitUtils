@@ -38,6 +38,10 @@ public class TaskEditorViewController: DiffableListViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    deinit {
+        print("deinit, TaskEditorVC")
+    }
+    
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -71,15 +75,15 @@ public class TaskEditorViewController: DiffableListViewController {
             self.titleSection
             self.plannedDateSection
             self.keyResultLinkingSection
-            
+
             if self.task.keyResultId != nil {
                 self.linkRecordSection
             }
-            
+
             if self.task.isDateEnabled {
                 self.calendarLinkingSection
             }
-            
+
             self.remarkSection
             self.deleteButton
         }

@@ -69,12 +69,12 @@ extension TaskEditorViewController {
             }
         }
         .tag("2 \(self.task.durationString ?? "") \(self.task.isDateEnabled)")
-        .listConfig { config in
+        .listConfig { [unowned self] config in
             var config = config
             config.footerMode = self.task.isDateEnabled ? .supplementary : .none
             return config
         }
-        .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: {
+        .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: { [unowned self] in
             Group {
                 if let string = self.task.durationString {
                     Text(string)
@@ -188,7 +188,7 @@ extension TaskEditorViewController {
     
     @ListBuilder
     var deleteButton: [DLSection] {
-        DLSection {
+        DLSection { [unowned self] in
             DLCell(using: .swiftUI(movingTo: self, content: {
                 Text("删除任务")
                     .foregroundColor(.red)
