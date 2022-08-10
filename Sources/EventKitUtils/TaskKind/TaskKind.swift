@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 public enum TaskKindIdentifier {
     case event, managedObject
@@ -148,6 +149,14 @@ public extension TaskKind {
         (notes ?? "notes") +
         (keyResultId ?? "") +
         (linkedValueString ?? "")
+    }
+    
+    var dateColor: Color {
+        switch state {
+        case .overdued: return .red
+        case .today: return .green
+        default: return .blue
+        }
     }
     
     var value: TaskValue {

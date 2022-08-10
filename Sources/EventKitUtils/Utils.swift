@@ -47,13 +47,12 @@ public extension Date {
     }
     
     func formattedRelatively() -> String {
-        let days = Date().days(to: self, includingLastDay: false)
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .short
+        formatter.doesRelativeDateFormatting = true
         
-        switch days {
-        case 0: return "task_date_today".loc
-        case 1: return "task_date_tomorrow".loc
-        default: return formatted(in: .medium)
-        }
+        return formatter.string(from: self)
     }
 }
 

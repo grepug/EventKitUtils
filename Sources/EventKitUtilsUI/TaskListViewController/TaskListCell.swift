@@ -29,14 +29,6 @@ public struct TaskListCell: View {
     var check: () async -> Void
     var presentEditor: (() -> Void)?
     
-    var relativeDateColor: Color {
-        switch task.state {
-        case .overdued: return .red
-        case .today: return .green
-        default: return .blue
-        }
-    }
-    
     var showingNotes: Bool {
         !isSummaryCard
     }
@@ -87,16 +79,16 @@ public struct TaskListCell: View {
                 
                 Spacer()
                 
-                if task.notes?.isEmpty == false {
-                    Image(systemName: "")
-                        .foregroundColor(.gray)
-                }
+//                if task.notes?.isEmpty == false {
+//                    Image(systemName: "")
+//                        .foregroundColor(.gray)
+//                }
             }
             
             if !hidingDate && task.isDateEnabled, let dateString = dateString(task) {
                 HStack {
                     Text(dateString)
-                        .foregroundColor(relativeDateColor)
+                        .foregroundColor(task.dateColor)
                         
                     if let repeatingCount = task.repeatingCount, repeatingCount > 1 {
                         Label("\(repeatingCount)", systemImage: "repeat")
@@ -137,22 +129,13 @@ public struct TaskListCell: View {
 }
 
 extension TaskListCell {
-    func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        formatter.dateStyle = .short
-        formatter.doesRelativeDateFormatting = true
-        
-        return formatter.string(from: date)
-    }
-    
     func dateString(_ task: TaskKind) -> String? {
         if let endDate = task.normalizedEndDate, task.normalizedStartDate == nil {
-            return formatDate(endDate)
+            return endDate.formattedRelatively()
         }
         
         if let range = task.dateRange {
-            return "\(formatDate(range.lowerBound)) - \(formatDate(range.upperBound))"
+            return "\(range.lowerBound.formattedRelatively()) - \(range.upperBound.formattedRelatively())"
         }
         
         return nil
