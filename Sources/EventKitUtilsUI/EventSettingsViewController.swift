@@ -10,6 +10,7 @@ import EventKit
 import UIKit
 import UIKitUtils
 import EventKitUtils
+import SwiftUI
 
 public class EventSettingsViewController: DiffableListViewController {
     unowned let em: EventManager
@@ -57,8 +58,18 @@ public class EventSettingsViewController: DiffableListViewController {
             
             if isEnabled {
                 DLSection { [unowned self] in
-                    DLCell(using: .header("默认日历", using: .groupedHeader()))
-                        .tag("header")
+                    DLCell(using: .swiftUI(movingTo: self, content: {
+                        VStack(alignment: .leading) {
+                            Text("选择默认日历")
+                                .font(.title2.bold())
+                                .padding(.bottom, 2)
+                            Text("在 Vision 中创建日历同步任务时，如未指定日历，新建任务将会默认添加到此日历")
+                                .font(.footnote)
+                                .foregroundColor(Color(UIColor.secondaryLabel))
+                        }
+                        .padding(.bottom, 16)
+                    }))
+                    .tag("header")
                     
                     for calendar in self.calendars {
                         let selected = isCalendarSelected(calendar)
@@ -83,6 +94,7 @@ public class EventSettingsViewController: DiffableListViewController {
                 }
                 .tag("calendars")
                 .firstCellAsHeader()
+                .footer("系统日历的同步请在系统 iCloud 设置中设置，与 Vision 的数据同步无关\n")
             }
         }
     }
