@@ -75,6 +75,8 @@ extension EventManager {
                     break
                 case .title(let title):
                     predicate = NSPredicate(format: "title = %@", title as CVarArg)
+                case .taskID(_):
+                    break
                 }
                 
                 let missions = Mission.fetch(where: predicate, context: context)
@@ -104,6 +106,8 @@ extension EventManager {
 //            }
 //
 //            mission.delete()
+        } fetchKeyResultInfo: { _ in
+            nil
         }
     }
     

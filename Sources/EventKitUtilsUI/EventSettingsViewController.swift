@@ -32,6 +32,10 @@ public class EventSettingsViewController: DiffableListViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    deinit {
+        print("deinit EventSettings")
+    }
+    
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -45,7 +49,9 @@ public class EventSettingsViewController: DiffableListViewController {
                 .tag("enabling \(isEnabled) \(forceReloadToggleFlag)")
                 .accessories([.toggle(isOn: isEnabled, action: { [unowned self] isOn in
                     if isOn {
-                        determineAuthorizationStatus()
+                        Task {
+                            await determineAuthorizationStatus()
+                        }
                     } else {
                         Self.openSettings()
                         
@@ -67,7 +73,8 @@ public class EventSettingsViewController: DiffableListViewController {
                                 .font(.footnote)
                                 .foregroundColor(Color(UIColor.secondaryLabel))
                         }
-                        .padding(.bottom, 16)
+                        .padding([.bottom, .leading])
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }))
                     .tag("header")
                     
@@ -123,10 +130,11 @@ public class EventSettingsViewController: DiffableListViewController {
 }
 
 extension EventSettingsViewController {
-    func determineAuthorizationStatus() {
+    @MainActor
+    func determineAuthorizationStatus() async {
         switch status {
         case .notDetermined:
-            requestAccess()
+            await requestAccess()
         case .denied, .restricted:
             presentGoingToSystemSettingsAlert()
         case .authorized:
@@ -135,19 +143,16 @@ extension EventSettingsViewController {
             presentGoingToSystemSettingsAlert()
         }
     }
-    
-    func requestAccess() {
-        em.eventStore.requestAccess(to: .event) { [unowned self] isGranted, error in
-            DispatchQueue.main.async {
-                if error != nil {
-                    self.isGranted = false
-                } else {
-                    self.isGranted = isGranted
-                }
-                
-                self.reload()
-            }
+
+    func requestAccess() async {
+        do {
+            let res = try await em.eventStore.requestAccess(to: .event)
+            isGranted = res
+        } catch {
+            isGranted = false
         }
+        
+        reload()
     }
     
     func presentGoingToSystemSettingsAlert() {
