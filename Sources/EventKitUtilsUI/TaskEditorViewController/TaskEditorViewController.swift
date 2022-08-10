@@ -58,7 +58,7 @@ public class TaskEditorViewController: DiffableListViewController {
     }
     
     var datePickerMode: UIDatePicker.Mode {
-        task.isAllDay ? .date : .dateAndTime
+        task.normalizedIsAllDay ? .date : .dateAndTime
     }
     
     var isEvent: Bool {

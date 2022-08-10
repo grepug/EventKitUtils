@@ -47,6 +47,11 @@ extension EKEvent: TaskKind {
         set { endDate = newValue }
     }
     
+    public var normalizedIsAllDay: Bool {
+        get { isAllDay }
+        set { isAllDay = newValue }
+    }
+    
     public var isCompleted: Bool {
         get {
             completedAt != nil

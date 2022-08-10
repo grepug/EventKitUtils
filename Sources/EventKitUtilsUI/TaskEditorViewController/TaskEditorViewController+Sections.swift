@@ -43,9 +43,9 @@ extension TaskEditorViewController {
                 DLCell {
                     DLText("全天")
                 }
-                .tag("is all day \(task.isDateEnabled.description) \(task.isAllDay.description)")
-                .accessories([.toggle(isOn: task.isAllDay, action: { [unowned self] isOn in
-                    task.isAllDay = isOn
+                .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
+                .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
+                    task.normalizedIsAllDay = isOn
                     reload()
                 })])
                 

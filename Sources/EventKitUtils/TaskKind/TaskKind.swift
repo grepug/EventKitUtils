@@ -17,7 +17,7 @@ public protocol TaskKind {
     var normalizedTitle: String { get set }
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
-    var isAllDay: Bool { get set }
+    var normalizedIsAllDay: Bool { get set }
     var isCompleted: Bool { get set }
     var completedAt: Date? { get set }
     var notes: String? { get set }
@@ -95,7 +95,7 @@ public extension TaskKind {
             return nil
         }
         
-        if isAllDay {
+        if normalizedIsAllDay {
             return start.startOfDay..<end.endOfDay
         }
         
@@ -164,7 +164,7 @@ public extension TaskKind {
               normalizedTitle: normalizedTitle,
               normalizedStartDate: normalizedStartDate,
               normalizedEndDate: normalizedEndDate,
-              isAllDay: isAllDay,
+              normalizedIsAllDay: normalizedIsAllDay,
               isCompleted: isCompleted,
               completedAt: completedAt,
               notes: notes,
@@ -179,7 +179,7 @@ public extension TaskKind {
         normalizedTitle = task.normalizedTitle
         normalizedStartDate = task.normalizedStartDate
         normalizedEndDate = task.normalizedEndDate
-        isAllDay = task.isAllDay
+        normalizedIsAllDay = task.normalizedIsAllDay
         isCompleted = task.isCompleted
         completedAt = isCompleted ? task.completedAt : nil
         notes = task.notes
@@ -200,7 +200,7 @@ public extension TaskKind {
     
     mutating func assignAsRepeatingTask(from task: TaskKind) {
         normalizedTitle = task.normalizedTitle
-        isAllDay = task.isAllDay
+        normalizedIsAllDay = task.normalizedIsAllDay
         notes = task.notes
         keyResultId = task.keyResultId
         linkedValue = task.linkedValue
@@ -237,7 +237,7 @@ public extension TaskKind {
             let current = Date()
             
             /// 兼容没有开始时间的情况
-            if normalizedStartDate == nil || isAllDay {
+            if normalizedStartDate == nil || normalizedIsAllDay {
                 if endDate.startOfDay == current.startOfDay {
                     return .today
                 }
