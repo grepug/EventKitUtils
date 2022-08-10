@@ -7,6 +7,8 @@
 "v3_task_list_segment_incompleted" = "未完成";
 "v3_task_list_segment_completed" = "已完成";
 "v3_task_postpone" = "顺延";
+"v3_task_postpone_alert_title" = "顺延至今天？";
+"v3_task_postpone_alert_message" = "当前列表中所有已过期任务将顺延至今天。确定顺延吗？";
 
 "v3_task_editor_title_ph" = "标题";
 "v3_task_editor_remark" = "备忘";

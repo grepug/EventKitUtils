@@ -8,6 +8,8 @@
 "v3_task_list_segment_completed" = "Completed";
 
 "v3_task_postpone" = "Postpone";
+"v3_task_postpone_alert_title" = "Postpone to Today?";
+"v3_task_postpone_alert_message" = "Each overdued task will be postponed to today.";
 "v3_task_editor_title_ph" = "Title";
 "v3_task_editor_remark" = "Note";
 
