@@ -9,12 +9,31 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Hashable {
-    public var normalizedID: String
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, isAllDay: Bool = false, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, isValueType: Bool = true, kindIdentifier: TaskKindIdentifier = .event, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+        self.normalizedID = normalizedID
+        self.normalizedTitle = normalizedTitle
+        self.normalizedStartDate = normalizedStartDate
+        self.normalizedEndDate = normalizedEndDate
+        self.isAllDay = isAllDay
+        self.isCompleted = isCompleted
+        self.completedAt = completedAt
+        self.notes = notes
+        self.keyResultId = keyResultId
+        self.linkedValue = linkedValue
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.isValueType = isValueType
+        self.kindIdentifier = kindIdentifier
+        self.repeatingCount = repeatingCount
+        self.keyResultInfo = keyResultInfo
+    }
+    
+    public var normalizedID: String = UUID().uuidString
     public var normalizedTitle: String
     public var normalizedStartDate: Date?
     public var normalizedEndDate: Date?
-    public var isAllDay: Bool
-    public var isCompleted: Bool
+    public var isAllDay: Bool = false
+    public var isCompleted: Bool = false
     public var completedAt: Date?
     public var notes: String?
     public var keyResultId: String?
@@ -27,7 +46,7 @@ public struct TaskValue: TaskKind, Hashable {
         fatalError("cannot toggle a value' completion")
     }
     
-    public var kindIdentifier: TaskKindIdentifier
+    public var kindIdentifier: TaskKindIdentifier = .event
     public var repeatingCount: Int?
     public var keyResultInfo: KeyResultInfo?
 }

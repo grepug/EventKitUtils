@@ -175,6 +175,10 @@ public extension EventManager {
                         }
                     case .segment:
                         tasks.append(event.value)
+                    case .taskID(let id):
+                        if event.normalizedID == id {
+                            tasks.append(event.value)
+                        }
                     }
                     
                     return false
