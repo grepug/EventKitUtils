@@ -12,6 +12,8 @@ import EventKit
 import EventKitUtils
 import TextEditorCellConfiguration
 import CoreData
+import Combine
+import UIKitUtils
 
 public class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind! {
@@ -27,6 +29,7 @@ public class TaskEditorViewController: DiffableListViewController {
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
     unowned let em: EventManager
+    var cancellables = Set<AnyCancellable>()
     
     public var onDismiss: ((Bool) -> Void)?
     
@@ -98,6 +101,18 @@ public class TaskEditorViewController: DiffableListViewController {
         
         DispatchQueue.main.async { [unowned self] in
             becomeFirstResponder(at: [0, 0])
+        }
+        
+        setupKeyboardSubscribers(scrollView: listView,
+                                 storeIn: &cancellables) { [unowned self] view in
+            guard let collectionViewCell = view?.collectionViewCell,
+                  let indexPath = listView.indexPath(for: collectionViewCell) else {
+                return nil
+            }
+            
+            return [indexPath.section, 0]
+        } onPopup: { [unowned self] indexPath in
+            listView.scrollToItem(at: indexPath, at: .top, animated: true)
         }
     }
     
