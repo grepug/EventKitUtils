@@ -11,6 +11,7 @@ import UIKit
 import UIKitUtils
 import EventKitUtils
 import SwiftUI
+import Combine
 
 public class EventSettingsViewController: DiffableListViewController {
     unowned let em: EventManager
@@ -23,9 +24,15 @@ public class EventSettingsViewController: DiffableListViewController {
         isGranted
     }
     
+    var store: EKEventStore {
+        em.eventStore
+    }
+    
     var status: EKAuthorizationStatus {
         EKEventStore.authorizationStatus(for: .event)
     }
+    
+    var cancellables = Set<AnyCancellable>()
     
     public init(eventManager: EventManager) {
         self.em = eventManager
@@ -54,8 +61,6 @@ public class EventSettingsViewController: DiffableListViewController {
                         }
                     } else {
                         Self.openSettings()
-                        
-                        forceReloadToggleFlag += 1
                         reload()
                     }
                 })])
@@ -86,7 +91,7 @@ public class EventSettingsViewController: DiffableListViewController {
                                 .color(UIColor(cgColor: calendar.cgColor))
                             DLText(calendar.title)
                             
-                            if self.em.eventStore.defaultCalendarForNewEvents == calendar {
+                            if self.store.defaultCalendarForNewEvents == calendar {
                                 DLText("系统默认")
                                     .secondary()
                                     .color(.secondaryLabel)
@@ -112,24 +117,32 @@ public class EventSettingsViewController: DiffableListViewController {
         title = "日历任务"
         
         setTopPadding()
+        setCalendars(store: store)
         reload(animating: false)
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+        forceReloadToggleFlag += 1
         isGranted = status == .authorized
-        calendars = em.eventStore.calendars(for: .event)
-            .filter { $0.allowsContentModifications }
         
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
     
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {
         calendar.calendarIdentifier == em.selectedCalendarIdentifier ??
-        em.eventStore.defaultCalendarForNewEvents?.calendarIdentifier
+        store.defaultCalendarForNewEvents?.calendarIdentifier
     }
 }
 
 extension EventSettingsViewController {
+    func setCalendars(store: EKEventStore) {
+        calendars = store.calendars(for: .event)
+            .filter { $0.allowsContentModifications }
+            .sorted(by: {
+                $0.title > $1.title
+            })
+    }
+    
     @MainActor
     func determineAuthorizationStatus() async {
         switch status {
@@ -144,10 +157,15 @@ extension EventSettingsViewController {
         }
     }
 
+    @MainActor
     func requestAccess() async {
+        let store = EKEventStore()
+        
         do {
-            let res = try await em.eventStore.requestAccess(to: .event)
+            let res = try await store.requestAccess(to: .event)
+            setCalendars(store: store)
             isGranted = res
+            em.eventStore = store
         } catch {
             isGranted = false
         }
@@ -163,7 +181,6 @@ extension EventSettingsViewController {
             })
         ])
         
-        forceReloadToggleFlag += 1
         reload()
     }
 }

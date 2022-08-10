@@ -18,11 +18,12 @@ public class EventManager {
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
     
-    public lazy var eventStore = EKEventStore()
+    public var eventStore: EKEventStore
     var cancellables = Set<AnyCancellable>()
     
     public init(config: TaskConfig) {
         self.config = config
+        self.eventStore = .init()
         setupEventStore()
     }
     
