@@ -93,7 +93,16 @@ public extension EventManager {
         if task.isValueType, let task = taskObject(task) {
             await saveTask(task)
         } else if let event = task as? EKEvent {
-            try! eventStore.save(event, span: .thisEvent, commit: commit)
+            do {
+                try eventStore.save(event, span: .thisEvent, commit: commit)
+            } catch {
+                let nsError = error as NSError
+                
+                switch nsError.code {
+                case 1010: return
+                default: fatalError("save event task failed: \(nsError.description) code: \(nsError.code)")
+                }
+            }
         } else if task.kindIdentifier == .managedObject {
             await config.saveTask(task.value)
         } else {
