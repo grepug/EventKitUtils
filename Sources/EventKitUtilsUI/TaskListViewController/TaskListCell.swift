@@ -30,17 +30,11 @@ public struct TaskListCell: View {
     var presentEditor: (() -> Void)?
     
     var relativeDateColor: Color {
-//        let days = task.plannedDate.map { Date.current.days(to: $0, includingLastDay: false) } ?? 1
-//
-//        if days == 0 {
-//            return .accentColor
-//        }
-//
-//        if days < 0 {
-//            return .red
-//        }
-        
-        return .accentColor
+        switch task.state {
+        case .overdued: return .red
+        case .today: return .green
+        default: return .blue
+        }
     }
     
     var showingNotes: Bool {
