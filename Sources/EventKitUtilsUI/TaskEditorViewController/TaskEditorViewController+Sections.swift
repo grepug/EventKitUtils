@@ -18,9 +18,12 @@ extension TaskEditorViewController {
                                      placeholder: "v3_task_editor_title_ph".loc,
                                      editingDidEnd: { [unowned self] value in
                 task.normalizedTitle = value
-                reload(animating: false)
+                
+                DispatchQueue.main.async { [unowned self] in
+                    reload(animating: false)
+                }
             }))
-            .tag(task.normalizedTitle)
+            .tag("title \(task.normalizedTitle)")
         }
         .tag("title \(self.task.normalizedTitle)")
     }
