@@ -269,6 +269,10 @@ public extension TaskKind {
     func displayInSegment(_ segment: FetchTasksSegmentType) -> Bool {
         switch segment {
         case .today:
+            if isCompleted {
+                return [.today].contains(state)
+            }
+            
             return [.today, .overdued].contains(state)
         case .incompleted:
             return !isCompleted
