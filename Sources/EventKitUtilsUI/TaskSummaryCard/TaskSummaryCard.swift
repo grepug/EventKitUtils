@@ -101,7 +101,8 @@ public struct TaskSummaryCard: View {
     func taskItem(_ task: TaskValue) -> some View {
         TaskListCell(task: task,
                      checked: checkedTaskIds.contains(task.normalizedID),
-                     isSummaryCard: true) {
+                     isSummaryCard: true,
+                     hidingKRInfo: true) {
             await checkTask(task)
         } presentEditor: {
             presentTaskEditor(task: task)
@@ -153,7 +154,7 @@ public struct TaskSummaryCard: View {
                 list
             }
         }
-        .frame(height: 266)
+        .frame(height: 236)
     }
 }
 

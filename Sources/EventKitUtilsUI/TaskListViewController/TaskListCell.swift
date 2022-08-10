@@ -56,7 +56,7 @@ public struct TaskListCell: View {
             } label: {
                 Image(systemName: (task.isCompleted || checked == true) ? "checkmark.circle.fill" : "circle")
             }
-            .foregroundColor(task.isCompleted ? .gray : .accentColor)
+            .foregroundColor(.gray)
             .offset(y: 2.5)
             
             if isSummaryCard {
@@ -129,15 +129,15 @@ public struct TaskListCell: View {
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
-                .padding(.bottom, task.notes.isEmpty != true ? 4 : 0)
+//                .padding(.bottom, task.notes.isEmpty != true ? 4 : 0)
             }
             
-            if showingNotes, let notes = task.notes, !notes.isEmpty {
-                Text(notes)
-                    .foregroundColor(.secondary)
-                    .font(.caption)
-                    .lineLimit(5)
-            }
+//            if showingNotes, let notes = task.notes, !notes.isEmpty {
+//                Text(notes)
+//                    .foregroundColor(.secondary)
+//                    .font(.caption)
+//                    .lineLimit(5)
+//            }
         }
     }
 }
