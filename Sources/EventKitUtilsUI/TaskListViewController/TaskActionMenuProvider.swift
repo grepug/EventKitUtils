@@ -11,8 +11,9 @@ import DiffableList
 import MenuBuilder
 
 public struct TaskActionMenuProvider {
-    public init(task: TaskValue, eventManager: EventManager, diffableListVC: DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, removeTask: (() -> Void)? = nil) {
+    public init(task: TaskValue, repeatingTasksFetchingType: FetchTasksType? = nil, eventManager: EventManager, diffableListVC: DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, removeTask: (() -> Void)? = nil) {
         self.task = task
+        self.repeatingTasksFetchingType = repeatingTasksFetchingType ?? .title(task.normalizedTitle)
         self.eventManager = eventManager
         self.diffableListVC = diffableListVC
         self.hidingOpenKR = hidingOpenKR
@@ -21,6 +22,7 @@ public struct TaskActionMenuProvider {
     }
     
     var task: TaskValue
+    var repeatingTasksFetchingType: FetchTasksType
     var eventManager: EventManager
     var diffableListVC: DiffableListViewController
     var hidingOpenKR = false
@@ -53,11 +55,11 @@ public struct TaskActionMenuProvider {
             }
         }
         
-        if isContextMenu && em.testHasRepeatingTasks(with: task) {
+        if isContextMenu && em.testHasRepeatingTasks(with: repeatingTasksFetchingType) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) {
                     let taskList = TaskListViewController(eventManager: em,
-                                                          fetchingTitle: task.normalizedTitle)
+                                                          fetchingType: repeatingTasksFetchingType)
                     let nav = taskList.navigationControllerWrapped()
                     
                     nav.modalPresentationStyle = .popover

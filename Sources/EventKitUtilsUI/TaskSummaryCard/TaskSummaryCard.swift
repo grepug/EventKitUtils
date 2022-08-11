@@ -110,9 +110,9 @@ public struct TaskSummaryCard: View {
         .padding(.top, 12)
         .background(Color(UIColor.systemBackground))
         .contextMenu {
-            if em.testHasRepeatingTasks(with: task) {
+            if em.testHasRepeatingTasks(with: .title(task.normalizedTitle)) {
                 Button("查看重复任务") {
-                    let vc = TaskListViewController(eventManager: em, fetchingTitle: task.normalizedTitle)
+                    let vc = TaskListViewController(eventManager: em, fetchingType: .title(task.normalizedTitle))
                     parentVC.present(vc, animated: true)
                 }
                 

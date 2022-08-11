@@ -18,19 +18,31 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     var groupedTasks: TaskGroupsByState = [:]
     @Published var segment: FetchTasksSegmentType
     unowned let em: EventManager
-    var fetchingTitle: String?
+    var repeatingListFetchingType: FetchTasksType?
     
     var cancellables = Set<AnyCancellable>()
     
     private let reloadingSubject = PassthroughSubject<FetchTasksSegmentType, Never>()
     
     var isRepeatingList: Bool {
-        fetchingTitle != nil
+        repeatingListFetchingType != nil
     }
     
-    public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, fetchingTitle: String? = nil) {
+    var fetchingTitle: String? {
+        if let type = repeatingListFetchingType {
+            switch type {
+            case .title(let title): return title
+            case .titleAndKeyResultID(let title, _): return title
+            default: break
+            }
+        }
+        
+        return nil
+    }
+    
+    public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, fetchingType: FetchTasksType? = nil) {
         self.em = eventManager
-        self.fetchingTitle = fetchingTitle
+        self.repeatingListFetchingType = fetchingType
         self.segment = initialSegment
         super.init(nibName: nil, bundle: nil)
         
@@ -137,8 +149,8 @@ extension TaskListViewController {
     }
     
     var fetchingType: FetchTasksType {
-        if let title = fetchingTitle {
-            return .title(title)
+        if let type = repeatingListFetchingType {
+            return type
         }
         
         return .segment(segment)

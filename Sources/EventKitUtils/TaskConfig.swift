@@ -27,6 +27,17 @@ public enum FetchTasksType: Hashable {
          titleAndKeyResultID(String, String),
          taskID(String),
          recordValue(RecordValue)
+    
+    public var titleAndKeyResultID: (String, String?) {
+        switch self {
+        case .titleAndKeyResultID(let title, let krID):
+            return (title, krID)
+        case .title(let title):
+            return (title, nil)
+        default:
+            fatalError()
+        }
+    }
 }
 
 public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> Void) -> Void
@@ -34,12 +45,12 @@ public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithTitle: @escaping (TaskKind) -> Int, saveTask: @escaping (TaskValue) async -> Void, deleteTaskByID: @escaping (String) async -> Void, fetchKeyResultInfo: @escaping (String) async -> KeyResultInfo?) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithFetchingType: @escaping (FetchTasksType) -> Int, saveTask: @escaping (TaskValue) async -> Void, deleteTaskByID: @escaping (String) async -> Void, fetchKeyResultInfo: @escaping (String) async -> KeyResultInfo?) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
         self.createNonEventTask = createNonEventTask
         self.taskById = taskById
-        self.taskCountWithTitle = taskCountWithTitle
+        self.taskCountWithFetchingType = taskCountWithFetchingType
         self.fetchNonEventTasks = fetchNonEventTasks
         self.saveTask = saveTask
         self.deleteTaskByID = deleteTaskByID
@@ -56,7 +67,7 @@ public struct TaskConfig {
     public var fetchNonEventTasks: FetchTasksHandler
     public var createNonEventTask: () -> TaskKind
     public var taskById: (String) -> TaskKind?
-    public var taskCountWithTitle: (TaskKind) -> Int
+    public var taskCountWithFetchingType: (FetchTasksType) -> Int
     public var saveTask: (TaskValue) async -> Void
     public var deleteTaskByID: (String) async -> Void
     public var fetchKeyResultInfo: (String) async -> KeyResultInfo?

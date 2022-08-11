@@ -138,18 +138,24 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func testHasRepeatingTasks(with task: TaskKind) -> Bool {
-        let count = config.taskCountWithTitle(task)
+    func testHasRepeatingTasks(with fetchingType: FetchTasksType) -> Bool {
+        let count = config.taskCountWithFetchingType(fetchingType)
         
         if count > 1 {
             return true
         }
         
+        let (title, krID) = fetchingType.titleAndKeyResultID
+        
         var foundEvent: EKEvent?
         var isTrue = false
         
         enumerateEvents { event in
-            if event.normalizedTitle == task.normalizedTitle {
+            if event.normalizedTitle == title {
+                if let krId = krID, event.keyResultId != krID {
+                    return false
+                }
+                
                 if foundEvent != nil || count == 1 {
                     isTrue = true
                     return true
