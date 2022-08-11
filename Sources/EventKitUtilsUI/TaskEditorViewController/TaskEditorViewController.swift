@@ -140,30 +140,8 @@ extension TaskEditorViewController {
     func setupNavigationBar() {
         title = "编辑任务"
         
-        navigationItem.rightBarButtonItems = [
-            { [unowned self] in
-                let button = UIBarButtonItem.makeDoneButton(on: self) { [unowned self] in
-                    await doneEditor()
-                }
-                
-                button.isEnabled = task.dateErrorMessage == nil
-                
-                return button
-            }()
-        ]
-        
-        navigationItem.leftBarButtonItems = [
-            {
-               let button = UIBarButtonItem.init(systemItem: .cancel, primaryAction: .init { [unowned self] _ in
-                    Task {
-                        view.endEditing(true)
-                        await handleCancelEditor()
-                    }
-                })
-                
-                return button
-            }()
-        ]
+        setupDoneButton()
+        setupCancelButton()
     }
     
     func doneEditor() async {
@@ -214,8 +192,6 @@ extension TaskEditorViewController {
         await em.saveTask(task)
         dismissEditor(shouldOpenTaskList: isCreating)
     }
-    
-    
     
     func presentSaveRepeatingTaskAlert(count: Int) async -> Bool? {
         let actions: [ActionValue] = [
@@ -270,6 +246,37 @@ extension TaskEditorViewController {
     func dismissEditor(shouldOpenTaskList: Bool = false) {
         onDismiss?(shouldOpenTaskList)
         presentingViewController?.dismiss(animated: true)
+    }
+}
+
+private extension TaskEditorViewController {
+    func setupDoneButton() {
+        let doneButton = UIBarButtonItem(systemItem: .done, primaryAction: .init { [unowned self] _ in
+            view.endEditing(true)
+            
+            Task {
+                await doneEditor()
+            }
+        })
+        
+        doneButton.isEnabled = task.dateErrorMessage == nil
+        
+        navigationItem.rightBarButtonItem = doneButton
+    }
+    
+    func setupCancelButton() {
+        navigationItem.leftBarButtonItems = [
+            {
+               let button = UIBarButtonItem.init(systemItem: .cancel, primaryAction: .init { [unowned self] _ in
+                    Task {
+                        view.endEditing(true)
+                        await handleCancelEditor()
+                    }
+                })
+                
+                return button
+            }()
+        ]
     }
 }
 

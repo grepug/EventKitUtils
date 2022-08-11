@@ -225,7 +225,6 @@ extension TaskEditorViewController {
                                   action: { [unowned self] isOn in
                 Task {
                     task.linkedValue = isOn ? 1 : nil
-                    await em.saveTask(task)
                     reload()
                 }
             })])
