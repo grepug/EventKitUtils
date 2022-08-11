@@ -184,7 +184,10 @@ extension TaskEditorViewController {
             let futureTasks = tasks.incompletedTasksAfter(endDate, notEqualTo: originalTaskValue)
             
             if !futureTasks.isEmpty {
-                let savingFutureTasks = await presentSaveRepeatingTaskAlert(count: futureTasks.count)
+                guard let savingFutureTasks = await presentSaveRepeatingTaskAlert(count: futureTasks.count) else {
+                    /// user canceled
+                    return
+                }
                 
                 if savingFutureTasks {
                     var savingTaskObjects: [TaskKind] = []
@@ -213,7 +216,7 @@ extension TaskEditorViewController {
     
     
     
-    func presentSaveRepeatingTaskAlert(count: Int) async -> Bool {
+    func presentSaveRepeatingTaskAlert(count: Int) async -> Bool? {
         let actions: [ActionValue] = [
             .init(title: "仅保存此任务", style: .destructive),
             .init(title: "保存将来所有未完成的任务(\(count))", style: .destructive),
