@@ -145,18 +145,11 @@ public extension EventManager {
             return true
         }
         
-        let title = repeatingInfo.title
-        let krID = repeatingInfo.keyResultID
-        
         var foundEvent: EKEvent?
         var isTrue = false
         
         enumerateEvents { event in
-            if event.normalizedTitle == title {
-                if let krId = krID, event.keyResultId != krID {
-                    return false
-                }
-                
+            if repeatingInfo == event.repeatingInfo {
                 if foundEvent != nil || count == 1 {
                     isTrue = true
                     return true
@@ -179,16 +172,8 @@ public extension EventManager {
                 enumerateEvents { event in
                     switch type {
                     case .repeatingInfo(let info):
-                        let title = info.title
-                        
-                        if title == event.normalizedTitle {
-                            if let krID = info.keyResultID {
-                                if krID == event.keyResultId {
-                                    tasks.append(event.value)
-                                }
-                            } else {
-                                tasks.append(event.value)
-                            }
+                        if info == event.repeatingInfo {
+                            tasks.append(event.value)
                         }
                     case .recordValue(let recordValue):
                         if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
