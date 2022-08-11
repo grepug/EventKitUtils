@@ -106,7 +106,8 @@ public class TaskEditorViewController: DiffableListViewController {
         setupKeyboardSubscribers(scrollView: listView,
                                  storeIn: &cancellables) { [unowned self] view in
             guard let collectionViewCell = view?.collectionViewCell,
-                  let indexPath = listView.indexPath(for: collectionViewCell) else {
+                  let indexPath = listView.indexPath(for: collectionViewCell),
+                  indexPath.section > 0 else {
                 return nil
             }
             
