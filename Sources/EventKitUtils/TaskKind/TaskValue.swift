@@ -88,7 +88,8 @@ public extension Array where Element == TaskValue {
         }
     }
     
-    typealias TitleGrouped = OrderedDictionary<String, [TaskValue]>
+    typealias TitleGrouped = OrderedDictionary<TaskRepeatingInfo, [TaskValue]>
+    typealias RepeatingGroupedCounts = [TaskRepeatingInfo: Int]
     
     func titleGrouped(iterator: ((Element) -> Void)? = nil) -> TitleGrouped {
         var cache: TitleGrouped = .init()
@@ -100,28 +101,28 @@ public extension Array where Element == TaskValue {
                 continue
             }
             
-            if cache[task.normalizedTitle] == nil {
-                cache[task.normalizedTitle] = []
+            if cache[task.repeatingInfo] == nil {
+                cache[task.repeatingInfo] = []
             }
             
-            cache[task.normalizedTitle]!.append(task)
+            cache[task.repeatingInfo]!.append(task)
         }
         
         return cache
     }
     
-    var countsOfTitleGrouped: [String: Int] {
+    var countsOfRepeatingGrouped: RepeatingGroupedCounts {
         let titleGrouped = titleGrouped()
-        var result: [String: Int] = [:]
+        var result: RepeatingGroupedCounts = [:]
         
-        for (title, tasks) in titleGrouped {
-            result[title] = tasks.count
+        for (info, tasks) in titleGrouped {
+            result[info] = tasks.count
         }
         
         return result
     }
     
-    func repeatingMerged(withCountsOfTitleGrouped countsOfTitleGrouped: [String: Int]? = nil) -> [TaskValue] {
+    func repeatingMerged(withCountsOfTitleGrouped countsOfTitleGrouped: RepeatingGroupedCounts? = nil) -> [TaskValue] {
         var taskValues: [TaskValue] = []
         var completedTaskValues: [TaskValue] = []
         let cache = titleGrouped { task in
@@ -132,10 +133,10 @@ public extension Array where Element == TaskValue {
         
         for (_, tasks) in cache {
             if var first = tasks.first {
-                let title = first.normalizedTitle
+                let info = first.repeatingInfo
                 
-                first.repeatingCount = countsOfTitleGrouped?[title] ??
-                cache[title]?.count ??
+                first.repeatingCount = countsOfTitleGrouped?[info] ??
+                cache[info]?.count ??
                 tasks.count
                 
                 taskValues.append(first)

@@ -181,6 +181,10 @@ public extension TaskKind {
         return res
     }
     
+    var repeatingInfo: TaskRepeatingInfo {
+        .init(title: normalizedTitle, keyResultID: keyResultId)
+    }
+    
     mutating func assignFromTaskKind(_ task: TaskKind) {
         normalizedTitle = task.normalizedTitle
         normalizedStartDate = task.normalizedStartDate

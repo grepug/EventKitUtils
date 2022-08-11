@@ -138,14 +138,15 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func testHasRepeatingTasks(with fetchingType: FetchTasksType) -> Bool {
-        let count = config.taskCountWithFetchingType(fetchingType)
+    func testHasRepeatingTasks(with repeatingInfo: TaskRepeatingInfo) -> Bool {
+        let count = config.taskCountWithRepeatingInfo(repeatingInfo)
         
         if count > 1 {
             return true
         }
         
-        let (title, krID) = fetchingType.titleAndKeyResultID
+        let title = repeatingInfo.title
+        let krID = repeatingInfo.keyResultID
         
         var foundEvent: EKEvent?
         var isTrue = false
@@ -177,14 +178,17 @@ public extension EventManager {
             if isEventStoreAuthorized {
                 enumerateEvents { event in
                     switch type {
-                    case .title(let title):
+                    case .repeatingInfo(let info):
+                        let title = info.title
+                        
                         if title == event.normalizedTitle {
-                            tasks.append(event.value)
-                        }
-                    case .titleAndKeyResultID(let title, let krID):
-                        if title == event.normalizedTitle &&
-                            krID == event.keyResultId {
-                            tasks.append(event.value)
+                            if let krID = info.keyResultID {
+                                if krID == event.keyResultId {
+                                    tasks.append(event.value)
+                                }
+                            } else {
+                                tasks.append(event.value)
+                            }
                         }
                     case .recordValue(let recordValue):
                         if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
@@ -267,7 +271,7 @@ public extension EventManager {
             afterTasks.append(taskObject)
             
             if fetchingMore {
-                let moreOverduedTasks = await fetchTasks(with: .title(task.normalizedTitle))
+                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
                     .filter { $0.state == .overdued }
                 await postpondTasks(moreOverduedTasks, fetchingMore: false)
             }

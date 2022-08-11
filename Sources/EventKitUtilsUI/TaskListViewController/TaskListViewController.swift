@@ -18,31 +18,27 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     var groupedTasks: TaskGroupsByState = [:]
     @Published var segment: FetchTasksSegmentType
     unowned let em: EventManager
-    var repeatingListFetchingType: FetchTasksType?
+    var taskRepeatingInfo: TaskRepeatingInfo?
     
     var cancellables = Set<AnyCancellable>()
     
     private let reloadingSubject = PassthroughSubject<FetchTasksSegmentType, Never>()
     
     var isRepeatingList: Bool {
-        repeatingListFetchingType != nil
+        taskRepeatingInfo != nil
     }
     
     var fetchingTitle: String? {
-        if let type = repeatingListFetchingType {
-            switch type {
-            case .title(let title): return title
-            case .titleAndKeyResultID(let title, _): return title
-            default: break
-            }
+        if let info = taskRepeatingInfo {
+            return info.title
         }
         
         return nil
     }
     
-    public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, fetchingType: FetchTasksType? = nil) {
+    public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, repeatingInfo: TaskRepeatingInfo? = nil) {
         self.em = eventManager
-        self.repeatingListFetchingType = fetchingType
+        self.taskRepeatingInfo = repeatingInfo
         self.segment = initialSegment
         super.init(nibName: nil, bundle: nil)
         
@@ -149,8 +145,8 @@ extension TaskListViewController {
     }
     
     var fetchingType: FetchTasksType {
-        if let type = repeatingListFetchingType {
-            return type
+        if let info = taskRepeatingInfo {
+            return .repeatingInfo(info)
         }
         
         return .segment(segment)
@@ -204,7 +200,7 @@ extension TaskListViewController {
         }
         
         var dict: TaskGroupsByState = [:]
-        let countsOfTitleGrouped = tasks.countsOfTitleGrouped
+        let countsOfTitleGrouped = tasks.countsOfRepeatingGrouped
         
         for (state, tasks) in cache {
             dict[state] = tasks

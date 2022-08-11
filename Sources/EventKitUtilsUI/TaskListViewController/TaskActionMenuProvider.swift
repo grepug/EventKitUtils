@@ -11,9 +11,8 @@ import DiffableList
 import MenuBuilder
 
 public struct TaskActionMenuProvider {
-    public init(task: TaskValue, repeatingTasksFetchingType: FetchTasksType? = nil, eventManager: EventManager, diffableListVC: DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, removeTask: (() -> Void)? = nil) {
+    public init(task: TaskValue, eventManager: EventManager, diffableListVC: DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, removeTask: (() -> Void)? = nil) {
         self.task = task
-        self.repeatingTasksFetchingType = repeatingTasksFetchingType ?? .title(task.normalizedTitle)
         self.eventManager = eventManager
         self.diffableListVC = diffableListVC
         self.hidingOpenKR = hidingOpenKR
@@ -22,7 +21,6 @@ public struct TaskActionMenuProvider {
     }
     
     var task: TaskValue
-    var repeatingTasksFetchingType: FetchTasksType
     var eventManager: EventManager
     var diffableListVC: DiffableListViewController
     var hidingOpenKR = false
@@ -41,6 +39,10 @@ public struct TaskActionMenuProvider {
         vc.listView
     }
     
+    var repeatingInfo: TaskRepeatingInfo {
+        task.repeatingInfo
+    }
+    
     @MenuBuilder
     public func taskMenu(isContextMenu: Bool = false) -> [MBMenu] {
         if !hidingOpenKR && isContextMenu, let krId = task.keyResultId {
@@ -55,11 +57,11 @@ public struct TaskActionMenuProvider {
             }
         }
         
-        if isContextMenu && em.testHasRepeatingTasks(with: repeatingTasksFetchingType) {
+        if isContextMenu && em.testHasRepeatingTasks(with: repeatingInfo) {
             MBGroup {
                 MBButton("查看重复任务", image: .init(systemName: "repeat")) {
                     let taskList = TaskListViewController(eventManager: em,
-                                                          fetchingType: repeatingTasksFetchingType)
+                                                          repeatingInfo: repeatingInfo)
                     let nav = taskList.navigationControllerWrapped()
                     
                     nav.modalPresentationStyle = .popover
