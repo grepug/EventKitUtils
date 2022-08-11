@@ -93,48 +93,14 @@ extension TaskListViewController {
             }
         }
     }
-}
-
-extension TaskListViewController {
-    @MenuBuilder
+    
     func taskMenu(for task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
-        if isContextMenu, let krId = task.keyResultId {
-            MBGroup {
-                MBButton("v3_task_open_kr".loc) { [unowned self] in
-                    guard let vc = em.config.makeKeyResultDetail!(krId) else {
-                        return
-                    }
-                    
-                    present(vc, animated: true)
-                }
-            }
-        }
-        
-        if isContextMenu && em.testHasRepeatingTasks(with: task) {
-            MBGroup {
-                MBButton("查看重复任务", image: .init(systemName: "repeat")) { [unowned self] in
-                    let vc = TaskListViewController(eventManager: em, fetchingTitle: task.normalizedTitle)
-                    let nav = vc.navigationControllerWrapped()
-                    
-                    nav.modalPresentationStyle = .popover
-                    
-                    let indexPath = listView.indexPath(forItemIdentifier: task.cellTag)!
-                    nav.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
-                    
-                    present(nav, animated: true)
-                }
-            }
-        }
-        
-        MBButton.edit { [unowned self] in
+        TaskActionMenuProvider(task: task, eventManager: em, diffableListVC: self) { [unowned self] in
             presentTaskEditor(task: task)
+        } removeTask: { [unowned self] in
+            removeTask(task)
         }
-        
-        MBButton.delete { [unowned self] in
-            await em.handleDeleteTask(task: task, on: self) { [unowned self] in
-                removeTask(task)
-            }
-        }
+        .taskMenu(isContextMenu: isContextMenu)
     }
     
     func removeTask(_ task: TaskValue) {
