@@ -36,6 +36,7 @@ extension TaskEditorViewController {
             .tag("enable planDate \(isEvent) \(task.isDateEnabled)")
             .accessories([.toggle(isOn: task.isDateEnabled, isEnabled: !isEvent, action: { [unowned self] isOn in
                 task.isDateEnabled = isOn
+                task.updateVersion()
                 reload()
             })])
             
@@ -46,6 +47,7 @@ extension TaskEditorViewController {
                 .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
                 .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
                     task.normalizedIsAllDay = isOn
+                    task.updateVersion()
                     reload()
                 })])
                 
@@ -54,6 +56,7 @@ extension TaskEditorViewController {
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
                     task.normalizedStartDate = date
+                    task.updateVersion()
                     reload(animating: false)
                 }))
                 .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
@@ -63,6 +66,7 @@ extension TaskEditorViewController {
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
                     task.normalizedEndDate = date
+                    task.updateVersion()
                     reload(animating: false)
                 }))
                 .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode)")
