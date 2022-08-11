@@ -119,6 +119,8 @@ extension EKEvent: TaskKind {
         isCompleted.toggle()
         normalizedTitle = normalizedTitle
     }
+    
+    public func updateVersion() {}
 }
 
 extension EKEvent {

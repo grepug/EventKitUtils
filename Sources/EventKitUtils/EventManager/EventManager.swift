@@ -241,9 +241,8 @@ public extension EventManager {
             taskObject = self.taskObject(task)!
         } else {
             taskObject = config.createNonEventTask()
+            taskObject.isDateEnabled = true
         }
-        
-        taskObject.isDateEnabled = true
         
         return taskObject
     }

@@ -31,6 +31,7 @@ public protocol TaskKind {
     var isValueType: Bool { get }
     
     func toggleCompletion()
+    func updateVersion()
 }
 
 public extension TaskKind {
@@ -56,7 +57,10 @@ public extension TaskKind {
             if newValue {
                 let date = Date()
                 
-                if normalizedStartDate == nil || normalizedEndDate == nil {
+                if normalizedStartDate == nil ||
+                    normalizedEndDate == nil ||
+                    /// 兼容老数据
+                    premisedIsDateEnabled == false {
                     normalizedStartDate = date
                     normalizedEndDate = date.oneHourLater
                 }

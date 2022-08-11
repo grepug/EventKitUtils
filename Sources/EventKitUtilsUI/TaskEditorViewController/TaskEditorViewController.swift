@@ -117,6 +117,7 @@ public class TaskEditorViewController: DiffableListViewController {
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+        task.updateVersion()
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
         setupNavigationBar()
         

@@ -48,6 +48,10 @@ public struct TaskValue: TaskKind, Hashable {
         fatalError("cannot toggle a value' completion")
     }
     
+    public func updateVersion() {
+        fatalError("cannot update a value's version")
+    }
+    
     public var kindIdentifier: TaskKindIdentifier = .event
     public var repeatingCount: Int?
     public var keyResultInfo: KeyResultInfo?
