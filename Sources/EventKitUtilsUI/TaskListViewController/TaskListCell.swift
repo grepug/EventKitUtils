@@ -83,11 +83,13 @@ public struct TaskListCell: View {
 //                }
             }
             
-            if !hidingDate && task.isDateEnabled, let dateString = dateString(task) {
+            if task.isDateEnabled || (task.repeatingCount ?? 0) > 1 {
                 HStack {
-                    Text(dateString)
-                        .foregroundColor(task.dateColor)
-                        
+                    if !hidingDate && task.isDateEnabled, let dateString = dateString(task) {
+                        Text(dateString)
+                            .foregroundColor(task.dateColor)
+                    }
+                    
                     if let repeatingCount = task.repeatingCount, repeatingCount > 1 {
                         Label("\(repeatingCount)", systemImage: "repeat")
                             .foregroundColor(.secondary)
