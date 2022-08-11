@@ -15,7 +15,7 @@ extension TaskEditorViewController {
             .cancel,
             .init(title: "去开启", style: .default) { [unowned self] _ in
                 let vc = EventSettingsViewController(eventManager: em)
-                present(vc, animated: true)
+                present(vc.navigationControllerWrapped(), animated: true)
             }
         ])
     }

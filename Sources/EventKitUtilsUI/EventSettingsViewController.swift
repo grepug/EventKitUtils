@@ -119,6 +119,12 @@ public class EventSettingsViewController: DiffableListViewController {
         setTopPadding()
         setCalendars(store: store)
         reload(animating: false)
+        
+        if presentingViewController != nil {
+            navigationItem.rightBarButtonItem = makeDoneButton { [unowned self] in
+                presentingViewController?.dismiss(animated: true)
+            }
+        }
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
