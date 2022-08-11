@@ -189,8 +189,6 @@ public extension TaskKind {
                             updatedAt: updatedAt,
                             kindIdentifier: kindIdentifier)
         
-        print("@@@", res, self)
-        
         return res
     }
     
@@ -262,6 +260,10 @@ public extension TaskKind {
         
         /// 包含今天，则为今天
         if range.contains(current) {
+            return .today
+        }
+        
+        if range.lowerBound.startOfDay == current.startOfDay {
             return .today
         }
         
