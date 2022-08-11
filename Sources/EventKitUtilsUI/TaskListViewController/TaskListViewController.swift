@@ -196,8 +196,8 @@ extension TaskListViewController {
         
         for (state, tasks) in cache {
             dict[state] = tasks
-                .repeatingMerged(withCountsOfTitleGrouped: countsOfTitleGrouped)
                 .sorted(in: state, of: segment)
+                .repeatingMerged(withCountsOfTitleGrouped: countsOfTitleGrouped)
         }
         
         return dict

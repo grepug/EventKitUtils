@@ -30,7 +30,7 @@ public class EventManager {
     func setupEventStore() {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
-            .merge(with: reloadCaches)
+            .merge(with: reloadCaches.dropFirst())
             .prepend(())
             .map { [unowned self] in
                 valuesByKeyResultID
@@ -173,6 +173,11 @@ public extension EventManager {
                     switch type {
                     case .title(let title):
                         if title == event.normalizedTitle {
+                            tasks.append(event.value)
+                        }
+                    case .titleAndKeyResultID(let title, let krID):
+                        if title == event.normalizedTitle &&
+                            krID == event.keyResultId {
                             tasks.append(event.value)
                         }
                     case .recordValue(let recordValue):

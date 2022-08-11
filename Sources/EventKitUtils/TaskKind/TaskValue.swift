@@ -55,6 +55,18 @@ public struct TaskValue: TaskKind, Hashable {
     public var kindIdentifier: TaskKindIdentifier = .event
     public var repeatingCount: Int?
     public var keyResultInfo: KeyResultInfo?
+    
+    public var cellTag: String {
+        normalizedID +
+        normalizedTitle +
+        (normalizedStartDate?.description ?? "startDate") +
+        (normalizedEndDate?.description ?? "endDate") +
+        isCompleted.description +
+        (notes ?? "notes") +
+        (keyResultId ?? "") +
+        (linkedValueString ?? "") +
+        ("\(repeatingCount ?? -1)")
+    }
 }
 
 public extension Array where Element == TaskValue {
@@ -194,7 +206,7 @@ extension Array where Element == TaskValue {
                 }
             }
             
-            return true
+            return a.normalizedID < b.normalizedID
         }
     }
 }

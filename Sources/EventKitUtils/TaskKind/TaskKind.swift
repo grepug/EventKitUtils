@@ -154,17 +154,6 @@ public extension TaskKind {
         }
     }
     
-    var cellTag: String {
-        normalizedID +
-        normalizedTitle +
-        (normalizedStartDate?.description ?? "startDate") +
-        (normalizedEndDate?.description ?? "endDate") +
-        isCompleted.description +
-        (notes ?? "notes") +
-        (keyResultId ?? "") +
-        (linkedValueString ?? "")
-    }
-    
     var dateColor: Color {
         switch state {
         case .overdued: return .red

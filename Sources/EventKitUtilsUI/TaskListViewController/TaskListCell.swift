@@ -9,10 +9,9 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskListCell: View {
-    public init(task: TaskValue, checked: Bool? = nil, isSummaryCard: Bool = false, linkedKeyResultTitle: String? = nil, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
+    public init(task: TaskValue, checked: Bool? = nil, isSummaryCard: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
-        self.linkedKeyResultTitle = linkedKeyResultTitle
         self.hidingKRInfo = hidingKRInfo
         self.hidingDate = hidingDate
         self.check = check
@@ -23,7 +22,6 @@ public struct TaskListCell: View {
     var task: TaskValue
     var isSummaryCard: Bool = false
     var checked: Bool?
-    var linkedKeyResultTitle: String?
     var hidingKRInfo: Bool = false
     var hidingDate: Bool = false
     var check: () async -> Void

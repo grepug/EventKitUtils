@@ -22,7 +22,11 @@ public enum FetchTasksSegmentType: Int, CaseIterable {
 }
 
 public enum FetchTasksType: Hashable {
-    case segment(FetchTasksSegmentType), title(String), taskID(String), recordValue(RecordValue)
+    case segment(FetchTasksSegmentType),
+         title(String),
+         titleAndKeyResultID(String, String),
+         taskID(String),
+         recordValue(RecordValue)
 }
 
 public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> Void) -> Void
