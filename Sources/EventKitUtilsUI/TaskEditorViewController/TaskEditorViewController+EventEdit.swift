@@ -20,6 +20,26 @@ extension TaskEditorViewController {
         ])
     }
     
+    @MainActor
+    func convertToEvent() async {
+        guard let calendar = em.calendarInUse else {
+            return
+        }
+        
+        var event = EKEvent(baseURL: config.eventBaseURL, eventStore: eventStore)
+        event.calendar = calendar
+        event.assignFromTaskKind(task)
+        await em.saveTask(event)
+        originalTaskValue = event.value
+        
+        /// 删除本地 task
+        await em.deleteTask(task)
+        task = event
+        
+        try! await Task.sleep(nanoseconds: 200_000_000)
+        reload()
+    }
+    
     func presentEventEditor() async {
         guard task.isDateEnabled else {
             return
