@@ -18,6 +18,7 @@ public protocol TaskKind {
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
     var normalizedIsAllDay: Bool { get set }
+    var premisedIsDateEnabled: Bool? { get }
     var isCompleted: Bool { get set }
     var completedAt: Date? { get set }
     var notes: String? { get set }
@@ -43,7 +44,12 @@ public extension TaskKind {
     
     var isDateEnabled: Bool {
         get {
-            normalizedStartDate != nil && normalizedEndDate != nil
+            /// 优先判断的，兼容老数据
+            if let premised = premisedIsDateEnabled {
+                return premised
+            }
+            
+            return normalizedStartDate != nil && normalizedEndDate != nil
         }
         
         set {
@@ -86,6 +92,10 @@ public extension TaskKind {
     }
     
     var dateRange: Range<Date>? {
+        guard isDateEnabled else {
+            return nil
+        }
+        
         guard let start = normalizedStartDate,
               let end = normalizedEndDate else {
             return nil
@@ -160,19 +170,24 @@ public extension TaskKind {
     }
     
     var value: TaskValue {
-        .init(normalizedID: normalizedID,
-              normalizedTitle: normalizedTitle,
-              normalizedStartDate: normalizedStartDate,
-              normalizedEndDate: normalizedEndDate,
-              normalizedIsAllDay: normalizedIsAllDay,
-              isCompleted: isCompleted,
-              completedAt: completedAt,
-              notes: notes,
-              keyResultId: keyResultId,
-              linkedValue: linkedValue,
-              createdAt: createdAt,
-              updatedAt: updatedAt,
-              kindIdentifier: kindIdentifier)
+        let res = TaskValue(normalizedID: normalizedID,
+                            normalizedTitle: normalizedTitle,
+                            normalizedStartDate: normalizedStartDate,
+                            normalizedEndDate: normalizedEndDate,
+                            normalizedIsAllDay: normalizedIsAllDay,
+                            premisedIsDateEnabled: premisedIsDateEnabled,
+                            isCompleted: isCompleted,
+                            completedAt: completedAt,
+                            notes: notes,
+                            keyResultId: keyResultId,
+                            linkedValue: linkedValue,
+                            createdAt: createdAt,
+                            updatedAt: updatedAt,
+                            kindIdentifier: kindIdentifier)
+        
+        print("@@@", res, self)
+        
+        return res
     }
     
     mutating func assignFromTaskKind(_ task: TaskKind) {
@@ -233,37 +248,24 @@ public extension TaskKind {
 
 public extension TaskKind {
     var state: TaskKindState {
-        if let endDate = normalizedEndDate {
-            let current = Date()
-            
-            /// 兼容没有开始时间的情况
-            if normalizedStartDate == nil || normalizedIsAllDay {
-                if endDate.startOfDay == current.startOfDay {
-                    return .today
-                }
-
-                if endDate.startOfDay < current.startOfDay {
-                    return .overdued
-                }
-                    
-                return .afterToday
-            }
-            
-            /// 包含今天，则为今天
-            if let range = dateRange, range.contains(current) {
-                return .today
-            }
-            
-            if endDate < current {
-                if !isCompleted {
-                    return .overdued
-                }
-            }
-            
-            return .afterToday
+        guard isDateEnabled,
+              let endDate = normalizedEndDate,
+              let range = dateRange else {
+            return .unscheduled
         }
         
-        return .unscheduled
+        let current = Date()
+        
+        /// 包含今天，则为今天
+        if range.contains(current) {
+            return .today
+        }
+        
+        if endDate < current, !isCompleted {
+            return .overdued
+        }
+        
+        return .afterToday
     }
     
     func displayInSegment(_ segment: FetchTasksSegmentType) -> Bool {

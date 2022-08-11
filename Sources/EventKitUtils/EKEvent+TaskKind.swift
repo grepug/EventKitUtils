@@ -52,6 +52,8 @@ extension EKEvent: TaskKind {
         set { isAllDay = newValue }
     }
     
+    public var premisedIsDateEnabled: Bool? { nil }
+    
     public var isCompleted: Bool {
         get {
             completedAt != nil
