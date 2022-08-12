@@ -95,17 +95,21 @@ extension TaskListViewController {
     }
     
     func taskMenu(for task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
-        TaskActionMenuProvider(task: task, eventManager: em, diffableListVC: self) { [unowned self] in
+        TaskActionMenuProvider(task: task,
+                               eventManager: em,
+                               diffableListVC: { [unowned self] in self }) { [unowned self] in
             presentTaskEditor(task: task)
-        } removeTask: { [unowned self] in
+        } manuallyRemoveThisTaskSinceItIsTheLastOne: { [unowned self] in
             removeTask(task)
+        } afterDeletion: { [unowned self] in
+            reloadList()
         }
         .taskMenu(isContextMenu: isContextMenu)
     }
     
     func removeTask(_ task: TaskValue) {
         for (key, _) in groupedTasks {
-            groupedTasks[key]?.removeAll { $0.normalizedTitle == task.normalizedTitle }
+            groupedTasks[key]?.removeAll { $0 == task }
         }
         
         DispatchQueue.main.async {

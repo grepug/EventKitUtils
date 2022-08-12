@@ -11,28 +11,30 @@ import DiffableList
 import MenuBuilder
 
 public struct TaskActionMenuProvider {
-    public init(task: TaskValue, eventManager: EventManager, diffableListVC: DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, removeTask: (() -> Void)? = nil) {
+    public init(task: TaskValue, eventManager: EventManager, diffableListVC: @escaping () -> DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil, afterDeletion: (() -> Void)? = nil) {
         self.task = task
         self.eventManager = eventManager
         self.diffableListVC = diffableListVC
         self.hidingOpenKR = hidingOpenKR
         self.presentTaskEditor = presentTaskEditor
         self.removeTask = removeTask
+        self.afterDeletion = afterDeletion
     }
     
     var task: TaskValue
     var eventManager: EventManager
-    var diffableListVC: DiffableListViewController
+    var diffableListVC: () -> DiffableListViewController
     var hidingOpenKR = false
     var presentTaskEditor: () -> Void
     var removeTask: (() -> Void)?
+    var afterDeletion: (() -> Void)?
     
     var em: EventManager {
         eventManager
     }
     
     var vc: DiffableListViewController {
-        diffableListVC
+        diffableListVC()
     }
     
     var listView: DiffableListView {
@@ -79,9 +81,13 @@ public struct TaskActionMenuProvider {
         }
         
         MBButton.delete {
-            await em.handleDeleteTask(task: task, on: vc) {
+            let res = await em.handleDeleteTask(task: task, on: vc) {
                 removeTask?()
             }
+            
+            afterDeletion?()
+            
+            return res
         }
     }
 }
