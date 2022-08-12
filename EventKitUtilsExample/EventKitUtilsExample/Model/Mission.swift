@@ -10,6 +10,23 @@ import EventKitUtils
 import StorageProvider
 
 extension Mission: ManagedObject, TaskKind {
+    public var normalizedIsAllDay: Bool {
+        get {
+            isAllDay
+        }
+        set {
+            isAllDay = newValue
+        }
+    }
+    
+    public var premisedIsDateEnabled: Bool? {
+        nil
+    }
+    
+    public func updateVersion() {
+        
+    }
+    
     public var linkedValue: Double? {
         get { linkedRecordValue }
         set { linkedRecordValue = newValue ?? 0 }

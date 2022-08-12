@@ -57,12 +57,12 @@ public extension EventManager {
         set { config.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
     }
     
-    var calendarInUse: EKCalendar? {
+    var defaultCalendarToSaveEvents: EKCalendar? {
         if let id = selectedCalendarIdentifier,
            let calendar = eventStore.calendar(withIdentifier: id)  {
             return calendar
         }
-        
+
         return eventStore.defaultCalendarForNewEvents
     }
     
@@ -268,13 +268,10 @@ public extension EventManager {
 
 extension EventManager {
     func eventsPredicate() -> NSPredicate? {
-        guard let calendar = calendarInUse else {
-            return nil
-        }
-        
+        let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
         let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
                                                       end: config.eventRequestRange.upperBound,
-                                                      calendars: [calendar])
+                                                      calendars: calendars)
         
         return predicate
     }

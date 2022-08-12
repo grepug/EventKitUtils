@@ -40,7 +40,7 @@ extension TaskEditorViewController {
             return
         }
         
-        guard let calendar = em.calendarInUse else {
+        guard let calendar = em.defaultCalendarToSaveEvents else {
             return
         }
         

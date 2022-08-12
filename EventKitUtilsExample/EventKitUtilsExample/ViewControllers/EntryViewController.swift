@@ -73,8 +73,9 @@ extension EventManager {
                 switch type {
                 case .segment, .recordValue:
                     break
-                case .title(let title):
-                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
+                case .repeatingInfo(let info):
+                    break
+//                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
                 case .taskID(_):
                     break
                 }
@@ -92,8 +93,9 @@ extension EventManager {
             }
             
             return Mission.fetch(byId: uuid)
-        } taskCountWithTitle: { task in
-            Mission.fetchCount(where: NSPredicate(format: "title = %@", task.normalizedTitle as CVarArg))
+        } taskCountWithRepeatingInfo: { task in
+//            Mission.fetchCount(where: NSPredicate(format: "title = %@", task.normalizedTitle as CVarArg))
+                0
         } saveTask: { taskValue in
 //            guard let mission = task as? Mission else {
 //                return

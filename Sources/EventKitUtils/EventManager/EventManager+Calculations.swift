@@ -22,9 +22,8 @@ extension EventManager {
             DispatchQueue.global(qos: .userInitiated).async { [unowned self] in
                 var dict: TasksByKeyResultID = [:]
                 var dict2: RecordsByKeyResultID = [:]
-                let predicate = eventsPredicate()
                 
-                enumerateEvents(matching: predicate) { event in
+                enumerateEvents { event in
                     guard let keyResultId = event.keyResultId else {
                         return false
                     }
