@@ -24,7 +24,7 @@ extension EKEvent: TaskKind {
         get { (title ?? "").statusEmojiTrimmed() }
         set {
             title = "\(emoji) \(newValue)"
-            setValue(newValue.addingPercentEncoding(withAllowedCharacters: []), forKey: .title)
+            setValue(newValue.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), forKey: .title)
         }
     }
     
