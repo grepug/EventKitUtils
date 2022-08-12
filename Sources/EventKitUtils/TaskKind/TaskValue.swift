@@ -197,7 +197,7 @@ extension Array where Element == TaskValue {
         }
     }
     
-    public func sorted(in state: TaskKindState?, of segment: FetchTasksSegmentType) -> [TaskValue] {
+    public func sorted(in state: TaskKindState? = .today, of segment: FetchTasksSegmentType = .today) -> [TaskValue] {
         let sortTypes = SortType.sortTypes(in: state, of: segment)
         
         return sorted { a, b in

@@ -14,7 +14,7 @@ extension TaskSummaryCard {
         
         tasks = await em.fetchTasks(with: .segment(segment))
             .filter { $0.displayInSegment(segment) }
-            .sorted(in: .today, of: segment)
+            .sorted(of: segment)
             .repeatingMerged()
             .prefix(3).map { $0 }
     }

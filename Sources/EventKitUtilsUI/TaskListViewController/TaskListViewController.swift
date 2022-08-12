@@ -184,7 +184,7 @@ extension TaskListViewController {
         var cache: TasksByState = [:]
         
         if isRepeatingList {
-            cache[nil] = tasks
+            cache[nil] = tasks.sorted()
             
             return cache
         }
