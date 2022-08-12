@@ -80,11 +80,11 @@ public extension Array where Element == TaskValue {
                 return false
             }
             
-            guard let endDate = task.normalizedEndDate else {
-                return false
+            if let endDate = task.normalizedEndDate {
+                return endDate > date
             }
-                
-            return endDate > date
+            
+            return true
         }
     }
     
