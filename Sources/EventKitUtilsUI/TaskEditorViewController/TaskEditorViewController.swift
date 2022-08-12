@@ -99,7 +99,7 @@ public class TaskEditorViewController: DiffableListViewController {
         setupNavigationBar()
         reload(animating: false)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [unowned self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [unowned self] in
             becomeFirstResponder(at: [0, 0])
         }
         
