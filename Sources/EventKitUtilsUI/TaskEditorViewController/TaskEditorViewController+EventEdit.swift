@@ -22,31 +22,16 @@ extension TaskEditorViewController {
     
     @MainActor
     func convertToEvent() async {
-        guard let calendar = em.calendarInUse else {
-            return
-        }
+        view.endEditing(true)
         
-        var event = EKEvent(baseURL: config.eventBaseURL, eventStore: eventStore)
-        event.calendar = calendar
-        event.assignFromTaskKind(task)
-        await em.saveTask(event)
-        originalTaskValue = event.value
-        
-        /// 删除本地 task
-        await em.deleteTask(task)
-        task = event
-        
-        try! await Task.sleep(nanoseconds: 200_000_000)
-        reload()
-    }
-    
-    func presentEventEditor() async {
-        guard task.isDateEnabled else {
-            return
-        }
+        try! await Task.sleep(nanoseconds: 50_000_000)
         
         if let errorMessage = task.dateErrorMessage {
             presentDateRangeErrorAlert(title: errorMessage)
+            return
+        }
+        
+        guard task.isDateEnabled else {
             return
         }
         
@@ -59,22 +44,25 @@ extension TaskEditorViewController {
             return
         }
         
-        var event: EKEvent
+        var event = EKEvent(baseURL: config.eventBaseURL, eventStore: eventStore)
+        event.calendar = calendar
+        event.assignFromTaskKind(task)
         
-        if let _event = task as? EKEvent {
-            event = _event
-        } else {
-            event = .init(baseURL: config.eventBaseURL, eventStore: eventStore)
-            event.calendar = calendar
-            event.assignFromTaskKind(task)
-            await em.saveTask(event)
-            originalTaskValue = event.value
-            
-            /// 删除本地 task
-            await em.deleteTask(task)
-            task = event
+        /// 删除本地 task
+        await em.deleteTask(task)
+        await em.saveTask(event)
+        originalTaskValue = event.value
+        task = event
+        
+        try! await Task.sleep(nanoseconds: 200_000_000)
+        reload()
+    }
+    
+    func presentEventEditor() {
+        guard let event = task as? EKEvent else {
+            fatalError("this should be an ekEvent")
         }
-            
+        
         let vc = EKEventEditViewController()
         vc.event = event
         vc.eventStore = eventStore
