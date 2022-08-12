@@ -11,6 +11,13 @@ import EventKitUtils
 extension EventManager {
     @discardableResult
     func handleDeleteTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
+        if task.isCompleted {
+            removeTask?()
+            await self.deleteTask(task)
+
+            return true
+        }
+        
         let tasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
 
         if tasks.count > 1 {

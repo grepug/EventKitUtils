@@ -156,7 +156,7 @@ extension TaskEditorViewController {
             return
         }
         
-        if hasChanges,
+        if !task.isCompleted, hasChanges,
            task.testAreDatesSame(from: originalTaskValue),
            let endDate = originalTaskValue.normalizedEndDate {
             let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo))
@@ -205,7 +205,7 @@ extension TaskEditorViewController {
         switch result {
         case actions[0]: return false
         case actions[1]: return true
-        case actions[2]: return false
+        case actions[2]: return nil
         default: fatalError()
         }
     }
