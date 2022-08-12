@@ -164,9 +164,6 @@ extension TaskEditorViewController {
             }
             .tag("calendar \(isEvent)")
             .accessories([
-//                .label(isEvent ? "已开启" : "开启",
-//                       color: !isEvent ? .systemBlue : .secondaryLabel),
-//                isEvent ? .disclosureIndicator() : nil
                 .toggle(isOn: isEvent, isEnabled: !isEvent) { [unowned self] isOn in
                     guard isOn else {
                         fatalError("cannot turn off")
@@ -183,9 +180,7 @@ extension TaskEditorViewController {
                     return
                 }
                 
-                Task {
-                    await presentEventEditor()
-                }
+                presentEventEditor()
             }
         }
         .tag("4")
