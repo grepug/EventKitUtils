@@ -22,7 +22,10 @@ extension EKEvent: TaskKind {
     
     public var normalizedTitle: String {
         get { (title ?? "").statusEmojiTrimmed() }
-        set { title = "\(emoji) \(newValue)" }
+        set {
+            title = "\(emoji) \(newValue)"
+            setValue(newValue.addingPercentEncoding(withAllowedCharacters: []), forKey: .title)
+        }
     }
     
     public var normalizedStartDate: Date? {
@@ -159,12 +162,12 @@ private extension EKEvent {
     
     func setValue(_ value: String?, forKey key: EventURLKeys) {
         setQueryItems(
-            key.setValue(value, of: queryItems)
+            EventURLKeys.setValue(value, of: queryItems, forKey: key)
         )
     }
     
     func getValue(forKey key: EventURLKeys) -> String? {
-        key.value(ofQueryItems: queryItems)
+        EventURLKeys.value(ofQueryItems: queryItems, forKey: key)
     }
     
     func setQueryItems(_ queryItems: [URLQueryItem]) {

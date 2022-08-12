@@ -8,36 +8,37 @@
 import Foundation
 
 public enum EventURLKeys {
-    case keyResultId, linkedQuantity, completedAt
+    case keyResultId, linkedQuantity, completedAt, title
     
-    public var key: String {
+    public var name: String {
         switch self {
         case .keyResultId: return "k"
         case .linkedQuantity: return "v"
         case .completedAt: return "ca"
+        case .title: return "t"
         }
     }
 }
 
 extension EventURLKeys {
-    func value(ofQueryItems queryItems: [URLQueryItem]) -> String? {
-        let value = queryItems.first { $0.name == key }?.value
+    public static func value(ofQueryItems queryItems: [URLQueryItem], forKey key: EventURLKeys) -> String? {
+        let value = queryItems.first { $0.name == key.name }?.value
         
         return value?.isEmpty == true ? nil : value
     }
     
-    func setValue(_ value: String?, of queryItems: [URLQueryItem]) -> [URLQueryItem] {
+    static func setValue(_ value: String?, of queryItems: [URLQueryItem], forKey key: EventURLKeys) -> [URLQueryItem] {
         var queryItems = queryItems
         
         for (index, item) in queryItems.enumerated() {
-            if item.name == key {
+            if item.name == key.name {
                 queryItems[index] = .init(name: item.name, value: value)
                 
                 return queryItems
             }
         }
         
-        queryItems.append(.init(name: key, value: value))
+        queryItems.append(.init(name: key.name, value: value))
         
         return queryItems
     }
