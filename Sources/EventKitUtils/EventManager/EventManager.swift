@@ -164,12 +164,19 @@ public extension EventManager {
         return isTrue
     }
     
-    private func fetchTasksAsync(with type: FetchTasksType, handler: @escaping ([TaskValue]) -> Void) {
+    private func fetchTasksAsync(with type: FetchTasksType, onlyFirst: Bool = false, handler: @escaping ([TaskValue]) -> Void) {
         config.fetchNonEventTasks(type) { [unowned self] tasks in
             var tasks = tasks.map(\.value)
             
+            if onlyFirst, let first = tasks.first {
+                handler([first])
+                return
+            }
+            
             if isEventStoreAuthorized {
                 enumerateEvents { event in
+                    var flag = false
+                    
                     switch type {
                     case .repeatingInfo(let info):
                         if info == event.repeatingInfo {
@@ -180,7 +187,7 @@ public extension EventManager {
                             if taskID == event.normalizedID && completedAt == event.completedAt {
                                 tasks.append(event.value)
                                 
-                                return true
+                                flag = true
                             }
                         }
                     case .segment:
@@ -191,7 +198,11 @@ public extension EventManager {
                         }
                     }
                     
-                    return false
+                    if onlyFirst && !tasks.isEmpty {
+                        return true
+                    }
+                    
+                    return flag
                 }
             }
             
@@ -199,9 +210,9 @@ public extension EventManager {
         }
     }
     
-    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> [TaskValue] {
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, onlyFirst: Bool = false) async -> [TaskValue] {
         var tasks = await withCheckedContinuation { continuation in
-            fetchTasksAsync(with: type) { tasks in
+            fetchTasksAsync(with: type, onlyFirst: onlyFirst) { tasks in
                 continuation.resume(returning: tasks)
             }
         }
@@ -216,6 +227,10 @@ public extension EventManager {
         }
         
         return tasks
+    }
+    
+    func fetchFirstTask(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> TaskValue? {
+        await fetchTasks(with: type, fetchingKRInfo: fetchingKRInfo, onlyFirst: true).first
     }
     
     func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
