@@ -85,7 +85,7 @@ public struct TaskListCell: View {
             
             if task.isDateEnabled || (task.repeatingCount ?? 0) > 1 {
                 HStack {
-                    if !hidingDate && task.isDateEnabled, let dateString = dateString(task) {
+                    if !hidingDate && task.isDateEnabled, let dateString = task.dateFormatted() {
                         Text(dateString)
                             .foregroundColor(task.dateColor)
                     }
@@ -125,19 +125,5 @@ public struct TaskListCell: View {
 //                    .lineLimit(5)
 //            }
         }
-    }
-}
-
-extension TaskListCell {
-    func dateString(_ task: TaskKind) -> String? {
-        if let endDate = task.normalizedEndDate, task.normalizedStartDate == nil {
-            return endDate.formattedRelatively()
-        }
-        
-        if let range = task.dateRange {
-            return "\(range.lowerBound.formattedRelatively()) - \(range.upperBound.formattedRelatively())"
-        }
-        
-        return nil
     }
 }

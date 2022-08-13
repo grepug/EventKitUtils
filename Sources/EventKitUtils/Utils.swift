@@ -46,9 +46,9 @@ public extension Date {
         return days
     }
     
-    func formattedRelatively() -> String {
+    func formattedRelatively(includingTime: Bool = true) -> String {
         let formatter = DateFormatter()
-        formatter.timeStyle = .short
+        formatter.timeStyle = includingTime ? .short : .none
         formatter.dateStyle = .short
         formatter.doesRelativeDateFormatting = true
         

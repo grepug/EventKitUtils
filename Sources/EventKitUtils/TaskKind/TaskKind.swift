@@ -71,30 +71,6 @@ public extension TaskKind {
         }
     }
     
-    mutating func setStartDate(_ date: Date?) {
-        if let startDate = date {
-            normalizedStartDate = startDate
-            
-            if let endDate = normalizedEndDate, endDate <= startDate {
-                normalizedEndDate = startDate.oneHourLater
-            }
-        } else {
-            normalizedStartDate = nil
-        }
-    }
-    
-    mutating func setEndDate(_ date: Date?) {
-        if let endDate = date {
-            normalizedEndDate = endDate
-            
-            if let startDate = normalizedStartDate, endDate <= startDate {
-                normalizedStartDate = endDate.oneHourEarlier
-            }
-        } else {
-            normalizedEndDate = nil
-        }
-    }
-    
     var dateRange: Range<Date>? {
         guard isDateEnabled else {
             return nil
@@ -170,6 +146,21 @@ public extension TaskKind {
         }
     }
     
+    func dateFormatted(endDateOnly: Bool = false) -> String? {
+        guard let range = dateRange else {
+            return nil
+        }
+        
+        let startString = range.lowerBound.formattedRelatively(includingTime: !normalizedIsAllDay)
+        let endString = range.upperBound.formattedRelatively(includingTime: !normalizedIsAllDay)
+        
+        if endDateOnly || startString == endString {
+            return endString
+        }
+        
+        return "\(startString) - \(endString)"
+    }
+    
     var value: TaskValue {
         let res = TaskValue(normalizedID: normalizedID,
                             normalizedTitle: normalizedTitle,
@@ -242,7 +233,7 @@ public extension TaskKind {
         }
         
         let duration = Int(durationInSeconds)
-        let current = Date()
+        let current = normalizedIsAllDay ? Date().startOfDay : Date()
         
         normalizedStartDate = current
         normalizedEndDate = Calendar.current.date(byAdding: .second, value: duration, to: current)
