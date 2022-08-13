@@ -124,6 +124,14 @@ public extension TaskKind {
         return dateRange.upperBound.timeIntervalSince1970 - dateRange.lowerBound.timeIntervalSince1970
     }
     
+    var durationInDays: Int? {
+        guard let dateRange = dateRange else {
+            return nil
+        }
+        
+        return abs(dateRange.upperBound.days(to: dateRange.lowerBound))
+    }
+    
     var durationString: String? {
         guard let interval = durationInSeconds else {
             return nil

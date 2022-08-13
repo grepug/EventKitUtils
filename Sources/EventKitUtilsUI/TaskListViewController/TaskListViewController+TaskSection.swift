@@ -85,13 +85,13 @@ extension TaskListViewController {
                                                   message: "v3_task_postpone_alert_message".loc,
                                                   actions: [postponeAction, .cancel])
         
-        if result == postponeAction {
-            if let taskValues = groupedTasks[.overdued] {
-                print(taskValues)
-                
-                await em.postpondTasks(taskValues)
-            }
+        guard result == postponeAction,
+              let taskValues = groupedTasks[.overdued] else {
+            return
         }
+        
+        await em.postpondTasks(taskValues)
+        reloadList()
     }
     
     func taskMenu(for task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
