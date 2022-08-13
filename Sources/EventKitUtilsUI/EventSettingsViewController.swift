@@ -51,17 +51,14 @@ public class EventSettingsViewController: DiffableListViewController {
         DLList { [unowned self] in
             DLSection { [unowned self] in
                 DLCell {
+                    DLImage(systemName: "crown.fill")
+                        .color(.orange)
                     DLText("开启")
                 }
                 .tag("enabling \(isEnabled) \(forceReloadToggleFlag)")
                 .accessories([.toggle(isOn: isEnabled, action: { [unowned self] isOn in
-                    if isOn {
-                        Task {
-                            await determineAuthorizationStatus()
-                        }
-                    } else {
-                        Self.openSettings()
-                        reload()
+                    Task {
+                        await handleToggle(isOn: isOn)
                     }
                 })])
             }
@@ -137,6 +134,25 @@ public class EventSettingsViewController: DiffableListViewController {
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {
         calendar.calendarIdentifier == em.selectedCalendarIdentifier ??
         store.defaultCalendarForNewEvents?.calendarIdentifier
+    }
+    
+    func handleToggle(isOn: Bool) async {
+        guard isOn else {
+            Self.openSettings()
+            reload()
+            return
+        }
+        
+        let intercepted = em.config.interceptionBeforeTurnOnCalendarSync? { [unowned self] in
+            self
+        }
+        
+        guard intercepted == true else {
+            reload()
+            return
+        }
+        
+        await determineAuthorizationStatus()
     }
 }
 

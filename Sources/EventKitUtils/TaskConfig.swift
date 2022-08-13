@@ -61,6 +61,7 @@ public struct TaskConfig {
     public var fetchKeyResultInfo: (String) async -> KeyResultInfo?
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
+    public var interceptionBeforeTurnOnCalendarSync: ((() -> UIViewController) -> Bool)?
 }
 
 public struct KeyResultInfo: Hashable {
