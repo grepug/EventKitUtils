@@ -234,9 +234,10 @@ public extension TaskKind {
         
         let duration = Int(durationInSeconds)
         let current = normalizedIsAllDay ? Date().startOfDay : Date()
+        let endDate = Calendar.current.date(byAdding: .second, value: duration, to: current)?.endOfDay
         
         normalizedStartDate = current
-        normalizedEndDate = Calendar.current.date(byAdding: .second, value: duration, to: current)
+        normalizedEndDate = endDate
     }
 }
 
