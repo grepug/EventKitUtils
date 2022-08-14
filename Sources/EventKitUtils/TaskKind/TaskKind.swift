@@ -139,6 +139,10 @@ public extension TaskKind {
     }
     
     var dateColor: Color {
+        if isCompleted {
+            return .secondary
+        }
+        
         switch state {
         case .overdued: return .red
         case .today: return .green
