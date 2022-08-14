@@ -46,5 +46,16 @@
 "task_editor_delete_button" = "Delete Task";
 "task_editor_enable_link_record_value" = "Link Record Value";
 
+"event_settings_title" = "Calendar Sync";
+"event_settings_enable" = "Enable";
+"event_settings_enable_footer" = "Calendar Sync enables setting alarms, repeat tasks and more features.\n";
+"event_settings_select_default_calendar" = "Select Default Calendar";
+"event_settings_select_default_calendar_desc" = "The default calendar to save to when creating calendar synced tasks.";
+"event_settings_default_calendar_desc" = "Calendar Default";
+"event_settings_sync_notice" = "Please enable the Calendar's iCloud sync in the system Settings, if you want your calendar synced tasks available across your devices, which is not concerned with Vision's iCloud Syncing.";
+"event_settings_not_authorized_alert_title" = "No Access Permission for Calendar";
+"event_settings_not_authorized_alert_msg" = "To authorize, please go to System Settings.";
+"event_settings_not_authorized_alert_action" = "OK";
+
 "action_discard_editing" = "Discard Changes";
 "action_discard_editing_title" = "Changes Won't Save";

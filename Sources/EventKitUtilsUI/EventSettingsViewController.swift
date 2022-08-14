@@ -53,7 +53,7 @@ public class EventSettingsViewController: DiffableListViewController {
                 DLCell {
                     DLImage(systemName: "crown.fill")
                         .color(.orange)
-                    DLText("开启")
+                    DLText("event_settings_enable".loc)
                 }
                 .tag("enabling \(isEnabled) \(forceReloadToggleFlag)")
                 .accessories([.toggle(isOn: isEnabled, action: { [unowned self] isOn in
@@ -63,15 +63,16 @@ public class EventSettingsViewController: DiffableListViewController {
                 })])
             }
             .tag("0")
+            .footer("event_settings_enable_footer".loc)
             
             if isEnabled {
                 DLSection { [unowned self] in
                     DLCell(using: .swiftUI(movingTo: self, content: {
                         VStack(alignment: .leading) {
-                            Text("选择默认日历")
+                            Text("event_settings_select_default_calendar".loc)
                                 .font(.title2.bold())
                                 .padding(.bottom, 2)
-                            Text("在 Vision 中创建日历同步任务时，如未指定日历，新建任务将会默认添加到此日历")
+                            Text("event_settings_select_default_calendar_desc".loc)
                                 .font(.footnote)
                                 .foregroundColor(Color(UIColor.secondaryLabel))
                         }
@@ -89,7 +90,7 @@ public class EventSettingsViewController: DiffableListViewController {
                             DLText(calendar.title)
                             
                             if self.store.defaultCalendarForNewEvents == calendar {
-                                DLText("系统默认")
+                                DLText("event_settings_default_calendar_desc".loc)
                                     .secondary()
                                     .color(.secondaryLabel)
                             }
@@ -103,7 +104,7 @@ public class EventSettingsViewController: DiffableListViewController {
                 }
                 .tag("calendars")
                 .firstCellAsHeader()
-                .footer("系统日历的同步请在系统 iCloud 设置中设置，与 Vision 的数据同步无关\n")
+                .footer("event_settings_sync_notice".loc)
             }
         }
     }
@@ -111,7 +112,7 @@ public class EventSettingsViewController: DiffableListViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "日历任务"
+        title = "event_settings_title".loc
         
         setTopPadding()
         setCalendars(store: store)
@@ -196,9 +197,9 @@ extension EventSettingsViewController {
     }
     
     func presentGoingToSystemSettingsAlert() {
-        presentAlertController(title: "未授权日历访问", message: "去系统设置开启日历访问权限", actions: [
+        presentAlertController(title: "event_settings_not_authorized_alert_title".loc, message: "event_settings_not_authorized_alert_msg".loc, actions: [
             .cancel,
-            .init(title: "去开启", style: .default, handler: { _ in
+            .init(title: "event_settings_not_authorized_alert_action".loc, style: .default, handler: { _ in
                 Self.openSettings()
             })
         ])
@@ -211,7 +212,7 @@ extension EventSettingsViewController {
     static func openSettings() {
         let url: URL
         #if targetEnvironment(macCatalyst)
-        url = Self.macOSCalendarPrivacyURL
+        url = macOSCalendarPrivacyURL
         #else
         url = URL(string: UIApplication.openSettingsURLString)!
         #endif
@@ -219,7 +220,9 @@ extension EventSettingsViewController {
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
+    #if targetEnvironment(macCatalyst)
     static var macOSCalendarPrivacyURL: URL {
         URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
     }
+    #endif
 }
