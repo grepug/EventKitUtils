@@ -31,11 +31,20 @@
 "view_repeat_tasks" = "View All Repeat Tasks";
 "task_editor_title" = "Edit Task";
 "task_editor_save_only_this_task" = "Only Save This Task";
-"task_editor_save_future_tasks" = "Save All Future Tasks(%@)";
+"task_editor_save_future_tasks" = "Save All Future Tasks (%@)";
 "task_editor_save_alert_title" = "Saving Repeat Tasks";
 "task_editor_date_range_error_end_cannot_earlier_than_start" = "End date can't be earlier than start date.";
 "task_editor_calendar_not_authorized_title" = "No Access Permission for Calendar";
 "task_editor_calendar_not_authorized_action" = "To Enable";
+"task_editor_plan_date" = "Plan Date";
+"task_editor_all_day" = "All Day";
+"task_editor_start_date" = "Start Date";
+"task_editor_end_date" = "End Date";
+"task_editor_link_kr" = "Link Key Result";
+"task_editor_sync_to_calendar" = "Sync to Calendar";
+"task_editor_sync_to_calendar_desc" = "Alarm, repeat tasks";
+"task_editor_delete_button" = "Delete Task";
+"task_editor_enable_link_record_value" = "Link Record Value";
 
 "action_discard_editing" = "Discard Changes";
 "action_discard_editing_title" = "Changes Won't Save";

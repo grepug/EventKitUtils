@@ -31,7 +31,7 @@ extension TaskEditorViewController {
     var plannedDateSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
-                DLText("计划时间")
+                DLText("task_editor_plan_date".loc)
             }
             .tag("enable planDate \(isEvent) \(task.isDateEnabled)")
             .accessories([.toggle(isOn: task.isDateEnabled, isEnabled: !isEvent, action: { [unowned self] isOn in
@@ -42,7 +42,7 @@ extension TaskEditorViewController {
             
             if task.isDateEnabled {
                 DLCell {
-                    DLText("全天")
+                    DLText("task_editor_all_day".loc)
                 }
                 .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
                 .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
@@ -51,7 +51,7 @@ extension TaskEditorViewController {
                     reload()
                 })])
                 
-                DLCell(using: .datePicker(labelText: "开始时间",
+                DLCell(using: .datePicker(labelText: "task_editor_start_date".loc,
                                           date: task.normalizedStartDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
@@ -61,7 +61,7 @@ extension TaskEditorViewController {
                 }))
                 .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
                 
-                DLCell(using: .datePicker(labelText: "结束时间",
+                DLCell(using: .datePicker(labelText: "task_editor_end_date".loc,
                                           date: task.normalizedEndDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
@@ -124,7 +124,7 @@ extension TaskEditorViewController {
                 }
             } else {
                 DLCell {
-                    DLText("关联关键结果")
+                    DLText("task_editor_link_kr".loc)
                         .color(.accentColor)
                 }
                 .tag("link kr")
@@ -157,8 +157,8 @@ extension TaskEditorViewController {
     var calendarLinkingSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
-                DLText("同步到系统日历")
-                DLText("设置提醒、重复任务")
+                DLText("task_editor_sync_to_calendar".loc)
+                DLText("task_editor_sync_to_calendar_desc".loc)
                     .secondary()
                     .color(.secondaryLabel)
             }
@@ -203,7 +203,7 @@ extension TaskEditorViewController {
     var deleteButton: [DLSection] {
         DLSection { [unowned self] in
             DLCell(using: .swiftUI(movingTo: self, content: {
-                Text("删除任务")
+                Text("task_editor_delete_button".loc)
                     .foregroundColor(.red)
                     .frame(height: 44)
             }))
@@ -224,7 +224,7 @@ extension TaskEditorViewController {
     var linkRecordSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
-                DLText("开启关联记录值")
+                DLText("task_editor_enable_link_record_value".loc)
                 DLText("v3_task_editor_linked_record_footer".loc)
                     .secondary()
                     .color(.secondaryLabel)
