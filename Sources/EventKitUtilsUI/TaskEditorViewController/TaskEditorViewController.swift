@@ -211,6 +211,12 @@ extension TaskEditorViewController {
     }
     
     func handleCancelEditor() async {
+        guard !task.isEmpty else {
+            await em.deleteTask(task)
+            dismissEditor()
+            return
+        }
+        
         guard isCreating || hasChanges else {
             dismissEditor()
             return
