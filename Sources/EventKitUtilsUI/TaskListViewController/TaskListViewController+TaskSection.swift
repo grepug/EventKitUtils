@@ -80,7 +80,7 @@ extension TaskListViewController {
     }
     
     func handlePostpone() async {
-        let postponeAction = ActionValue(title: "顺延", style: .default)
+        let postponeAction = ActionValue(title: "v3_task_postpone".loc, style: .default)
         let result = await presentAlertController(title: "v3_task_postpone_alert_title".loc,
                                                   message: "v3_task_postpone_alert_message".loc,
                                                   actions: [postponeAction, .cancel])

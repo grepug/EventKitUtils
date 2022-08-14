@@ -11,9 +11,9 @@ import EventKitUI
 
 extension TaskEditorViewController {
     func presentEventSettingsAlert() {
-        presentAlertController(title: "未开启日历权限", message: "现在去开启吗？", actions: [
+        presentAlertController(title: "task_editor_calendar_not_authorized_title".loc, message: nil, actions: [
             .cancel,
-            .init(title: "去开启", style: .default) { [unowned self] _ in
+            .init(title: "task_editor_calendar_not_authorized_action".loc, style: .default) { [unowned self] _ in
                 let vc = EventSettingsViewController(eventManager: em)
                 present(vc.navigationControllerWrapped(), animated: true)
             }

@@ -138,7 +138,7 @@ public class TaskEditorViewController: DiffableListViewController {
 
 extension TaskEditorViewController {
     func setupNavigationBar() {
-        title = "编辑任务"
+        title = "task_editor_title".loc
         
         setupDoneButton()
         setupCancelButton()
@@ -195,12 +195,12 @@ extension TaskEditorViewController {
     
     func presentSaveRepeatingTaskAlert(count: Int) async -> Bool? {
         let actions: [ActionValue] = [
-            .init(title: "仅保存此任务", style: .destructive),
-            .init(title: "保存将来所有未完成的任务(\(count))", style: .destructive),
+            .init(title: "task_editor_save_only_this_task".loc, style: .destructive),
+            .init(title: "task_editor_save_future_tasks".loc("\(count)"), style: .destructive),
             .cancel
         ]
         
-        let result = await presentAlertController(title: "重复任务", message: nil, actions: actions)
+        let result = await presentAlertController(title: "task_editor_save_alert_title".loc, message: nil, actions: actions)
         
         switch result {
         case actions[0]: return false
@@ -223,7 +223,7 @@ extension TaskEditorViewController {
         }
         
         let actions: [ActionValue]
-        let discard = ActionValue(title: "放弃更改", style: .destructive)
+        let discard = ActionValue(title: "action_discard_editing".loc, style: .destructive)
         
         if isCreating {
             actions = [.delete, .cancel]
@@ -231,7 +231,7 @@ extension TaskEditorViewController {
             actions = [discard, .cancel]
         }
         
-        let result = await presentAlertController(title: "取消后编辑丢失", message: nil, actions: actions)
+        let result = await presentAlertController(title: "action_discard_editing_title".loc, message: nil, actions: actions)
         
         switch result {
         case .delete:
@@ -303,7 +303,7 @@ extension TaskKind {
     var dateErrorMessage: String? {
         if isDateEnabled {
             guard dateRange != nil else {
-                return "结束日期不能早于开始日期"
+                return "task_editor_date_range_error_end_cannot_earlier_than_start".loc
             }
         }
         

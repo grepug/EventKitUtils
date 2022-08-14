@@ -61,7 +61,7 @@ public struct TaskActionMenuProvider {
         
         if isContextMenu && em.testHasRepeatingTasks(with: repeatingInfo) {
             MBGroup {
-                MBButton("查看重复任务", image: .init(systemName: "repeat")) {
+                MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) {
                     let taskList = TaskListViewController(eventManager: em,
                                                           repeatingInfo: repeatingInfo)
                     let nav = taskList.navigationControllerWrapped()
