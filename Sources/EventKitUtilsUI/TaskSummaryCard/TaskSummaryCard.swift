@@ -108,7 +108,7 @@ public struct TaskSummaryCard: View {
             presentTaskEditor(task: task)
         }
         .padding(.top, 12)
-        .background(Color(UIColor.systemBackground))
+        .background(Color(UIColor { $0.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground }))
         .contextMenu {
             if em.testHasRepeatingTasks(with: task.repeatingInfo) {
                 Button("查看重复任务") {
