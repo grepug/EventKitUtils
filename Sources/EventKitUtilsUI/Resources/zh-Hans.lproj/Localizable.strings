@@ -51,8 +51,7 @@
 "event_settings_select_default_calendar" = "选择默认日历";
 "event_settings_select_default_calendar_desc" = "在 Vision 中创建日历同步任务时，若未指定日历，新建任务将会默认添加到此日历";
 "event_settings_default_calendar_desc" = "系统默认";
-"event_settings_sync_notice" = "若需要日历任务在多设备间同步，请在系统 iCloud 设置中设置日历 app 的同步
-，与 Vision 的 iCloud 同步无关。";
+"event_settings_sync_notice" = "若需要日历任务在多设备间同步，请在系统 iCloud 设置中设置日历 app 的同步，与 Vision 的 iCloud 同步无关。";
 "event_settings_not_authorized_alert_title" = "未授权日历访问";
 "event_settings_not_authorized_alert_msg" = "请前往系统设置开启日历访问权限";
 "event_settings_not_authorized_alert_action" = "去开启";
