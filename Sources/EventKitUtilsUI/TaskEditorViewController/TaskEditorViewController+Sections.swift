@@ -162,7 +162,8 @@ extension TaskEditorViewController {
                     .secondary()
                     .color(.secondaryLabel)
             }
-            .tag("calendar \(isEvent)")
+            .tag("calendar \(isEvent) \(forceReloadToggleFlag)")
+            .disableHighlight(!isEvent)
             .accessories([
                 .toggle(isOn: isEvent, isEnabled: !isEvent) { [unowned self] isOn in
                     guard isOn else {
@@ -171,6 +172,8 @@ extension TaskEditorViewController {
                     
                     Task {
                         await convertToEvent()
+                        forceReloadToggleFlag += 1
+                        reload()
                     }
                 },
                 isEvent ? .disclosureIndicator() : nil

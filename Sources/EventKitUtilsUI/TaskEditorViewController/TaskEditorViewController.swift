@@ -30,6 +30,7 @@ public class TaskEditorViewController: DiffableListViewController {
     var originalTaskValue: TaskValue
     unowned let em: EventManager
     var cancellables = Set<AnyCancellable>()
+    var forceReloadToggleFlag = 0
     
     public var onDismiss: ((Bool) -> Void)?
     

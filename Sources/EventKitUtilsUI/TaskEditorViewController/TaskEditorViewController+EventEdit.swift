@@ -55,7 +55,6 @@ extension TaskEditorViewController {
         task = event
         
         try! await Task.sleep(nanoseconds: 200_000_000)
-        reload()
     }
     
     func presentEventEditor() {
