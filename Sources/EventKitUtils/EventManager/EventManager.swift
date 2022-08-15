@@ -249,15 +249,13 @@ public extension EventManager {
         }
     }
     
-    func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) -> TaskKind {
-        var taskObject: TaskKind
-        
+    func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) -> TaskKind? {
         if let task = taskValue {
-            taskObject = self.taskObject(task)!
-        } else {
-            taskObject = config.createNonEventTask()
-            taskObject.isDateEnabled = true
+            return self.taskObject(task)
         }
+        
+        var taskObject = config.createNonEventTask()
+        taskObject.isDateEnabled = true
         
         return taskObject
     }

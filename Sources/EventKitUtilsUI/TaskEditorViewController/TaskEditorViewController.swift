@@ -289,7 +289,7 @@ private extension TaskEditorViewController {
 
 public extension EventManager {
     func makeTaskEditorViewController(task: TaskKind? = nil, onDismiss: ((Bool) -> Void)? = nil) -> UIViewController {
-        let task = task ?? fetchOrCreateTaskObject()
+        let task = task ?? fetchOrCreateTaskObject()!
         let vc = TaskEditorViewController(task: task, eventManager: self)
         let navVC = UINavigationController(rootViewController: vc)
         
