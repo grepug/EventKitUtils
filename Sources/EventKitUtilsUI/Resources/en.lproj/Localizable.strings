@@ -59,3 +59,7 @@
 
 "action_discard_editing" = "Discard Changes";
 "action_discard_editing_title" = "Changes Won't Save";
+
+"action_discard" = "Delete";
+"action_edit" = "Edit";
+"action_view_kr" = "View Key Result";

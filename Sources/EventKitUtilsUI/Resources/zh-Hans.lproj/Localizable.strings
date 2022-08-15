@@ -59,3 +59,6 @@
 
 "action_discard_editing" = "放弃更改";
 "action_discard_editing_title" = "取消后编辑丢失";
+"action_discard" = "删除";
+"action_edit" = "编辑";
+"action_view_kr" = "查看关键结果";

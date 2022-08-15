@@ -111,7 +111,7 @@ public struct TaskSummaryCard: View {
         .background(Color(UIColor { $0.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground }))
         .contextMenu {
             if em.testHasRepeatingTasks(with: task.repeatingInfo) {
-                Button("查看重复任务") {
+                Button("view_repeat_tasks".loc) {
                     let vc = TaskListViewController(eventManager: em,
                                                     repeatingInfo: task.repeatingInfo)
                     parentVC.present(vc, animated: true)
@@ -123,10 +123,10 @@ public struct TaskSummaryCard: View {
             Button {
                 presentTaskEditor(task: task)
             } label: {
-                Label("编辑", systemImage: "pencil")
+                Label("action_edit".loc, systemImage: "pencil")
             }
             
-            let label = Label("删除", systemImage: "trash")
+            let label = Label("action_discard".loc, systemImage: "trash")
             
             if #available(iOS 15.0, *) {
                 Button(role: .destructive) {

@@ -49,7 +49,7 @@ public struct TaskActionMenuProvider {
     public func taskMenu(isContextMenu: Bool = false) -> [MBMenu] {
         if !hidingOpenKR && isContextMenu, let krId = task.keyResultId {
             MBGroup {
-                MBButton("v3_task_open_kr".loc) {
+                MBButton("action_view_kr".loc) {
                     guard let krDetail = em.config.makeKeyResultDetail!(krId) else {
                         return
                     }
