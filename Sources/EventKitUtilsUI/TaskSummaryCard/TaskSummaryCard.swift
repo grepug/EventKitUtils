@@ -166,8 +166,9 @@ extension TaskSummaryCard {
         try! await Task.sleep(nanoseconds: 300_000_000)
         
         for taskID in checkedTaskIds {
-            let task = tasks.first(where: { $0.normalizedID == taskID })!
-            await em.toggleCompletion(task)
+            if let task = tasks.first(where: { $0.normalizedID == taskID }) {
+                await em.toggleCompletion(task)
+            }
         }
         
         checkedTaskIds.removeAll()
