@@ -21,7 +21,7 @@ public class EventSettingsViewController: DiffableListViewController {
     var forceReloadToggleFlag = 0
     
     var isEnabled: Bool {
-        isGranted
+        isGranted && em.config.isPro()
     }
     
     var store: EKEventStore {
@@ -175,6 +175,7 @@ extension EventSettingsViewController {
             presentGoingToSystemSettingsAlert()
         case .authorized:
             isGranted = true
+            reload()
         @unknown default:
             presentGoingToSystemSettingsAlert()
         }
