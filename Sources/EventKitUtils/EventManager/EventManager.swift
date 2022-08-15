@@ -67,7 +67,7 @@ public extension EventManager {
     }
     
     var isEventStoreAuthorized: Bool {
-        EKEventStore.authorizationStatus(for: .event) == .authorized
+        config.isPro() && EKEventStore.authorizationStatus(for: .event) == .authorized
     }
 }
 
