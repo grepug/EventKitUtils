@@ -132,7 +132,35 @@ extension TaskEditorViewController {
                     presentKeyResultSelector()
                 }
             }
-            
+                
+            if task.keyResultId != nil {
+                DLCell {
+                    DLText("task_editor_enable_link_record_value".loc)
+                    DLText("v3_task_editor_linked_record_footer".loc)
+                        .secondary()
+                        .color(.secondaryLabel)
+                }
+                .tag("isLinkedRecord \(self.task.linkedValue != nil)")
+                .accessories([.toggle(isOn: self.task.linkedValue != nil,
+                                      action: { [unowned self] isOn in
+                    Task {
+                        task.linkedValue = isOn ? 1 : nil
+                        reload()
+                    }
+                })])
+                
+                if let linkedValueString = task.linkedValueString {
+                    DLCell(using: .textField(text: linkedValueString,
+                                             placeholder: "v3_task_editor_linked_record_ph".loc,
+                                             keyboardType: .decimalPad,
+                                             editingDidEnd: { [unowned self] in
+                        task.linkedValueString = $0
+                        reload()
+                    }))
+                    .tag("linkedValue \(linkedValueString)")
+                    .disableHighlight()
+                }
+            }
         }
         .tag("3")
     }
@@ -222,37 +250,37 @@ extension TaskEditorViewController {
     }
 }
 
-extension TaskEditorViewController {
-    @ListBuilder
-    var linkRecordSection: [DLSection] {
-        DLSection { [unowned self] in
-            DLCell {
-                DLText("task_editor_enable_link_record_value".loc)
-                DLText("v3_task_editor_linked_record_footer".loc)
-                    .secondary()
-                    .color(.secondaryLabel)
-            }
-            .tag("isLinkedRecord \(self.task.linkedValue != nil)")
-            .accessories([.toggle(isOn: self.task.linkedValue != nil,
-                                  action: { [unowned self] isOn in
-                Task {
-                    task.linkedValue = isOn ? 1 : nil
-                    reload()
-                }
-            })])
-            
-            if let linkedValueString = task.linkedValueString {
-                DLCell(using: .textField(text: linkedValueString,
-                                         placeholder: "v3_task_editor_linked_record_ph".loc,
-                                         keyboardType: .decimalPad,
-                                         editingDidEnd: { [unowned self] in
-                    task.linkedValueString = $0
-                    reload()
-                }))
-                .tag("linkedValue \(linkedValueString)")
-                .disableHighlight()
-            }
-        }
-        .tag("link record")
-    }
-}
+//extension TaskEditorViewController {
+//    @ListBuilder
+//    var linkRecordSection: [DLSection] {
+//        DLSection { [unowned self] in
+//            DLCell {
+//                DLText("task_editor_enable_link_record_value".loc)
+//                DLText("v3_task_editor_linked_record_footer".loc)
+//                    .secondary()
+//                    .color(.secondaryLabel)
+//            }
+//            .tag("isLinkedRecord \(self.task.linkedValue != nil)")
+//            .accessories([.toggle(isOn: self.task.linkedValue != nil,
+//                                  action: { [unowned self] isOn in
+//                Task {
+//                    task.linkedValue = isOn ? 1 : nil
+//                    reload()
+//                }
+//            })])
+//
+//            if let linkedValueString = task.linkedValueString {
+//                DLCell(using: .textField(text: linkedValueString,
+//                                         placeholder: "v3_task_editor_linked_record_ph".loc,
+//                                         keyboardType: .decimalPad,
+//                                         editingDidEnd: { [unowned self] in
+//                    task.linkedValueString = $0
+//                    reload()
+//                }))
+//                .tag("linkedValue \(linkedValueString)")
+//                .disableHighlight()
+//            }
+//        }
+//        .tag("link record")
+//    }
+//}

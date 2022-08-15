@@ -80,10 +80,6 @@ public class TaskEditorViewController: DiffableListViewController {
             self.plannedDateSection
             self.keyResultLinkingSection
 
-            if self.task.keyResultId != nil {
-                self.linkRecordSection
-            }
-
             if self.task.isDateEnabled {
                 self.calendarLinkingSection
             }
