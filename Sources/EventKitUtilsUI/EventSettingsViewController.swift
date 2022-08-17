@@ -51,8 +51,6 @@ public class EventSettingsViewController: DiffableListViewController {
         DLList { [unowned self] in
             DLSection { [unowned self] in
                 DLCell {
-                    DLImage(systemName: "crown.fill")
-                        .color(.orange)
                     DLText("event_settings_enable".loc)
                 }
                 .tag("enabling \(isEnabled) \(forceReloadToggleFlag)")

@@ -253,7 +253,7 @@ public extension EventManager {
     
     @discardableResult
     func enumerateEventsAndReturnsIfExceedsNonProLimit(matching precidate: NSPredicate? = nil, handler: ((EKEvent) -> Bool)? = nil) -> Bool {
-        var enumeratedTitles: Set<String> = []
+        var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
         var exceededNonProLimit = false
         
         let predicate = precidate ?? eventsPredicate()
@@ -264,9 +264,9 @@ public extension EventManager {
             }
             
             if let nonProLimit = config.maxNonProLimit() {
-                enumeratedTitles.insert(event.normalizedTitle)
+                enumeratedRepeatingInfoSet.insert(event.repeatingInfo)
                 
-                if enumeratedTitles.count >= nonProLimit {
+                if enumeratedRepeatingInfoSet.count >= nonProLimit {
                     exceededNonProLimit = true
                     pointer.pointee = true
                     return
