@@ -27,6 +27,11 @@ extension TaskEditorViewController {
 }
 
 extension TaskEditorViewController {
+    public override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+        view.endEditing(true)
+        super.present(viewControllerToPresent, animated: flag, completion: completion)
+    }
+    
     @ListBuilder
     var plannedDateSection: [DLSection] {
         DLSection { [unowned self] in
