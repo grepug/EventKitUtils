@@ -67,7 +67,7 @@ public extension EventManager {
     }
     
     var isEventStoreAuthorized: Bool {
-        config.isPro() && EKEventStore.authorizationStatus(for: .event) == .authorized
+        EKEventStore.authorizationStatus(for: .event) == .authorized
     }
 }
 
@@ -148,7 +148,7 @@ public extension EventManager {
         var foundEvent: EKEvent?
         var isTrue = false
         
-        enumerateEvents { event in
+        enumerateEventsAndReturnsIfExceedsNonProLimit { event in
             if repeatingInfo == event.repeatingInfo {
                 if foundEvent != nil || count == 1 {
                     isTrue = true
@@ -166,48 +166,58 @@ public extension EventManager {
     
     private func fetchTasksAsync(with type: FetchTasksType, onlyFirst: Bool = false, handler: @escaping ([TaskValue]) -> Void) {
         config.fetchNonEventTasks(type) { [unowned self] tasks in
-            var tasks = tasks.map(\.value)
+            let tasks = tasks.map(\.value)
             
             if onlyFirst, let first = tasks.first {
                 handler([first])
                 return
             }
             
-            if isEventStoreAuthorized {
-                enumerateEvents { event in
-                    var flag = false
-                    
-                    switch type {
-                    case .repeatingInfo(let info):
-                        if info == event.repeatingInfo {
-                            tasks.append(event.value)
-                        }
-                    case .recordValue(let recordValue):
-                        if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
-                            if taskID == event.normalizedID && completedAt == event.completedAt {
-                                tasks.append(event.value)
-                                
-                                flag = true
-                            }
-                        }
-                    case .segment:
+            let eventTasks = fetchEventTasks(with: type, onlyFirst: onlyFirst)
+            
+            handler(tasks + eventTasks)
+        }
+    }
+    
+    func fetchEventTasks(with type: FetchTasksType, onlyFirst: Bool = false) -> [TaskValue] {
+        guard isEventStoreAuthorized else {
+            return []
+        }
+        
+        var tasks: [TaskValue] = []
+        
+        enumerateEventsAndReturnsIfExceedsNonProLimit { event in
+            var flag = false
+            
+            switch type {
+            case .repeatingInfo(let info):
+                if info == event.repeatingInfo {
+                    tasks.append(event.value)
+                }
+            case .recordValue(let recordValue):
+                if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
+                    if taskID == event.normalizedID && completedAt == event.completedAt {
                         tasks.append(event.value)
-                    case .taskID(let id):
-                        if event.normalizedID == id {
-                            tasks.append(event.value)
-                        }
+                        
+                        flag = true
                     }
-                    
-                    if onlyFirst && !tasks.isEmpty {
-                        return true
-                    }
-                    
-                    return flag
+                }
+            case .segment:
+                tasks.append(event.value)
+            case .taskID(let id):
+                if event.normalizedID == id {
+                    tasks.append(event.value)
                 }
             }
             
-            handler(tasks)
+            if onlyFirst && !tasks.isEmpty {
+                return true
+            }
+            
+            return flag
         }
+        
+        return tasks
     }
     
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, onlyFirst: Bool = false) async -> [TaskValue] {
@@ -233,20 +243,42 @@ public extension EventManager {
         await fetchTasks(with: type, fetchingKRInfo: fetchingKRInfo, onlyFirst: true).first
     }
     
-    func enumerateEvents(matching precidate: NSPredicate? = nil, handler: @escaping (EKEvent) -> Bool) {
-        guard let predicate = precidate ?? eventsPredicate() else {
-            return
+    func checkIfExceedsNonProLimit() -> Bool {
+        guard !config.isPro else {
+            return false
         }
+            
+        return enumerateEventsAndReturnsIfExceedsNonProLimit()
+    }
+    
+    @discardableResult
+    func enumerateEventsAndReturnsIfExceedsNonProLimit(matching precidate: NSPredicate? = nil, handler: ((EKEvent) -> Bool)? = nil) -> Bool {
+        var enumeratedTitles: Set<String> = []
+        var exceededNonProLimit = false
         
-        eventStore.enumerateEvents(matching: predicate) { event, pointer in
+        let predicate = precidate ?? eventsPredicate()
+        
+        eventStore.enumerateEvents(matching: predicate) { [unowned self] event, pointer in
             guard event.url?.host == self.config.eventBaseURL.host else {
                 return
             }
             
-            if handler(event) {
+            if let nonProLimit = config.maxNonProLimit() {
+                enumeratedTitles.insert(event.normalizedTitle)
+                
+                if enumeratedTitles.count >= nonProLimit {
+                    exceededNonProLimit = true
+                    pointer.pointee = true
+                    return
+                }
+            }
+            
+            if handler?(event) == true {
                 pointer.pointee = true
             }
         }
+        
+        return exceededNonProLimit
     }
     
     func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) -> TaskKind? {
@@ -280,7 +312,7 @@ public extension EventManager {
 }
 
 extension EventManager {
-    func eventsPredicate() -> NSPredicate? {
+    func eventsPredicate() -> NSPredicate {
         let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
         let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
                                                       end: config.eventRequestRange.upperBound,
@@ -298,7 +330,7 @@ extension EventManager {
         
         var foundEvent: EKEvent?
         
-        enumerateEvents { event in
+        enumerateEventsAndReturnsIfExceedsNonProLimit { event in
             if event.value == task {
                 foundEvent = event
                 

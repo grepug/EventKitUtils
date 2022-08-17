@@ -23,7 +23,7 @@ extension EventManager {
                 var dict: TasksByKeyResultID = [:]
                 var dict2: RecordsByKeyResultID = [:]
                 
-                enumerateEvents { event in
+                enumerateEventsAndReturnsIfExceedsNonProLimit { event in
                     guard let keyResultId = event.keyResultId else {
                         return false
                     }

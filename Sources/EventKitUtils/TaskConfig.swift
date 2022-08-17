@@ -33,10 +33,10 @@ public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) 
 
 public struct TaskConfig {
     
-    public init(eventBaseURL: URL, appGroup: String? = nil, isPro: @escaping () -> Bool, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithRepeatingInfo: @escaping (TaskRepeatingInfo) -> Int, saveTask: @escaping (TaskValue) async -> Void, deleteTaskByID: @escaping (String) async -> Void, fetchKeyResultInfo: @escaping (String) async -> KeyResultInfo?) {
+    public init(eventBaseURL: URL, appGroup: String? = nil, maxNonProLimit: @escaping () -> Int?, eventRequestRange: Range<Date>? = nil, fetchNonEventTasks: @escaping FetchTasksHandler, createNonEventTask: @escaping () -> TaskKind, taskById: @escaping (String) -> TaskKind?, taskCountWithRepeatingInfo: @escaping (TaskRepeatingInfo) -> Int, saveTask: @escaping (TaskValue) async -> Void, deleteTaskByID: @escaping (String) async -> Void, fetchKeyResultInfo: @escaping (String) async -> KeyResultInfo?) {
         self.eventBaseURL = eventBaseURL
         self.appGroup = appGroup
-        self.isPro = isPro
+        self.maxNonProLimit = maxNonProLimit
         self.createNonEventTask = createNonEventTask
         self.taskById = taskById
         self.taskCountWithRepeatingInfo = taskCountWithRepeatingInfo
@@ -52,7 +52,7 @@ public struct TaskConfig {
     
     public let eventBaseURL: URL
     public let appGroup: String?
-    public var isPro: () -> Bool
+    public var maxNonProLimit: () -> Int?
     public var eventRequestRange: Range<Date>
     public var fetchNonEventTasks: FetchTasksHandler
     public var createNonEventTask: () -> TaskKind
@@ -63,7 +63,11 @@ public struct TaskConfig {
     public var fetchKeyResultInfo: (String) async -> KeyResultInfo?
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
-    public var interceptionBeforeTurnOnCalendarSync: ((() -> UIViewController) -> Bool)?
+    public var presentNonProErrorAlert: ((() -> UIViewController) -> Void)?
+    
+    public var isPro: Bool {
+        maxNonProLimit() == nil
+    }
 }
 
 public struct KeyResultInfo: Hashable {

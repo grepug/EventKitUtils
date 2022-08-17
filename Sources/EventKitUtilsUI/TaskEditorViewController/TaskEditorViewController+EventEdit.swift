@@ -26,6 +26,11 @@ extension TaskEditorViewController {
         
         try! await Task.sleep(nanoseconds: 50_000_000)
         
+        guard !em.checkIfExceedsNonProLimit() else {
+            config.presentNonProErrorAlert!({ [unowned self] in self })
+            return
+        }
+        
         if let errorMessage = task.dateErrorMessage {
             presentDateRangeErrorAlert(title: errorMessage)
             return

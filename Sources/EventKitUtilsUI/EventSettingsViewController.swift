@@ -21,7 +21,7 @@ public class EventSettingsViewController: DiffableListViewController {
     var forceReloadToggleFlag = 0
     
     var isEnabled: Bool {
-        isGranted && em.config.isPro()
+        isGranted
     }
     
     var store: EKEventStore {
@@ -140,15 +140,6 @@ public class EventSettingsViewController: DiffableListViewController {
     func handleToggle(isOn: Bool) async {
         guard isOn else {
             Self.openSettings()
-            reload()
-            return
-        }
-        
-        let intercepted = em.config.interceptionBeforeTurnOnCalendarSync? { [unowned self] in
-            self
-        }
-        
-        guard intercepted == true else {
             reload()
             return
         }
