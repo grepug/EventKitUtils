@@ -266,8 +266,11 @@ public extension EventManager {
             if let nonProLimit = config.maxNonProLimit() {
                 enumeratedRepeatingInfoSet.insert(event.repeatingInfo)
                 
-                if enumeratedRepeatingInfoSet.count >= nonProLimit {
+                if enumeratedRepeatingInfoSet.count == nonProLimit {
                     exceededNonProLimit = true
+                }
+                
+                if enumeratedRepeatingInfoSet.count > nonProLimit {
                     pointer.pointee = true
                     return
                 }
