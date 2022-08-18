@@ -28,7 +28,7 @@ public enum FetchTasksType: Hashable {
          recordValue(RecordValue)
 }
 
-public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskKind]) -> Void) -> Void
+public typealias FetchTasksHandler = (FetchTasksType, @escaping ([TaskValue]) -> Void) -> Void
 public typealias PresentKeyResultSelectorHandler = (@escaping (String) -> Void) -> UIViewController?
 
 public struct TaskConfig {

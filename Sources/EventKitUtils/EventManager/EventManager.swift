@@ -165,17 +165,19 @@ public extension EventManager {
     }
     
     private func fetchTasksAsync(with type: FetchTasksType, onlyFirst: Bool = false, handler: @escaping ([TaskValue]) -> Void) {
-        config.fetchNonEventTasks(type) { [unowned self] tasks in
-            let tasks = tasks.map(\.value)
+        config.fetchNonEventTasks(type) { tasks in
+            let tasks = tasks
             
             if onlyFirst, let first = tasks.first {
                 handler([first])
                 return
             }
             
-            let eventTasks = fetchEventTasks(with: type, onlyFirst: onlyFirst)
-            
-            handler(tasks + eventTasks)
+            DispatchQueue.global(qos: .background).async {
+                let eventTasks = self.fetchEventTasks(with: type, onlyFirst: onlyFirst)
+                
+                handler(tasks + eventTasks)
+            }
         }
     }
     
