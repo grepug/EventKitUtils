@@ -12,6 +12,7 @@ public extension Date {
         let formatter = DateFormatter()
         formatter.dateStyle = type
         formatter.timeStyle = timeStyle
+        formatter.locale = Locale.current
         return formatter.string(from: self)
     }
     
