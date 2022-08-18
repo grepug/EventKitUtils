@@ -164,23 +164,6 @@ public extension EventManager {
         return isTrue
     }
     
-    private func fetchTasksAsync(with type: FetchTasksType, onlyFirst: Bool = false, handler: @escaping ([TaskValue]) -> Void) {
-        config.fetchNonEventTasks(type) { tasks in
-            let tasks = tasks
-            
-            if onlyFirst, let first = tasks.first {
-                handler([first])
-                return
-            }
-            
-            DispatchQueue.global(qos: .background).async {
-                let eventTasks = self.fetchEventTasks(with: type, onlyFirst: onlyFirst)
-                
-                handler(tasks + eventTasks)
-            }
-        }
-    }
-    
     func fetchEventTasks(with type: FetchTasksType, onlyFirst: Bool = false) -> [TaskValue] {
         guard isEventStoreAuthorized else {
             return []
@@ -239,6 +222,21 @@ public extension EventManager {
         }
         
         return tasks
+    }
+    
+    private func fetchTasksAsync(with type: FetchTasksType, onlyFirst: Bool = false, handler: @escaping ([TaskValue]) -> Void) {
+        config.fetchNonEventTasks(type) { tasks in
+            if onlyFirst, let first = tasks.first {
+                handler([first])
+                return
+            }
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                let eventTasks = self.fetchEventTasks(with: type, onlyFirst: onlyFirst)
+                
+                handler(tasks + eventTasks)
+            }
+        }
     }
     
     func fetchFirstTask(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> TaskValue? {
