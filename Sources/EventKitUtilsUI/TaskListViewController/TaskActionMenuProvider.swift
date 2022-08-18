@@ -11,7 +11,7 @@ import DiffableList
 import MenuBuilder
 
 public struct TaskActionMenuProvider {
-    public init(task: TaskValue, eventManager: EventManager, diffableListVC: @escaping () -> DiffableListViewController, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil, afterDeletion: (() -> Void)? = nil) {
+    public init(task: TaskValue, eventManager: EventManager, diffableListVC: @escaping () -> DiffableListViewController?, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil, afterDeletion: (() -> Void)? = nil) {
         self.task = task
         self.eventManager = eventManager
         self.diffableListVC = diffableListVC
@@ -23,7 +23,7 @@ public struct TaskActionMenuProvider {
     
     var task: TaskValue
     var eventManager: EventManager
-    var diffableListVC: () -> DiffableListViewController
+    var diffableListVC: () -> DiffableListViewController?
     var hidingOpenKR = false
     var presentTaskEditor: () -> Void
     var removeTask: (() -> Void)?
@@ -33,12 +33,12 @@ public struct TaskActionMenuProvider {
         eventManager
     }
     
-    var vc: DiffableListViewController {
+    var vc: DiffableListViewController? {
         diffableListVC()
     }
     
-    var listView: DiffableListView {
-        vc.listView
+    var listView: DiffableListView? {
+        vc?.listView
     }
     
     var repeatingInfo: TaskRepeatingInfo {
@@ -54,7 +54,7 @@ public struct TaskActionMenuProvider {
                         return
                     }
                     
-                    vc.present(krDetail, animated: true)
+                    vc?.present(krDetail, animated: true)
                 }
             }
         }
@@ -62,6 +62,10 @@ public struct TaskActionMenuProvider {
         if isContextMenu && em.testHasRepeatingTasks(with: repeatingInfo) {
             MBGroup {
                 MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) {
+                    guard let listView = listView else {
+                        return
+                    }
+                    
                     let taskList = TaskListViewController(eventManager: em,
                                                           repeatingInfo: repeatingInfo)
                     let nav = taskList.navigationControllerWrapped()
@@ -71,7 +75,7 @@ public struct TaskActionMenuProvider {
                     let indexPath = listView.indexPath(forItemIdentifier: task.cellTag)!
                     nav.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
                     
-                    vc.present(nav, animated: true)
+                    vc?.present(nav, animated: true)
                 }
             }
         }
@@ -81,6 +85,10 @@ public struct TaskActionMenuProvider {
         }
         
         MBButton.delete {
+            guard let vc = vc else {
+                return false
+            }
+            
             let res = await em.handleDeleteTask(task: task, on: vc) {
                 removeTask?()
             }
