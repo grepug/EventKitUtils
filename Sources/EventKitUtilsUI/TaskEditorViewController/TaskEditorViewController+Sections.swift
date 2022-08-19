@@ -62,7 +62,9 @@ extension TaskEditorViewController {
                                           valueDidChange: { [unowned self] date in
                     task.normalizedStartDate = date
                     task.updateVersion()
+                    #if !targetEnvironment(macCatalyst)
                     reload(animating: false)
+                    #endif
                 }))
                 .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
                 
@@ -72,7 +74,9 @@ extension TaskEditorViewController {
                                           valueDidChange: { [unowned self] date in
                     task.normalizedEndDate = date
                     task.updateVersion()
+                    #if !targetEnvironment(macCatalyst)
                     reload(animating: false)
+                    #endif
                 }))
                 .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode)")
             }
