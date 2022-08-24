@@ -153,7 +153,7 @@ extension TaskEditorViewController {
             return
         }
         
-        if !task.isCompleted, hasChanges,
+        if !isCreating, !task.isCompleted, hasChanges,
            task.testAreDatesSame(from: originalTaskValue),
            let endDate = originalTaskValue.normalizedEndDate {
             let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo))
