@@ -158,15 +158,15 @@ extension Array where Element == TaskValue {
             
             switch self {
             case .endDateAsc:
-                if let date1 = a.normalizedEndDate, let date2 = b.normalizedEndDate {
+                if let date1 = a.normalizedEndDate, let date2 = b.normalizedEndDate, date1 != date2 {
                     return date1 < date2
                 }
             case .creationDateAsc:
-                if let date1 = a.createdAt, let date2 = b.createdAt {
+                if let date1 = a.createdAt, let date2 = b.createdAt, date1 != date2 {
                     return date1 < date2
                 }
             case .completionDesc:
-                if let d1 = a.completedAt, let d2 = b.completedAt {
+                if let d1 = a.completedAt, let d2 = b.completedAt, d1 != d2 {
                     return d1 > d2
                 }
             }
@@ -205,6 +205,10 @@ extension Array where Element == TaskValue {
                 if let res = type.sorted(a, b) {
                     return res
                 }
+            }
+            
+            if a.normalizedTitle != b.normalizedTitle {
+                return a.normalizedTitle < b.normalizedTitle
             }
             
             return a.normalizedID < b.normalizedID
