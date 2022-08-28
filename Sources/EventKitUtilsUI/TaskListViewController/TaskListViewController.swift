@@ -124,8 +124,8 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             .merge(with: reloadingSubject)
             .merge(with: eventsChangedPublisher)
             .prepend(segment)
-            .map { [unowned self] segment in
-                fetchTasksPublisher(for: segment)
+            .compactMap { [weak self] segment in
+                self?.fetchTasksPublisher(for: segment)
             }
             .switchToLatest()
             .receive(on: RunLoop.main)
@@ -153,13 +153,18 @@ extension TaskListViewController {
     }
     
     func fetchTasksPublisher(for segment: FetchTasksSegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
-        Future { [unowned self] promise in
+        Future { [weak self] promise in
+            guard let self = self else {
+                promise(.success([]))
+                return
+            }
+            
             Task {
-                let tasks = await em.fetchTasks(with: fetchingType)
+                let tasks = await self.em.fetchTasks(with: self.fetchingType)
                 promise(.success(tasks))
             }
         }
-        .map { [unowned self] in groupTasks($0) }
+        .compactMap { [weak self] in self?.groupTasks($0) }
         .eraseToAnyPublisher()
     }
     
