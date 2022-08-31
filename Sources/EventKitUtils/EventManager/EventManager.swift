@@ -39,13 +39,13 @@ public class EventManager {
             /// FIXME: 这里并没有取消到上一个线程里的执行，可能会浪费一点点计算时间
             /// 好在不影响主线程
             .switchToLatest()
-            .sink { [unowned self] a, b in
-                tasksOfKeyResult.assignWithDictionary(a)
-                recordsOfKeyResult = b
+            .receive(on: RunLoop.main)
+            .sink { [weak self] a, b in
+                guard let self = self else { return }
                 
-                DispatchQueue.main.async {
-                    self.cachesReloaded.send()
-                }
+                self.tasksOfKeyResult.assignWithDictionary(a)
+                self.recordsOfKeyResult = b
+                self.cachesReloaded.send()
             }
             .store(in: &cancellables)
     }
