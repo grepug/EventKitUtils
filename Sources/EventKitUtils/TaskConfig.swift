@@ -64,6 +64,7 @@ public struct TaskConfig {
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
     public var presentNonProErrorAlert: ((() -> UIViewController) -> Void)?
+    public var log: ((String) -> Void)?
     
     public var isPro: Bool {
         maxNonProLimit() == nil

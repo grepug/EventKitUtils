@@ -61,6 +61,10 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
     }
     
+    public override func log(message: String) {
+        em.config.log?(message)
+    }
+    
     lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: FetchTasksSegmentType.allCases.map(\.text))
         sc.selectedSegmentIndex = segment.rawValue
