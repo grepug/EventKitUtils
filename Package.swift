@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/grepug/UIKitUtils", branch: "dev_3.1.0"),
+        .package(url: "https://github.com/grepug/UIKitUtils", branch: "dev_3.3.7"),
         .package(
            url: "https://github.com/apple/swift-collections.git",
            .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
