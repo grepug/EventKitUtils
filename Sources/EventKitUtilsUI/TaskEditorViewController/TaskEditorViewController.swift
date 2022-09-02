@@ -254,11 +254,13 @@ extension TaskEditorViewController {
 
 private extension TaskEditorViewController {
     func setupDoneButton() {
-        let doneButton = UIBarButtonItem(systemItem: .done, primaryAction: .init { [unowned self] _ in
-            view.endEditing(true)
+        let doneButton = UIBarButtonItem(systemItem: .done, primaryAction: .init { [weak self] _ in
+            guard let self = self else { return }
+            
+            self.view.endEditing(true)
             
             Task {
-                await doneEditor()
+                await self.doneEditor()
             }
         })
         
@@ -270,10 +272,12 @@ private extension TaskEditorViewController {
     func setupCancelButton() {
         navigationItem.leftBarButtonItems = [
             {
-               let button = UIBarButtonItem.init(systemItem: .cancel, primaryAction: .init { [unowned self] _ in
+                let button = UIBarButtonItem.init(systemItem: .cancel, primaryAction: .init { [weak self] _ in
+                    guard let self = self else { return }
+                    
                     Task {
-                        view.endEditing(true)
-                        await handleCancelEditor()
+                        self.view.endEditing(true)
+                        await self.handleCancelEditor()
                     }
                 })
                 
