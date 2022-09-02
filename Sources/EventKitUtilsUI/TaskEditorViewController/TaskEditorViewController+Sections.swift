@@ -248,10 +248,12 @@ extension TaskEditorViewController {
                     .frame(height: 44)
             }))
             .tag("deletion")
-            .onTapAndDeselect { [unowned self] _ in
+            .onTapAndDeselect { [weak self] _ in
+                guard let self = self else { return }
+                
                 Task {
-                    await em.handleDeleteTask(task: task.value, on: self)
-                    dismissEditor()
+                    await self.em.handleDeleteTask(task: self.task.value, on: self)
+                    self.dismissEditor()
                 }
             }
         }
