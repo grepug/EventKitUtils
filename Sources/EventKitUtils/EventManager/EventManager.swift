@@ -100,6 +100,9 @@ public extension EventManager {
                 
                 switch nsError.code {
                 case 1010: return
+                #warning("unhandled error")
+                /// 不能仅更改单个重复的重复规则，必须应用到整个系列。
+                case 74: return
                 default: fatalError("save event task failed: \(nsError.description) code: \(nsError.code)")
                 }
             }

@@ -236,8 +236,8 @@ extension TaskListViewController {
     func presentTaskEditor(task: TaskValue? = nil) {
         let taskObject = em.fetchOrCreateTaskObject(from: task)
         
-        let vc = em.makeTaskEditorViewController(task: taskObject) { [unowned self] _ in
-            reloadList()
+        let vc = em.makeTaskEditorViewController(task: taskObject) { [weak self] _ in
+            self?.reloadList()
         }
         
         present(vc, animated: true)
