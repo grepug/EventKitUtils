@@ -9,27 +9,26 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskListCell: View {
-    public init(task: TaskValue, checked: Bool? = nil, isSummaryCard: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
+    public init(task: TaskValue, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
+        self.checked = checked
+        self.showingNotes = showingNotes
         self.hidingKRInfo = hidingKRInfo
         self.hidingDate = hidingDate
         self.check = check
-        self.checked = checked
         self.presentEditor = presentEditor
     }
     
     var task: TaskValue
     var isSummaryCard: Bool = false
     var checked: Bool?
+    var showingNotes: Bool
     var hidingKRInfo: Bool = false
     var hidingDate: Bool = false
     var check: () async -> Void
     var presentEditor: (() -> Void)?
     
-    var showingNotes: Bool {
-        !isSummaryCard
-    }
     
     public var body: some View {
         HStack(alignment: .top) {
@@ -118,12 +117,12 @@ public struct TaskListCell: View {
 //                .padding(.bottom, task.notes.isEmpty != true ? 4 : 0)
             }
             
-//            if showingNotes, let notes = task.notes, !notes.isEmpty {
-//                Text(notes)
-//                    .foregroundColor(.secondary)
-//                    .font(.caption)
-//                    .lineLimit(5)
-//            }
+            if showingNotes, let notes = task.notes, !notes.isEmpty {
+                Text(notes)
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .lineLimit(5)
+            }
         }
     }
 }

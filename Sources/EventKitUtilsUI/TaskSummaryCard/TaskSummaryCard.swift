@@ -100,8 +100,8 @@ public struct TaskSummaryCard: View {
     
     func taskItem(_ task: TaskValue) -> some View {
         TaskListCell(task: task,
-                     checked: checkedTaskIds.contains(task.normalizedID),
                      isSummaryCard: true,
+                     checked: checkedTaskIds.contains(task.normalizedID),
                      hidingKRInfo: true) {
             await checkTask(task)
         } presentEditor: {
