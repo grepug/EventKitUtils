@@ -63,3 +63,7 @@
 "action_discard" = "Delete";
 "action_edit" = "Edit";
 "action_view_kr" = "View Key Result";
+
+"alert_title_deleting_repeat_tasks" = "Deleting Repeat Tasks";
+"alert_action_delete_this_task" = "Only Delete This Task";
+"alert_action_delete_all_tasks" = "Delete All Future Tasks";

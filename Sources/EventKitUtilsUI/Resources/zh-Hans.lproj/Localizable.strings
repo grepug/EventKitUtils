@@ -62,3 +62,7 @@
 "action_discard" = "删除";
 "action_edit" = "编辑";
 "action_view_kr" = "查看关键结果";
+
+"alert_title_deleting_repeat_tasks" = "此为重复任务，您确定要删除此任务吗？";
+"alert_action_delete_this_task" = "仅删除此任务";
+"alert_action_delete_all_tasks" = "删除将来所有任务";

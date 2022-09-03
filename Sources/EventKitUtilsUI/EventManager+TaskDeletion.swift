@@ -51,16 +51,16 @@ extension EventManager {
     private func presentDeletingTasksAlert(parentVC: UIViewController) async -> DeletionTasksAlertOption {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async { [unowned parentVC] in
-                parentVC.presentAlertController(title: "此为重复任务，您确定要删除此任务吗？",
+                parentVC.presentAlertController(title: "alert_title_deleting_repeat_tasks".loc,
                                                 message: nil,
                                                 actions: [
                                                     .cancel {
                                                         continuation.resume(returning: .canceled)
                                                     },
-                                                    .init(title: "仅删除此任务", style: .destructive) { _ in
+                                                    .init(title: "alert_action_delete_this_task".loc, style: .destructive) { _ in
                                                         continuation.resume(returning: .deletingThis)
                                                     },
-                                                    .init(title: "删除将来所有任务", style: .destructive) { _ in
+                                                    .init(title: "alert_action_delete_all_tasks".loc, style: .destructive) { _ in
                                                         continuation.resume(returning: .deletingAll)
                                                     }
                                                 ])
