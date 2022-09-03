@@ -228,7 +228,9 @@ extension TaskEditorViewController {
             actions = [discard, .cancel]
         }
         
-        let result = await presentAlertController(title: "action_discard_editing_title".loc, message: nil, actions: actions)
+        guard let result = await presentAlertController(title: "action_discard_editing_title".loc, message: nil, actions: actions) else {
+            return
+        }
         
         switch result {
         case .delete:
