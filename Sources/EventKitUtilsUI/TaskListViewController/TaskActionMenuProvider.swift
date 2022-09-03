@@ -11,11 +11,12 @@ import DiffableList
 import MenuBuilder
 
 public struct TaskActionMenuProvider {
-    public init(task: TaskValue, eventManager: EventManager, diffableListVC: @escaping () -> DiffableListViewController?, hidingOpenKR: Bool = false, presentTaskEditor: @escaping () -> Void, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil, afterDeletion: (() -> Void)? = nil) {
+    public init(task: TaskValue, eventManager: EventManager, diffableListVC: @escaping () -> DiffableListViewController?, hidingOpenKR: Bool = false, hidingShowingRepeatTasks: Bool = false,  presentTaskEditor: @escaping () -> Void, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil, afterDeletion: (() -> Void)? = nil) {
         self.task = task
         self.eventManager = eventManager
         self.diffableListVC = diffableListVC
         self.hidingOpenKR = hidingOpenKR
+        self.hidingShowingRepeatTasks = hidingShowingRepeatTasks
         self.presentTaskEditor = presentTaskEditor
         self.removeTask = removeTask
         self.afterDeletion = afterDeletion
@@ -25,6 +26,7 @@ public struct TaskActionMenuProvider {
     var eventManager: EventManager
     var diffableListVC: () -> DiffableListViewController?
     var hidingOpenKR = false
+    var hidingShowingRepeatTasks = false
     var presentTaskEditor: () -> Void
     var removeTask: (() -> Void)?
     var afterDeletion: (() -> Void)?
@@ -59,7 +61,7 @@ public struct TaskActionMenuProvider {
             }
         }
         
-        if isContextMenu && em.testHasRepeatingTasks(with: repeatingInfo) {
+        if !hidingShowingRepeatTasks && isContextMenu && em.testHasRepeatingTasks(with: repeatingInfo) {
             MBGroup {
                 MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) {
                     guard let listView = listView else {

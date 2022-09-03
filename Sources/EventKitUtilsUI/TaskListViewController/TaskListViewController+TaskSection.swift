@@ -97,7 +97,8 @@ extension TaskListViewController {
     func taskMenu(for task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
         TaskActionMenuProvider(task: task,
                                eventManager: em,
-                               diffableListVC: { [weak self] in self }) { [weak self] in
+                               diffableListVC: { [weak self] in self },
+                               hidingShowingRepeatTasks: isRepeatingList) { [weak self] in
             self?.presentTaskEditor(task: task)
         } manuallyRemoveThisTaskSinceItIsTheLastOne: { [weak self] in
             self?.removeTask(task)
