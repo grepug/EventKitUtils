@@ -123,11 +123,11 @@ public class EventSettingsViewController: DiffableListViewController {
         }
     }
     
-    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
         forceReloadToggleFlag += 1
         isGranted = status == .authorized
         
-        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
+        super.reload(applyingSnapshot: applyingSnapshot, animating: animating, options: options)
     }
     
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {

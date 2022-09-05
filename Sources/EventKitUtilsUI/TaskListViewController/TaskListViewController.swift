@@ -53,12 +53,12 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true) {
+    public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
         guard Thread.current == Thread.main else {
             fatalError()
         }
         
-        super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
+        super.reload(applyingSnapshot: applyingSnapshot, animating: animating, options: options)
     }
     
     public override func log(message: String) {
