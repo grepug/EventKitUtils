@@ -13,9 +13,11 @@ extension TaskEditorViewController {
     func presentEventSettingsAlert() {
         presentAlertController(title: "task_editor_calendar_not_authorized_title".loc, message: nil, actions: [
             .cancel,
-            .init(title: "task_editor_calendar_not_authorized_action".loc, style: .default) { [unowned self] _ in
-                let vc = EventSettingsViewController(eventManager: em)
-                present(vc.navigationControllerWrapped(), animated: true)
+            .init(title: "task_editor_calendar_not_authorized_action".loc, style: .default) { [weak self] _ in
+                guard let self = self else { return }
+                
+                let vc = EventSettingsViewController(eventManager: self.em)
+                self.present(vc.navigationControllerWrapped(), animated: true)
             }
         ])
     }
@@ -27,7 +29,7 @@ extension TaskEditorViewController {
         try! await Task.sleep(nanoseconds: 50_000_000)
         
         guard !em.checkIfExceedsNonProLimit() else {
-            config.presentNonProErrorAlert!({ [unowned self] in self })
+            config.presentNonProErrorAlert!({ [weak self] in self })
             return
         }
         
@@ -74,8 +76,8 @@ extension TaskEditorViewController {
         vc.modalPresentationStyle = .popover
         vc.popoverPresentationController?.sourceView = listView.cellForItem(at: [3, 0])
         
-        present(vc, animated: true) { [unowned self] in
-            reload(animating: false)
+        present(vc, animated: true) { [weak self] in
+            self?.reload(animating: false)
         }
     }
 }

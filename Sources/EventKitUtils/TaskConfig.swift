@@ -63,7 +63,7 @@ public struct TaskConfig {
     public var fetchKeyResultInfo: (String) async -> KeyResultInfo?
     public var makeKeyResultSelector: PresentKeyResultSelectorHandler?
     public var makeKeyResultDetail: ((String) -> UIViewController?)?
-    public var presentNonProErrorAlert: ((() -> UIViewController) -> Void)?
+    public var presentNonProErrorAlert: ((() -> UIViewController?) -> Void)?
     public var log: ((String) -> Void)?
     public var logError: ((Error) -> Void)?
     
