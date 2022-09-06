@@ -101,16 +101,18 @@ public class TaskEditorViewController: DiffableListViewController {
         }
         
         setupKeyboardSubscribers(scrollView: listView,
-                                 storeIn: &cancellables) { [unowned self] view in
+                                 storeIn: &cancellables) { [weak self] view in
+            guard let self = self else { return nil }
+            
             guard let collectionViewCell = view?.collectionViewCell,
-                  let indexPath = listView.indexPath(for: collectionViewCell),
+                  let indexPath = self.listView.indexPath(for: collectionViewCell),
                   indexPath.section > 0 else {
                 return nil
             }
             
             return [indexPath.section, 0]
-        } onPopup: { [unowned self] indexPath in
-            listView.scrollToItem(at: indexPath, at: .top, animated: true)
+        } onPopup: { [weak self] indexPath in
+            self?.listView.scrollToItem(at: indexPath, at: .top, animated: true)
         }
     }
     
