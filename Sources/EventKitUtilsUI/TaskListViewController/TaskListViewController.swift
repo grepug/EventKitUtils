@@ -222,11 +222,15 @@ extension TaskListViewController {
 }
 
 extension TaskListViewController {
+    static let dismissedSubject = PassthroughSubject<Void, Never>()
+    
     func setupNavigationBar() {
         if let title = fetchingTitle {
             self.title = title
-            navigationItem.rightBarButtonItem = makeDoneButton { [unowned self] in
-                presentingViewController?.dismiss(animated: true)
+            navigationItem.rightBarButtonItem = makeDoneButton { [weak self] in
+                self?.presentingViewController?.dismiss(animated: true) {
+                    Self.dismissedSubject.send()
+                }
             }
         } else {
             title = segment.text

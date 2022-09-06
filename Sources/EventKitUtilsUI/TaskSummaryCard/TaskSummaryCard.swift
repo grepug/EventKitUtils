@@ -9,17 +9,11 @@ import SwiftUI
 import EventKitUtils
 
 public struct TaskSummaryCard: View {
-    public init(eventManager: EventManager, parentVC: UIViewController) {
-        self.em = eventManager
-        self.parentVC = parentVC
+    public init(vm: TaskSummaryCardViewModel) {
+        self.vm = vm
     }
     
-    let em: EventManager
-    let parentVC: UIViewController
-    
-    @AppStorage("showingTodayTasks") var showingTodayTasks = true
-    @State var tasks: [TaskValue] = []
-    @State var checkedTaskIds: Set<String> = []
+    @ObservedObject var vm: TaskSummaryCardViewModel
     
     public var body: some View {
         VStack {
@@ -28,14 +22,7 @@ public struct TaskSummaryCard: View {
             footer
         }
         .onAppear {
-            Task {
-                await reload()
-            }
-        }
-        .onReceive(em.cachesReloaded) {
-            Task {
-                await reload()
-            }
+            vm.reloadSubject.send()
         }
     }
     
@@ -43,14 +30,14 @@ public struct TaskSummaryCard: View {
         HStack {
             Button {
                 Task {
-                    showingTodayTasks.toggle()
-                    await reload()
+                    vm.showingTodayTasks.toggle()
+                    vm.reloadSubject.send()
                 }
             } label: {
                 HStack {
                     HStack(spacing: 2) {
                         Image(systemName: "checkmark.square")
-                        Text(showingTodayTasks ? "v3_task_today_tasks".loc : "v3_task_recent_tasks".loc)
+                        Text(vm.showingTodayTasks ? "v3_task_today_tasks".loc : "v3_task_recent_tasks".loc)
                     }
                     
                     Image(systemName: "arrow.left.arrow.right")
@@ -63,7 +50,7 @@ public struct TaskSummaryCard: View {
             Spacer()
             
             Button {
-                pushToTaskListViewController()
+                vm.pushToTaskListViewController()
             } label: {
                 Text("\("v3_task_view_more".loc) >")
                     .font(.caption)
@@ -78,7 +65,7 @@ public struct TaskSummaryCard: View {
             Spacer()
             
             Button {
-                presentTaskEditor()
+                vm.presentTaskEditor()
             } label: {
                 Label("v3_task_create_task".loc, systemImage: "plus.circle")
                     .font(.subheadline)
@@ -89,7 +76,7 @@ public struct TaskSummaryCard: View {
     
     var list: some View {
         VStack {
-            ForEach(tasks, id: \.normalizedID) { task in
+            ForEach(vm.tasks, id: \.normalizedID) { task in
                 taskItem(task)
             }
             
@@ -101,27 +88,25 @@ public struct TaskSummaryCard: View {
     func taskItem(_ task: TaskValue) -> some View {
         TaskListCell(task: task,
                      isSummaryCard: true,
-                     checked: checkedTaskIds.contains(task.normalizedID),
+                     checked: vm.checkedTaskIds.contains(task.normalizedID),
                      hidingKRInfo: true) {
-            await checkTask(task)
+            await vm.checkTask(task)
         } presentEditor: {
-            presentTaskEditor(task: task)
+            vm.presentTaskEditor(task: task)
         }
         .padding(.top, 12)
         .background(Color(UIColor { $0.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground }))
         .contextMenu {
-            if em.testHasRepeatingTasks(with: task.repeatingInfo) {
+            if vm.em.testHasRepeatingTasks(with: task.repeatingInfo) {
                 Button("view_repeat_tasks".loc) {
-                    let vc = TaskListViewController(eventManager: em,
-                                                    repeatingInfo: task.repeatingInfo)
-                    parentVC.present(vc, animated: true)
+                    vm.presentRepeatTasks(for: task)
                 }
                 
                 Divider()
             }
             
             Button {
-                presentTaskEditor(task: task)
+                vm.presentTaskEditor(task: task)
             } label: {
                 Label("action_edit".loc, systemImage: "pencil")
             }
@@ -130,13 +115,13 @@ public struct TaskSummaryCard: View {
             
             if #available(iOS 15.0, *) {
                 Button(role: .destructive) {
-                    removeTask(task)
+                    vm.removeTask(task)
                 } label: {
                     label
                 }
             } else {
                 Button {
-                    removeTask(task)
+                    vm.removeTask(task)
                 } label: {
                     label
                 }
@@ -146,8 +131,8 @@ public struct TaskSummaryCard: View {
     
     var content: some View {
         Group {
-            if tasks.isEmpty {
-                Text(showingTodayTasks ?
+            if vm.tasks.isEmpty {
+                Text(vm.showingTodayTasks ?
                      "v3_task_today_no_tasks".loc :
                         "v3_task_no_tasks".loc)
                 .foregroundColor(.secondary)
@@ -156,44 +141,5 @@ public struct TaskSummaryCard: View {
             }
         }
         .frame(height: 236)
-    }
-}
-
-extension TaskSummaryCard {
-    func checkTask(_ task: TaskValue) async {
-        checkedTaskIds.insert(task.normalizedID)
-
-        try! await Task.sleep(nanoseconds: 300_000_000)
-        
-        for taskID in checkedTaskIds {
-            if let task = tasks.first(where: { $0.normalizedID == taskID }) {
-                await em.toggleCompletion(task)
-            }
-        }
-        
-        checkedTaskIds.removeAll()
-        await reload()
-    }
-    
-    func removeTask(_ task: TaskValue) {
-        Task {
-            await em.handleDeleteTask(task: task, on: parentVC) {
-                tasks.removeAll { $0.normalizedID == task.normalizedID }
-            }
-            
-            await reload()
-        }
-    }
-    
-    func relativeDateColor(_ task: TaskKind) -> Color {
-        let days = task.normalizedEndDate.map { Date().days(to: $0, includingLastDay: false) } ?? 1
-            
-        if days == 0 {
-            return .green
-        } else if days < 0 {
-            return .red
-        }
-        
-        return .secondary
     }
 }
