@@ -28,7 +28,7 @@ public class TaskEditorViewController: DiffableListViewController {
 
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
-    unowned let em: EventManager
+    unowned public let em: EventManager
     var cancellables = Set<AnyCancellable>()
     var forceReloadToggleFlag = 0
     
@@ -135,7 +135,7 @@ public class TaskEditorViewController: DiffableListViewController {
     }
 }
 
-extension TaskEditorViewController {
+extension TaskEditorViewController: TaskHandling {
     func setupNavigationBar() {
         title = "task_editor_title".loc
         
@@ -177,9 +177,9 @@ extension TaskEditorViewController {
                         savingTaskObjects.append(taskObject)
                     }
                     
-                    await em.saveTasks(savingTaskObjects + [self.task])
+                    await saveTasksAndPresentErrorAlert(savingTaskObjects + [self.task])
                 } else {
-                    await em.saveTask(task)
+                    await saveTaskAndPresentErrorAlert(task)
                 }
                 
                 dismissEditor()
@@ -188,7 +188,7 @@ extension TaskEditorViewController {
             }
         }
         
-        await em.saveTask(task)
+        await saveTaskAndPresentErrorAlert(task)
         dismissEditor(shouldOpenTaskList: isCreating)
     }
     

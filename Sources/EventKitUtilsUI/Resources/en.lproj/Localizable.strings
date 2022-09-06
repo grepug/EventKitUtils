@@ -67,3 +67,4 @@
 "alert_title_deleting_repeat_tasks" = "Deleting Repeat Tasks";
 "alert_action_delete_this_task" = "Only Delete This Task";
 "alert_action_delete_all_tasks" = "Delete All Future Tasks";
+"alert_title_task_save_failed" = "Failed to Save";

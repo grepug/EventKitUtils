@@ -55,7 +55,7 @@ extension TaskEditorViewController {
         
         /// 删除本地 task
         await em.deleteTask(task)
-        await em.saveTask(event)
+        await saveTaskAndPresentErrorAlert(event)
         originalTaskValue = event.value
         task = event
         

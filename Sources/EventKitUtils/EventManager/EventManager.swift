@@ -86,27 +86,15 @@ public extension EventManager {
         }
         
         taskObject.toggleCompletion()
-        await saveTask(taskObject)
+        
+        try! await saveTask(taskObject)
     }
     
-    func saveTask(_ task: TaskKind, commit: Bool = true) async {
+    func saveTask(_ task: TaskKind, commit: Bool = true) async throws {
         if task.isValueType, let task = taskObject(task) {
-            await saveTask(task)
+            try await saveTask(task)
         } else if let event = task as? EKEvent {
-            do {
-                try eventStore.save(event, span: .thisEvent, commit: commit)
-            } catch {
-                let nsError = error as NSError
-                
-                switch nsError.code {
-                case 1010: return
-//                #warning("unhandled error")
-//                case 74:
-//                    assertionFailure("不能仅更改单个重复的重复规则，必须应用到整个系列。")
-//                    return
-                default: fatalError("save event task failed: \(nsError.description) code: \(nsError.code)")
-                }
-            }
+            try eventStore.save(event, span: .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
             await config.saveTask(task.value)
         } else {
@@ -134,9 +122,9 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func saveTasks(_ tasks: [TaskKind]) async {
+    func saveTasks(_ tasks: [TaskKind]) async throws {
         for task in tasks {
-            await saveTask(task, commit: false)
+            try await saveTask(task, commit: false)
         }
         
         try! eventStore.commit()
@@ -311,7 +299,7 @@ public extension EventManager {
             }
         }
         
-        await saveTasks(afterTasks)
+        try! await saveTasks(afterTasks)
     }
 }
 
