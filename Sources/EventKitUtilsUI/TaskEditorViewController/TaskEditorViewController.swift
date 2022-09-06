@@ -257,34 +257,54 @@ extension TaskEditorViewController: TaskHandling {
 }
 
 private extension TaskEditorViewController {
+    func log(_ msg: String) {
+        em.config.log?(msg + " at TaskEditorViewController")
+    }
+    
     func setupDoneButton() {
+        log("before setupDoneButton")
+        
         let doneButton = UIBarButtonItem(systemItem: .done, primaryAction: .init { [weak self] _ in
             guard let self = self else { return }
+            
+            self.log("before done action")
             
             self.view.endEditing(true)
             
             Task {
                 await self.doneEditor()
+                
+                self.log("after done action")
             }
         })
         
         doneButton.isEnabled = task.dateErrorMessage == nil
         
         navigationItem.rightBarButtonItem = doneButton
+        
+        log("after setupDoneButton")
     }
     
     func setupCancelButton() {
+        log("before setupCancelButton")
+        
         let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: .init { [weak self] _ in
             guard let self = self else { return }
+            
+            self.log("before cancelButton action")
             
             self.view.endEditing(true)
             
             Task {
                 await self.handleCancelEditor()
+                
+                self.log("after cancelButton action")
             }
         })
         
         navigationItem.leftBarButtonItem = cancelButton
+        
+        log("after setupCancelButton")
     }
 }
 
