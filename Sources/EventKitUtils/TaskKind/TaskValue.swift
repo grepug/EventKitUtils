@@ -8,7 +8,7 @@
 import Foundation
 import Collections
 
-public struct TaskValue: TaskKind, Hashable {
+public struct TaskValue: TaskKind {
     public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, isValueType: Bool = true, kindIdentifier: TaskKindIdentifier = .event, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
@@ -213,5 +213,13 @@ extension Array where Element == TaskValue {
             
             return a.normalizedID < b.normalizedID
         }
+    }
+}
+
+extension TaskValue: Equatable {
+    public static func == (lhs: TaskValue, rhs: TaskValue) -> Bool {
+        return lhs.normalizedID == rhs.normalizedID &&
+        lhs.normalizedStartDate == rhs.normalizedStartDate &&
+        lhs.normalizedEndDate == rhs.normalizedEndDate
     }
 }
