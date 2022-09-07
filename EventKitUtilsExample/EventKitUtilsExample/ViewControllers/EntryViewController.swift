@@ -45,8 +45,20 @@ class EntryViewController: DiffableListViewController {
                     let vc = TaskSummaryCardList()
                     push(vc)
                 }
+                
             }
             .tag("0")
+            
+            DLSection {
+                DLCell {
+                    DLText("Test")
+                }
+                .tag("test")
+                .onTapAndDeselect { [weak self] _ in
+                    self?.push(TestingViewController())
+                }
+            }
+            .tag("1")
         }
     }
     

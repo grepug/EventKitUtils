@@ -160,7 +160,7 @@ public extension EventManager {
         return isTrue
     }
     
-    func fetchEventTasks(with type: FetchTasksType, onlyFirst: Bool = false) -> [TaskValue] {
+    func fetchEventTasks(with type: FetchTasksType?, onlyFirst: Bool = false) -> [TaskValue] {
         guard isEventStoreAuthorized else {
             return []
         }
@@ -172,6 +172,11 @@ public extension EventManager {
             var flag = false
             
             switch type {
+            case nil:
+                if !ids.contains(event.normalizedID) {
+                    tasks.append(event.value)
+                    ids.insert(event.normalizedID)
+                }
             case .repeatingInfo(let info, let isUniquedById):
                 if info == event.repeatingInfo {
                     if !isUniquedById || !ids.contains(event.normalizedID) {
