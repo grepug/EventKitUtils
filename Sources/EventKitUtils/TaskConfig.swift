@@ -23,7 +23,7 @@ public enum FetchTasksSegmentType: Int, CaseIterable {
 
 public enum FetchTasksType: Hashable {
     case segment(FetchTasksSegmentType),
-         repeatingInfo(TaskRepeatingInfo),
+         repeatingInfo(TaskRepeatingInfo, uniquedById: Bool),
          taskID(String),
          recordValue(RecordValue)
 }

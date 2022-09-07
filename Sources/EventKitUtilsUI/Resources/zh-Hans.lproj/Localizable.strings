@@ -30,7 +30,7 @@
 "view_repeat_tasks" = "查看全部重复任务";
 "task_editor_title" = "编辑任务";
 "task_editor_save_only_this_task" = "仅保存此任务";
-"task_editor_save_future_tasks" = "保存将来所有未完成的任务（%@）";
+"task_editor_save_future_tasks" = "保存将来所有未完成的任务";
 "task_editor_save_alert_title" = "此为重复任务";
 "task_editor_date_range_error_end_cannot_earlier_than_start" = "结束日期不能早于开始日期";
 "task_editor_calendar_not_authorized_title" = "未开启日历权限";

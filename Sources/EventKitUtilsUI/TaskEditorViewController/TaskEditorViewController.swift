@@ -155,47 +155,59 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        if !isCreating, !task.isCompleted, hasChanges,
-           task.testAreDatesSame(from: originalTaskValue),
-           let endDate = originalTaskValue.normalizedEndDate {
-            let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo))
-            let futureTasks = tasks.incompletedTasksAfter(endDate, notEqualTo: originalTaskValue)
+        let finalAction: () async -> Void = { [weak self] in
+            guard let self = self else { return }
             
-            if !futureTasks.isEmpty {
-                guard let savingFutureTasks = await presentSaveRepeatingTaskAlert(count: futureTasks.count) else {
-                    /// user canceled
-                    return
-                }
-                
-                if savingFutureTasks {
-                    var savingTaskObjects: [TaskKind] = []
-                    
-                    for task in futureTasks {
-                        var taskObject = em.taskObject(task)!
-                        
-                        taskObject.assignAsRepeatingTask(from: self.task)
-                        savingTaskObjects.append(taskObject)
-                    }
-                    
-                    await saveTasksAndPresentErrorAlert(savingTaskObjects + [self.task])
-                } else {
-                    await saveTaskAndPresentErrorAlert(task)
-                }
-                
-                dismissEditor()
-                
-                return
-            }
+            await self.saveTaskAndPresentErrorAlert(self.task)
+            self.dismissEditor(shouldOpenTaskList: self.isCreating)
         }
         
-        await saveTaskAndPresentErrorAlert(task)
-        dismissEditor(shouldOpenTaskList: isCreating)
+        guard !isCreating, !task.isCompleted, hasChanges else {
+            await finalAction()
+            return
+        }
+        
+        guard task.testAreDatesSame(from: originalTaskValue) else {
+            await finalAction()
+            return
+        }
+        
+        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo, uniquedById: true))
+        
+        guard !tasks.isEmpty else {
+            await finalAction()
+            return
+        }
+        
+        guard let savingFutureTasks = await presentSaveRepeatingTaskAlert() else {
+            /// user canceled
+            return
+        }
+        
+        if savingFutureTasks {
+            let currentTask = self.task!
+            var savingTaskObjects: [TaskKind] = []
+            let uniquedTasks = ([currentTask] + tasks).uniquedById
+            
+            for task in uniquedTasks {
+                var taskObject = em.taskObject(task)!
+                
+                taskObject.assignAsRepeatingTask(from: currentTask)
+                savingTaskObjects.append(taskObject)
+            }
+            
+            await saveTasksAndPresentErrorAlert(savingTaskObjects)
+        } else {
+            await saveTaskAndPresentErrorAlert(task)
+        }
+        
+        dismissEditor()
     }
     
-    func presentSaveRepeatingTaskAlert(count: Int) async -> Bool? {
+    func presentSaveRepeatingTaskAlert() async -> Bool? {
         let actions: [ActionValue] = [
             .init(title: "task_editor_save_only_this_task".loc, style: .destructive),
-            .init(title: "task_editor_save_future_tasks".loc("\(count)"), style: .destructive),
+            .init(title: "task_editor_save_future_tasks".loc, style: .destructive),
             .cancel
         ]
         

@@ -8,7 +8,7 @@
 import Foundation
 import Collections
 
-public struct TaskValue: TaskKind {
+public struct TaskValue: TaskKind, Equatable {
     public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, isValueType: Bool = true, kindIdentifier: TaskKindIdentifier = .event, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
@@ -67,14 +67,22 @@ public struct TaskValue: TaskKind {
         (linkedValueString ?? "") +
         ("\(repeatingCount ?? -1)")
     }
+    
+    func isSameTaskValueForRepeatTasks(with lhs: TaskValue) -> Bool {
+        let rhs = self
+        
+        return lhs.normalizedID == rhs.normalizedID &&
+        lhs.normalizedStartDate == rhs.normalizedStartDate &&
+        lhs.normalizedEndDate == rhs.normalizedEndDate
+    }
 }
 
 public extension Array where Element == TaskValue {
     func incompletedTasksAfter(_ date: Date, notEqualTo originalTaskValue: TaskValue) -> [TaskValue] {
         filter { task in
-            guard originalTaskValue.normalizedID != task.normalizedID else {
-                return false
-            }
+//            guard originalTaskValue.normalizedID != task.normalizedID else {
+//                return false
+//            }
             
             guard !task.isCompleted else {
                 return false
@@ -216,10 +224,3 @@ extension Array where Element == TaskValue {
     }
 }
 
-extension TaskValue: Equatable {
-    public static func == (lhs: TaskValue, rhs: TaskValue) -> Bool {
-        return lhs.normalizedID == rhs.normalizedID &&
-        lhs.normalizedStartDate == rhs.normalizedStartDate &&
-        lhs.normalizedEndDate == rhs.normalizedEndDate
-    }
-}

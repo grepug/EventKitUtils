@@ -307,3 +307,30 @@ extension Date {
         return components == selfComponents
     }
 }
+
+public extension Array where Element == TaskKind {
+    /// 用来过滤掉日历创建的重复日程
+    var uniquedById: [Element] {
+        uniqued(by: \.normalizedID)
+    }
+}
+
+public extension Array {
+    func uniqued<T: Hashable>(by keyPath: KeyPath<Element, T>) -> [Element] {
+        var res: [Element] = []
+        var ids: Set<T> = []
+        
+        for el in self {
+            let id = el[keyPath: keyPath]
+            
+            if ids.contains(id) {
+                continue
+            }
+            
+            res.append(el)
+            ids.insert(id)
+        }
+        
+        return res
+    }
+}

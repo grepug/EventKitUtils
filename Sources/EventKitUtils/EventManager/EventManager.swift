@@ -90,11 +90,11 @@ public extension EventManager {
         try! await saveTask(taskObject)
     }
     
-    func saveTask(_ task: TaskKind, commit: Bool = true) async throws {
+    func saveTask(_ task: TaskKind, savingRecurence: Bool = false, commit: Bool = true) async throws {
         if task.isValueType, let task = taskObject(task) {
             try await saveTask(task)
         } else if let event = task as? EKEvent {
-            try eventStore.save(event, span: .thisEvent, commit: commit)
+            try eventStore.save(event, span: savingRecurence ? .futureEvents : .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
             await config.saveTask(task.value)
         } else {
@@ -115,6 +115,8 @@ public extension EventManager {
     }
     
     func deleteTasks(_ tasks: [TaskKind]) async {
+        let tasks = tasks.uniquedById
+
         for task in tasks {
             await deleteTask(task, deletingRecurence: true, commit: false)
         }
@@ -123,8 +125,10 @@ public extension EventManager {
     }
     
     func saveTasks(_ tasks: [TaskKind]) async throws {
+        let tasks = tasks.uniquedById
+        
         for task in tasks {
-            try await saveTask(task, commit: false)
+            try await saveTask(task, savingRecurence: true, commit: false)
         }
         
         try! eventStore.commit()
@@ -162,14 +166,21 @@ public extension EventManager {
         }
         
         var tasks: [TaskValue] = []
+        var ids: Set<String> = []
         
         enumerateEventsAndReturnsIfExceedsNonProLimit { event in
             var flag = false
             
             switch type {
-            case .repeatingInfo(let info):
+            case .repeatingInfo(let info, let isUniquedById):
                 if info == event.repeatingInfo {
-                    tasks.append(event.value)
+                    if !isUniquedById || !ids.contains(event.normalizedID) {
+                        tasks.append(event.value)
+                        
+                        if isUniquedById {
+                            ids.insert(event.normalizedID)
+                        }
+                    }
                 }
             case .recordValue(let recordValue):
                 if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
@@ -311,7 +322,7 @@ public extension EventManager {
             afterTasks.append(taskObject)
             
             if fetchingMore {
-                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
+                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo, uniquedById: false))
                     .filter { $0.state == .overdued }
                 await postpondTasks(moreOverduedTasks, fetchingMore: false)
             }
@@ -341,7 +352,7 @@ extension EventManager {
         var foundEvent: EKEvent?
         
         enumerateEventsAndReturnsIfExceedsNonProLimit { event in
-            if event.value == task {
+            if event.value.isSameTaskValueForRepeatTasks(with: task) {
                 foundEvent = event
                 
                 return true

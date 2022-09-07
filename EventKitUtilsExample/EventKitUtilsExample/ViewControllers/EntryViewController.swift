@@ -75,7 +75,7 @@ extension EventManager {
                 switch type {
                 case .segment, .recordValue:
                     break
-                case .repeatingInfo(let info):
+                case .repeatingInfo(let info, _):
                     break
                     //                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
                 case .taskID(_):
