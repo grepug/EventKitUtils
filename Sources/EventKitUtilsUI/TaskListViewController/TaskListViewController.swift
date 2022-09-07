@@ -127,6 +127,8 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         $segment
             .merge(with: reloadingSubject)
             .merge(with: eventsChangedPublisher)
+            .debounce(for: 0.1, scheduler: RunLoop.main)
+            .dropFirst(2)
             .prepend(segment)
             .compactMap { [weak self] segment in
                 self?.fetchTasksPublisher(for: segment)
