@@ -1,0 +1,59 @@
+{
+  "pins" : [
+    {
+      "identity" : "diffablelist",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grepug/DiffableList",
+      "state" : {
+        "branch" : "dev_3.3.7",
+        "revision" : "cf27b1bb4ae7de7be375a8ba1ba50f1ea8940559"
+      }
+    },
+    {
+      "identity" : "menubuilder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grepug/MenuBuilder",
+      "state" : {
+        "branch" : "master",
+        "revision" : "0151400d869dd634ab235acf73f7226b7976ebd1"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit.git",
+      "state" : {
+        "revision" : "f222cbdf325885926566172f6f5f06af95473158",
+        "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "f504716c27d2e5d4144fa4794b12129301d17729",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "twittertexteditor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/twitter/TwitterTextEditor",
+      "state" : {
+        "branch" : "master",
+        "revision" : "940dc091fbe51ef6cb267b9bff80d4148cdf345a"
+      }
+    },
+    {
+      "identity" : "uikitutils",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grepug/UIKitUtils",
+      "state" : {
+        "branch" : "dev_3.3.7",
+        "revision" : "c4f424b0b2106819f6b168550dfdb61c7c750726"
+      }
+    }
+  ],
+  "version" : 2
+}

@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "EventKitUtils",
     defaultLocalization: "en",
-    platforms: [.iOS(.v14), .macCatalyst(.v14)],
+    platforms: [.iOS(.v14), .macOS(.v11), .macCatalyst(.v14)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -36,6 +36,6 @@ let package = Package(
                 path: "Sources/EventKitUtilsUI"),
         .testTarget(
             name: "EventKitUtilsTests",
-            dependencies: ["EventKitUtils"]),
+            dependencies: ["EventKitUtils", "EventKitUtilsUI", "UIKitUtils"]),
     ]
 )
