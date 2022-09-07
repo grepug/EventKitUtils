@@ -64,7 +64,9 @@ class EntryViewController: DiffableListViewController {
 
 extension EventManager {
     private static var taskConfig: TaskConfig {
-        .init(eventBaseURL: .init(string: "https://okr.vision/a")!) { type, handler in
+        .init(eventBaseURL: .init(string: "https://okr.vision/a")!) {
+            nil
+        } fetchNonEventTasks: { type, handler in
             let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
             
             context.perform {
@@ -75,14 +77,15 @@ extension EventManager {
                     break
                 case .repeatingInfo(let info):
                     break
-//                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
+                    //                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
                 case .taskID(_):
                     break
                 }
                 
                 let missions = Mission.fetch(where: predicate, context: context)
-                handler(missions)
+                handler(missions.map(\.value))
             }
+            
         } createNonEventTask: {
             let mission = Mission.initWithViewContext()
             
@@ -94,20 +97,11 @@ extension EventManager {
             
             return Mission.fetch(byId: uuid)
         } taskCountWithRepeatingInfo: { task in
-//            Mission.fetchCount(where: NSPredicate(format: "title = %@", task.normalizedTitle as CVarArg))
-                0
+            0
         } saveTask: { taskValue in
-//            guard let mission = task as? Mission else {
-//                return
-//            }
-//            
-//            mission.save()
-        } deleteTaskByID: { taskId in
-//            guard let mission = task as? Mission else {
-//                return
-//            }
-//
-//            mission.delete()
+            
+        } deleteTaskByID: { id in
+            
         } fetchKeyResultInfo: { _ in
             nil
         }

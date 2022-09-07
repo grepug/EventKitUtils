@@ -243,8 +243,26 @@ public extension EventManager {
         return enumerateEventsAndReturnsIfExceedsNonProLimit()
     }
     
+    
+    
     @discardableResult
     func enumerateEventsAndReturnsIfExceedsNonProLimit(matching precidate: NSPredicate? = nil, handler: ((EKEvent) -> Bool)? = nil) -> Bool {
+        var deferredAction: (() -> Void)?
+        
+        if #available(iOS 15.0, *) {
+            let key: StaticString = "enumerateEventsAndReturnsIfExceedsNonProLimit"
+            let signpostID = Self.signposter.makeSignpostID()
+            let state = Self.signposter.beginInterval(key, id: signpostID)
+            
+            deferredAction = {
+                Self.signposter.endInterval(key, state)
+            }
+        }
+        
+        defer {
+            deferredAction?()
+        }
+        
         var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
         var exceededNonProLimit = false
         

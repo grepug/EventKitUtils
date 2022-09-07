@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grepug/DiffableList",
       "state" : {
-        "branch" : "dev_3.1.0",
-        "revision" : "b81b68a8d80ee91d5f96c28b6be97458ffc36d34"
+        "branch" : "dev_3.3.7",
+        "revision" : "cf27b1bb4ae7de7be375a8ba1ba50f1ea8940559"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grepug/UIKitUtils.git",
       "state" : {
-        "branch" : "dev_3.1.0",
-        "revision" : "5b2450c88403115db53d4bb2bf2511c9b92d0b23"
+        "branch" : "dev_3.3.7",
+        "revision" : "c4f424b0b2106819f6b168550dfdb61c7c750726"
       }
     }
   ],
