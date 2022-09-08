@@ -34,6 +34,7 @@ public class EventManager {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
             .merge(with: reloadCaches.dropFirst())
+            .debounce(for: 0.8, scheduler: RunLoop.main)
             .prepend(())
             .map { [unowned self] in
                 valuesByKeyResultID

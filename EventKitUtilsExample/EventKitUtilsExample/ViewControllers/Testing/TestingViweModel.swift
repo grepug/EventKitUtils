@@ -105,7 +105,7 @@ extension TestingViweModel {
             signposter.endInterval("tvm createTenRepeatEvents", state)
         }
         
-        for index in 0..<9 {
+        for index in 0..<99 {
             date = Calendar.current.date(byAdding: .hour, value: 1, to: date)!
             let info = TaskRepeatingInfo(title: "repeat \(index)", keyResultID: "abc")
             
@@ -122,6 +122,6 @@ extension TestingViweModel {
         }
         
         let tasks = await em.fetchTasks(with: .segment(.incompleted)).uniqued(by: \.normalizedID)
-        assert(tasks.count == 10)
+        assert(tasks.count == 100)
     }
 }
