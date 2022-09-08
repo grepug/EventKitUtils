@@ -18,6 +18,9 @@ public class EventManager {
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
     
+    /// 使用一个唯一的 eventStore 可能会导致内存泄漏，但目前看来影响不大
+    /// 因为每创建一个 EKEvent 实例，会强关联在 EKEventStore 上，可能必须 EKEventStore 释放后，该 EKEvent 才会释放
+    /// 解决办法就是每次在创建 EKEvent 的时候重新初始化一个 EKEventStore ，但要注意，保存该 EKEvent 必须要使用创建它的 EKEventStore 实例
     public var eventStore: EKEventStore
     var cancellables = Set<AnyCancellable>()
     
