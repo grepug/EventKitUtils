@@ -172,7 +172,7 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo, uniquedById: true))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo), onlyFirst: true)
         
         guard !tasks.isEmpty else {
             await finalAction()

@@ -9,7 +9,7 @@ import Foundation
 
 public protocol CacheHandlers {
     func currentRunID() async -> String?
-    func fetchTaskValues(by type: FetchTasksType) async -> [TaskValue]
+    func fetchTaskValues(by type: FetchTasksType, firstOnly: Bool) async -> [TaskValue]
     func fetchRecordValuesByKeyResultID(_ id: String) async -> [RecordValue]
     
     func createRun(at date: Date) async -> String

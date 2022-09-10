@@ -152,7 +152,7 @@ extension TaskListViewController {
     
     var fetchingType: FetchTasksType {
         if let info = taskRepeatingInfo {
-            return .repeatingInfo(info, uniquedById: false)
+            return .repeatingInfo(info)
         }
         
         return .segment(segment)

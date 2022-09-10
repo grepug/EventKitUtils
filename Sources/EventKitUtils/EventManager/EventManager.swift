@@ -35,6 +35,8 @@ public class EventManager {
         setupEventStore()
     }
     
+    let queue = DispatchQueue(label: "com.vision.app.events.manager", qos: .userInteractive)
+    
     func setupEventStore() {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
@@ -185,12 +187,12 @@ public extension EventManager {
                     tasks.append(event.value)
                     ids.insert(event.normalizedID)
                 }
-            case .repeatingInfo(let info, let isUniquedById):
+            case .repeatingInfo(let info):
                 if info == event.repeatingInfo {
-                    if !isUniquedById || !ids.contains(event.normalizedID) {
+                    if !onlyFirst || !ids.contains(event.normalizedID) {
                         tasks.append(event.value)
                         
-                        if isUniquedById {
+                        if onlyFirst {
                             ids.insert(event.normalizedID)
                         }
                     }
@@ -222,11 +224,25 @@ public extension EventManager {
     }
     
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, onlyFirst: Bool = false) async -> [TaskValue] {
+        var returningFirst = false
+        
         var tasks = await withCheckedContinuation { continuation in
-            fetchTasksAsync(with: type, onlyFirst: onlyFirst) { tasks in
+            config.fetchNonEventTasks(type) { tasks in
+                if onlyFirst, let first = tasks.first {
+                    continuation.resume(returning: [first])
+                    returningFirst = true
+                    return
+                }
+                
                 continuation.resume(returning: tasks)
             }
         }
+        
+        if returningFirst {
+            return tasks
+        }
+        
+        tasks += await cacheHandlers.fetchTaskValues(by: type, firstOnly: onlyFirst)
         
         if fetchingKRInfo {
             for (index, task) in tasks.enumerated() {
@@ -238,21 +254,6 @@ public extension EventManager {
         }
         
         return tasks
-    }
-    
-    private func fetchTasksAsync(with type: FetchTasksType, onlyFirst: Bool = false, handler: @escaping ([TaskValue]) -> Void) {
-        config.fetchNonEventTasks(type) { tasks in
-            if onlyFirst, let first = tasks.first {
-                handler([first])
-                return
-            }
-            
-            DispatchQueue.global(qos: .userInitiated).async {
-                let eventTasks = self.fetchEventTasks(with: type, onlyFirst: onlyFirst)
-                
-                handler(tasks + eventTasks)
-            }
-        }
     }
     
     func fetchFirstTask(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> TaskValue? {
@@ -335,7 +336,7 @@ public extension EventManager {
             afterTasks.append(taskObject)
             
             if fetchingMore {
-                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo, uniquedById: false))
+                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo), onlyFirst: false)
                     .filter { $0.state == .overdued }
                 await postpondTasks(moreOverduedTasks, fetchingMore: false)
             }

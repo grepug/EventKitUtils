@@ -21,16 +21,19 @@ class TestingViweModel {
     @MainActor
     func run() async {
         await deleteAllCalendarEvents()
-        await createNeverEndRepeatTask(info: repeatInfo)
-        await testUniqueness()
-        await testDeleteFirstAndFuture()
         
-        await deleteAllCalendarEvents()
-        await createNeverEndRepeatTask(info: repeatInfo)
-        await testDeleteSecond()
-        
-        await createTenRepeatEvents()
-        await testIsTenUniqueEvents()
+        try! await Task.delayed(byTimeInterval: 3) {
+//            await self.createNeverEndRepeatTask(info: self.repeatInfo)
+//            await self.testUniqueness()
+//            await self.testDeleteFirstAndFuture()
+//
+//            await self.deleteAllCalendarEvents()
+//            await self.createNeverEndRepeatTask(info: self.repeatInfo)
+//            await self.testDeleteSecond()
+            
+            await self.createTenRepeatEvents()
+            await self.testIsTenUniqueEvents()
+        }.value
     }
 }
 
@@ -64,33 +67,40 @@ private extension TestingViweModel {
         event.assignFromTaskKind(task)
         
         try! await em.saveTask(event)
+        try! await Task.sleep(nanoseconds: 1_000_000_000)
     }
     
     func testUniqueness() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo, uniquedById: true))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: true)
         assert(tasks.count == 1)
         
-        let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo, uniquedById: false))
+        let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: false)
         assert(tasks2.uniqued(by: \.normalizedID).count == 1)
     }
     
     func testDeleteFirstAndFuture() async {
-        var tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo, uniquedById: true))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: true)
         assert(tasks.count == 1)
 
         await em.deleteTasks(tasks)
-        tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo, uniquedById: true))
-        assert(tasks.isEmpty)
+        
+        try! await Task.delayed(byTimeInterval: 3) {
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo), onlyFirst: true)
+            assert(tasks.isEmpty)
+        }.value
     }
     
     func testDeleteSecond() async {
-        var tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo, uniquedById: false))
-        assert(tasks.count >= 365)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: false)
+        assert(tasks.count >= 360)
         
         let dropped = Array(tasks.dropFirst())
         await em.deleteTasks(dropped)
-        tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo, uniquedById: false))
-        assert(tasks.count == 1)
+        
+        try! await Task.delayed(byTimeInterval: 3) {
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo), onlyFirst: false)
+            assert(tasks.count == 1)
+        }.value
     }
 }
 
@@ -105,12 +115,14 @@ extension TestingViweModel {
             signposter.endInterval("tvm createTenRepeatEvents", state)
         }
         
-        for index in 0..<99 {
+        for index in 0..<10 {
             date = Calendar.current.date(byAdding: .hour, value: 1, to: date)!
             let info = TaskRepeatingInfo(title: "repeat \(index)", keyResultID: "abc")
             
             await createNeverEndRepeatTask(info: info, startDate: date)
         }
+        
+        try! await Task.sleep(nanoseconds: 1_000_000_000 * 3)
     }
     
     func testIsTenUniqueEvents() async {
@@ -121,7 +133,22 @@ extension TestingViweModel {
             signposter.endInterval("tvm testIsTenUniqueEvents", state)
         }
         
-        let tasks = await em.fetchTasks(with: .segment(.incompleted)).uniqued(by: \.normalizedID)
-        assert(tasks.count == 100)
+        let tasks = await self.em.fetchTasks(with: .segment(.incompleted), onlyFirst: true)
+        assert(tasks.count == 10)
+    }
+}
+
+extension Task where Failure == Error {
+    @discardableResult
+    static func delayed(
+        byTimeInterval delayInterval: TimeInterval,
+        priority: TaskPriority? = nil,
+        operation: @escaping @Sendable () async throws -> Success
+    ) -> Task {
+        Task(priority: priority) {
+            let delay = UInt64(delayInterval * 1_000_000_000)
+            try await Task<Never, Never>.sleep(nanoseconds: delay)
+            return try await operation()
+        }
     }
 }

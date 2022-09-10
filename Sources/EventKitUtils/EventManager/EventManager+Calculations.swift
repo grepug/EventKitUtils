@@ -18,38 +18,38 @@ extension EventManager {
     @available(iOS 15.0, *)
     static let signposter = OSSignposter()
     
-    var valuesByKeyResultID: AnyPublisher<ValuesResult?, Never> {
-        guard EKEventStore.authorizationStatus(for: .event) == .authorized else {
-            return Just(nil).eraseToAnyPublisher()
-        }
-        
-        return Future { promise in
-            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                guard let self = self else { return }
-                
-                var deferedAction: (() -> Void)?
-                
-                if #available(iOS 15.0, *) {
-                    let key: StaticString = "valuesByKeyResultID"
-                    let signpostID = Self.signposter.makeSignpostID()
-                    let state = Self.signposter.beginInterval(key, id: signpostID)
-                    
-                    deferedAction = {
-                        Self.signposter.endInterval(key, state)
-                    }
-                }
-                
-                defer {
-                    deferedAction?()
-                }
-                
-                let res = self.calculate()
-                
-                promise(.success(res))
-            }
-        }
-        .eraseToAnyPublisher()
-    }
+//    var valuesByKeyResultID: AnyPublisher<ValuesResult?, Never> {
+//        guard EKEventStore.authorizationStatus(for: .event) == .authorized else {
+//            return Just(nil).eraseToAnyPublisher()
+//        }
+//
+//        return Future { promise in
+//            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+//                guard let self = self else { return }
+//
+//                var deferedAction: (() -> Void)?
+//
+//                if #available(iOS 15.0, *) {
+//                    let key: StaticString = "valuesByKeyResultID"
+//                    let signpostID = Self.signposter.makeSignpostID()
+//                    let state = Self.signposter.beginInterval(key, id: signpostID)
+//
+//                    deferedAction = {
+//                        Self.signposter.endInterval(key, state)
+//                    }
+//                }
+//
+//                defer {
+//                    deferedAction?()
+//                }
+//
+//                let res = self.calculate()
+//
+//                promise(.success(res))
+//            }
+//        }
+//        .eraseToAnyPublisher()
+//    }
     
     private func calculate() -> ValuesResult? {
         var dict: TasksByKeyResultID = [:]
@@ -92,9 +92,11 @@ extension EventManager {
 extension EventManager {
     var makeCachePublisher: Future<Void, Never> {
         Future { promise in
-            Task {
-                await self.makeCache()
-                promise(.success(()))
+            self.queue.async {
+                Task {
+                    await self.makeCache()
+                    promise(.success(()))
+                }
             }
         }
     }
@@ -106,24 +108,45 @@ extension EventManager {
         
         let date = Date()
         let runID = await cacheHandlers.createRun(at: date)
-        self.currentRunID = runID
-        
-        var previousEventID: String?
+            
+        await withCheckedContinuation { continuation in
+            self.queue.async {
+                self.currentRunID = runID
+                
+                let (_tasks, state) = self.makeCacheImpl(runID: runID)
+                
+                Task {
+                    await _tasks.awaitAll()
+                    await self.cacheHandlers.setRunState(state, withID: runID)
+                    continuation.resume(returning: ())
+                }
+            }
+        }
+    }
+    
+    private func makeCacheImpl(runID: String) -> ([Task<Void, Never>], CacheHandlersRunState) {
         var runState = CacheHandlersRunState.inProgress
         var _tasks: [Task<Void, Never>] = []
+        var uniquedIDs: Set<String> = []
+        
+        var debugCount = 0
         
         enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event in
             guard let self = self else {
                 return true
             }
             
+            debugCount += 1
+            
             /// 当 `runID` 变化后，停止该遍历
+            print("runID", self.currentRunID, runID)
             guard self.currentRunID == runID else {
                 runState = .stopped
                 return true
             }
 
-            let isFirst = previousEventID != event.normalizedID
+            let isFirst = !uniquedIDs.contains(event.normalizedID)
+            uniquedIDs.insert(event.normalizedID)
             
             let _task = Task {
                 await self.cacheHandlers.createTask(event.value,
@@ -133,8 +156,6 @@ extension EventManager {
             
             _tasks.append(_task)
             
-            previousEventID = event.normalizedID
-            
             return false
         }
         
@@ -142,8 +163,9 @@ extension EventManager {
             runState = .completed
         }
         
-        await _tasks.awaitAll()
-        await cacheHandlers.setRunState(runState, withID: runID)
+        print("debugCount", debugCount)
+        
+        return (_tasks, runState)
     }
 }
 
