@@ -119,5 +119,79 @@ extension EventManager {
         }
     }
     
-    static let shared = EventManager(config: EventManager.taskConfig)
+    static let shared = EventManager(config: EventManager.taskConfig,
+                                     cacheHandlers: MyCacheHandlers())
+}
+
+extension EventManager {
+    struct MyCacheHandlers: CacheHandlers {
+        func currentRunID() async -> String? {
+            let predicate = NSPredicate(format: "state == %@", CacheHandlersRunState.completed.rawValue as CVarArg)
+            
+            return try? await CachedTaskRun.fetch(where: predicate, sortedBy: [
+                NSSortDescriptor(key: "createdAt", ascending: false)
+            ], fetchLimit: 1).first?.id?.uuidString
+        }
+        
+        func fetchTaskValues(by type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
+            guard let runID = await currentRunID() else {
+                return []
+            }
+            
+            switch type {
+            case .segment:
+                let predicate = NSPredicate(format: "run.id == %@ && isFirst == 1", runID as CVarArg)
+                let taskValues = CachedTaskRun.fetch(where: predicate)
+                    .map(\.sortedTasks)
+                    .compactMap(\.first)
+                    .map(\.value)
+                    .sorted()
+                
+                return taskValues
+            default:
+                return []
+            }
+        }
+        
+        func fetchRecordValuesByKeyResultID(_ id: String) async -> [EventKitUtils.RecordValue] {
+            []
+        }
+        
+        func createRun(at date: Date) async -> String {
+            let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
+            
+            return await context.perform {
+                let run = CachedTaskRun.initWithViewContext(context)
+                try! context.save()
+                
+                return run.id!.uuidString
+            }
+        }
+        
+        func createTask(_ taskValue: TaskValue, isFirst: Bool, withRunID runID: String) async {
+            let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
+            
+            await context.perform {
+                let task = CachedTask.initWithViewContext(context)
+                task.assignedFromTaskValue(taskValue)
+                task.isFirst = isFirst
+                task.run = CachedTaskRun.fetch(byId: UUID(uuidString: runID)!,
+                                               context: context)!
+                try! context.save()
+            }
+        }
+        
+        func setRunState(_ state: CacheHandlersRunState, withID id: String) async {
+            guard let run = try? await CachedTaskRun.fetch(byId: UUID(uuidString: id)!) else {
+                return
+            }
+            
+            run.state = Int16(state.rawValue)
+            run.save()
+        }
+        
+        func clean() async {
+            
+        }
+    }
 }

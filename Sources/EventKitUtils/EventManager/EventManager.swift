@@ -11,7 +11,9 @@ import Combine
 import UIKit
 
 public class EventManager {
-    public var config: TaskConfig
+    public let config: TaskConfig
+    public let cacheHandlers: CacheHandlers
+    
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public var recordsOfKeyResult: Dictionary<String, [RecordValue]> = .init()
     
@@ -23,10 +25,13 @@ public class EventManager {
     /// 解决办法就是每次在创建 EKEvent 的时候重新初始化一个 EKEventStore ，但要注意，保存该 EKEvent 必须要使用创建它的 EKEventStore 实例
     public var eventStore: EKEventStore
     var cancellables = Set<AnyCancellable>()
+    var currentRunID: String?
     
-    public init(config: TaskConfig) {
+    public init(config: TaskConfig, cacheHandlers: CacheHandlers) {
         self.config = config
         self.eventStore = .init()
+        self.cacheHandlers = cacheHandlers
+        
         setupEventStore()
     }
     
@@ -37,18 +42,17 @@ public class EventManager {
             .debounce(for: 0.8, scheduler: RunLoop.main)
             .prepend(())
             .map { [unowned self] in
-                valuesByKeyResultID
-                    .compactMap { $0 }
+                makeCachePublisher
             }
             /// FIXME: 这里并没有取消到上一个线程里的执行，可能会浪费一点点计算时间
             /// 好在不影响主线程
             .switchToLatest()
             .receive(on: RunLoop.main)
-            .sink { [weak self] a, b in
+            .sink { [weak self] _ in
                 guard let self = self else { return }
                 
-                self.tasksOfKeyResult.assignWithDictionary(a)
-                self.recordsOfKeyResult = b
+//                self.tasksOfKeyResult.assignWithDictionary(a)
+//                self.recordsOfKeyResult = b
                 self.cachesReloaded.send()
             }
             .store(in: &cancellables)

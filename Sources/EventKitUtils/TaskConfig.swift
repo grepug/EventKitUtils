@@ -19,6 +19,19 @@ public enum FetchTasksSegmentType: Int, CaseIterable {
         case .completed: return "v3_task_list_segment_completed".loc
         }
     }
+    
+//    public var predicate: NSPredicate {
+//        let current = Date()
+//        
+//        switch self {
+//        case .today:
+//            return NSPredicate(format: "startDate", )
+//        case .incompleted:
+//            return NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
+//        case .completed:
+//            <#code#>
+//        }
+//    }
 }
 
 public enum FetchTasksType: Hashable {

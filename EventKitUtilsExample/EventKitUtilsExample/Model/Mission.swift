@@ -9,7 +9,7 @@ import Foundation
 import EventKitUtils
 import StorageProvider
 
-extension Mission: ManagedObject, TaskKind {
+extension Mission: SimpleManagedObject, TaskKind {
     public var normalizedIsAllDay: Bool {
         get {
             isAllDay

@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grepug/StorageProvider.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "95145d5320e24ead798ae8deff972fc67c0e98d0"
+        "branch" : "dev_3.3.10",
+        "revision" : "dbbb7b891ac16cdb8d7fad1241c8613a8be5906c"
       }
     },
     {

@@ -88,3 +88,75 @@ extension EventManager {
         return (dict, dict2)
     }
 }
+
+extension EventManager {
+    var makeCachePublisher: Future<Void, Never> {
+        Future { promise in
+            Task {
+                await self.makeCache()
+                promise(.success(()))
+            }
+        }
+    }
+    
+    private func makeCache() async {
+        Task {
+            await cacheHandlers.clean()
+        }
+        
+        let date = Date()
+        let runID = await cacheHandlers.createRun(at: date)
+        self.currentRunID = runID
+        
+        var previousEventID: String?
+        var runState = CacheHandlersRunState.inProgress
+        var _tasks: [Task<Void, Never>] = []
+        
+        enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event in
+            guard let self = self else {
+                return true
+            }
+            
+            /// 当 `runID` 变化后，停止该遍历
+            guard self.currentRunID == runID else {
+                runState = .stopped
+                return true
+            }
+
+            let isFirst = previousEventID != event.normalizedID
+            
+            let _task = Task {
+                await self.cacheHandlers.createTask(event.value,
+                                                    isFirst: isFirst,
+                                                    withRunID: runID)
+            }
+            
+            _tasks.append(_task)
+            
+            previousEventID = event.normalizedID
+            
+            return false
+        }
+        
+        if runState != .stopped {
+            runState = .completed
+        }
+        
+        await _tasks.awaitAll()
+        await cacheHandlers.setRunState(runState, withID: runID)
+    }
+}
+
+/// 参考：
+/// https://forums.swift.org/t/taskgroup-vs-an-array-of-tasks/53931/2
+extension Array where Element == Task<Void, Never> {
+    func awaitAll() async {
+        await withTaskGroup(of: Void.self) { group in
+            for task in self {
+                group.addTask {
+                    await task.value
+                }
+            }
+        }
+    }
+}

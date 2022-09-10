@@ -9,11 +9,15 @@ import StorageProvider
 import CoreData
 
 extension StorageProvider {
-    static let shared = StorageProvider(modelName: StorageProvider.modelName,
-                                        databaseName: "eventKitUtilsDB",
-                                        appGroupIdentifier: .APP_GROUP_NAME,
-                                        iCloudEnabled: false,
-                                        iCloudContainerIdentifier: nil)
+    static let shared = StorageProvider(storeDescriptionConfigurations: storeDescriptions,
+                                        modelName: StorageProvider.modelName,
+                                        iCloudEnabled: false)
+    
+    static var storeDescriptions: [StoreDescriptionConfiguration] {
+        [
+            .init(url: .appGroup(appGroupIdentifier: .APP_GROUP_NAME, dataBaseName: "eventKitUtilsDB"))
+        ]
+    }
     
     static var viewContext: NSManagedObjectContext {
         Self.shared.persistentContainer.viewContext
@@ -28,7 +32,7 @@ extension String {
     static let APP_GROUP_NAME = "group.visionapp.vision"
 }
 
-extension ManagedObject {
+extension SimpleManagedObject {
     public static var viewContext: NSManagedObjectContext {
         StorageProvider.viewContext
     }
