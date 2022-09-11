@@ -144,7 +144,7 @@ extension EventManager {
             }
             
             let runIDPredicate = NSPredicate(format: "run.id == %@", UUID(uuidString: runID)! as CVarArg)
-            let firstOnlyPredicate = firstOnly ? NSPredicate(format: "isFirst == %@", true as NSNumber) : nil
+            let firstOnlyPredicate = NSPredicate(format: "isFirst == %@", firstOnly as NSNumber)
             
             switch type {
             case .segment:
@@ -153,7 +153,7 @@ extension EventManager {
                     .map(\.value)
                     .sorted()
                 
-                print("taskvalues", taskValues.count)
+                print("taskvalues", taskValues.count, runID)
                 
                 return taskValues
             case .repeatingInfo(let info):
@@ -177,13 +177,22 @@ extension EventManager {
             []
         }
         
-        func createRun(at date: Date) async -> String {
+        func createRun(id: String, at date: Date) async {
             await context.perform {
                 let run = CachedTaskRun.initWithViewContext(context)
+                run.id = UUID(uuidString: id)!
                 run.state = Int16(CacheHandlersRunState.inProgress.rawValue)
                 try! context.save()
+            }
+        }
+        
+        var currentInProgressRunID: String? {
+            get {
+                let predicate = NSPredicate(format: "state == %@", CacheHandlersRunState.inProgress.rawValue as NSNumber)
                 
-                return run.id!.uuidString
+                return CachedTaskRun.fetch(where: predicate, sortedBy: [
+                    NSSortDescriptor(key: "createdAt", ascending: false)
+                ], fetchLimit: 1, context: context).first?.id?.uuidString
             }
         }
         

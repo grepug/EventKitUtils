@@ -38,15 +38,18 @@ class TestingViweModel {
 }
 
 private extension TestingViweModel {
-    func fetchEvents() -> [EKEvent] {
-        em.eventStore.events(matching: em.eventStore.predicateForEvents(withStart: em.config.eventRequestRange.lowerBound, end: em.config.eventRequestRange.upperBound, calendars: [em.eventStore.defaultCalendarForNewEvents!]))
+    func fetchEvents() async -> [EKEvent] {
+        let config = em.config
+        
+        return em.eventStore.events(matching: em.eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound, end: config.eventRequestRange.upperBound, calendars: [em.eventStore.defaultCalendarForNewEvents!]))
     }
     
     func deleteAllCalendarEvents() async {
-        let events = fetchEvents()
+        let events = await fetchEvents()
         await em.deleteTasks(events)
         
-        assert(fetchEvents().count == 0)
+        let events2 = await fetchEvents()
+        assert(events2.count == 0)
     }
     
     var repeatInfo: TaskRepeatingInfo {
@@ -67,7 +70,6 @@ private extension TestingViweModel {
         event.assignFromTaskKind(task)
         
         try! await em.saveTask(event)
-        try! await Task.sleep(nanoseconds: 1_000_000_000)
     }
     
     func testUniqueness() async {
@@ -115,14 +117,15 @@ extension TestingViweModel {
             signposter.endInterval("tvm createTenRepeatEvents", state)
         }
         
-        for index in 0..<10 {
+        for index in 0..<30 {
             date = Calendar.current.date(byAdding: .hour, value: 1, to: date)!
             let info = TaskRepeatingInfo(title: "repeat \(index)", keyResultID: "abc")
             
             await createNeverEndRepeatTask(info: info, startDate: date)
         }
         
-        try! await Task.sleep(nanoseconds: 1_000_000_000 * 3)
+        em.reloadCaches.send()
+//        try! await Task.sleep(nanoseconds: 1_000_000_000 * 1)
     }
     
     func testIsTenUniqueEvents() async {
@@ -133,8 +136,9 @@ extension TestingViweModel {
             signposter.endInterval("tvm testIsTenUniqueEvents", state)
         }
         
+        await em.nextEvent()
         let tasks = await self.em.fetchTasks(with: .segment(.incompleted), onlyFirst: true)
-        assert(tasks.count == 10)
+        assert(tasks.count == 30)
     }
 }
 

@@ -12,25 +12,27 @@ import UIKit
 
 public class EventManager {
     public let config: TaskConfig
-    public let cacheHandlers: CacheHandlers
+    var cacheManager: CacheManager2
     
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public var recordsOfKeyResult: Dictionary<String, [RecordValue]> = .init()
     
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
+    public let cachesReloaded2 = PassthroughSubject<String, Never>()
     
     /// 使用一个唯一的 eventStore 可能会导致内存泄漏，但目前看来影响不大
     /// 因为每创建一个 EKEvent 实例，会强关联在 EKEventStore 上，可能必须 EKEventStore 释放后，该 EKEvent 才会释放
     /// 解决办法就是每次在创建 EKEvent 的时候重新初始化一个 EKEventStore ，但要注意，保存该 EKEvent 必须要使用创建它的 EKEventStore 实例
     public var eventStore: EKEventStore
     var cancellables = Set<AnyCancellable>()
-    var currentRunID: String?
     
     public init(config: TaskConfig, cacheHandlers: CacheHandlers) {
         self.config = config
         self.eventStore = .init()
-        self.cacheHandlers = cacheHandlers
+        self.cacheManager = .init(eventStore: eventStore,
+                                  config: config,
+                                  handlers: cacheHandlers)
         
         setupEventStore()
     }
@@ -38,30 +40,34 @@ public class EventManager {
     let queue = DispatchQueue(label: "com.vision.app.events.manager", qos: .userInteractive)
     
     func setupEventStore() {
-        NotificationCenter.default.publisher(for: .EKEventStoreChanged)
-            .map { _ in }
-            .merge(with: reloadCaches.dropFirst())
-            .debounce(for: 0.8, scheduler: RunLoop.main)
-            .prepend(())
-            .map { [unowned self] in
-                makeCachePublisher
-            }
-            /// FIXME: 这里并没有取消到上一个线程里的执行，可能会浪费一点点计算时间
-            /// 好在不影响主线程
-            .switchToLatest()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                
-//                self.tasksOfKeyResult.assignWithDictionary(a)
-//                self.recordsOfKeyResult = b
+//        NotificationCenter.default.publisher(for: .EKEventStoreChanged)
+        reloadCaches
+            .receive(on: queue)
+            .flatMap { _ in self.cacheManager.makeCache() }
+            .sink { runID in
+                print("reloaded runID", runID)
                 self.cachesReloaded.send()
+                self.cachesReloaded2.send(runID)
             }
             .store(in: &cancellables)
     }
+    
 }
 
 public extension EventManager {
+    func nextEvent() async {
+        await withCheckedContinuation { continuation in
+            self.cachesReloaded2
+                .filter { id in id == self.cacheManager.currentRunID }
+                .prefix(1)
+                .sink { id in
+                    print("resumed!!", id, self.cacheManager.currentRunID)
+                    continuation.resume(returning: ())
+                }
+                .store(in: &cancellables)
+        }
+    }
+    
     var selectedCalendarIdentifier: String? {
         get { config.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
         set { config.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
@@ -154,73 +160,19 @@ public extension EventManager {
         var foundEvent: EKEvent?
         var isTrue = false
         
-        enumerateEventsAndReturnsIfExceedsNonProLimit { event in
-            if repeatingInfo == event.repeatingInfo {
-                if foundEvent != nil || count == 1 {
-                    isTrue = true
-                    return true
-                }
-                        
-                foundEvent = event
-            }
-            
-            return false
-        }
+//        enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
+//            if repeatingInfo == event.repeatingInfo {
+//                if foundEvent != nil || count == 1 {
+//                    isTrue = true
+//                    completion()
+//                    return
+//                }
+//
+//                foundEvent = event
+//            }
+//        }
 
         return isTrue
-    }
-    
-    func fetchEventTasks(with type: FetchTasksType?, onlyFirst: Bool = false) -> [TaskValue] {
-        guard isEventStoreAuthorized else {
-            return []
-        }
-        
-        var tasks: [TaskValue] = []
-        var ids: Set<String> = []
-        
-        enumerateEventsAndReturnsIfExceedsNonProLimit { event in
-            var flag = false
-            
-            switch type {
-            case nil:
-                if !ids.contains(event.normalizedID) {
-                    tasks.append(event.value)
-                    ids.insert(event.normalizedID)
-                }
-            case .repeatingInfo(let info):
-                if info == event.repeatingInfo {
-                    if !onlyFirst || !ids.contains(event.normalizedID) {
-                        tasks.append(event.value)
-                        
-                        if onlyFirst {
-                            ids.insert(event.normalizedID)
-                        }
-                    }
-                }
-            case .recordValue(let recordValue):
-                if let taskID = recordValue.linkedTaskID, let completedAt = recordValue.date {
-                    if taskID == event.normalizedID && completedAt == event.completedAt {
-                        tasks.append(event.value)
-                        
-                        flag = true
-                    }
-                }
-            case .segment:
-                tasks.append(event.value)
-            case .taskID(let id):
-                if event.normalizedID == id {
-                    tasks.append(event.value)
-                }
-            }
-            
-            if onlyFirst && !tasks.isEmpty {
-                return true
-            }
-            
-            return flag
-        }
-        
-        return tasks
     }
     
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, onlyFirst: Bool = false) async -> [TaskValue] {
@@ -242,7 +194,7 @@ public extension EventManager {
             return tasks
         }
         
-        tasks += await cacheHandlers.fetchTaskValues(by: type, firstOnly: onlyFirst)
+        tasks += await cacheManager.handlers.fetchTaskValues(by: type, firstOnly: onlyFirst)
         
         if fetchingKRInfo {
             for (index, task) in tasks.enumerated() {
@@ -265,56 +217,10 @@ public extension EventManager {
             return false
         }
             
-        return enumerateEventsAndReturnsIfExceedsNonProLimit()
+        return true
+//        return enumerateEventsAndReturnsIfExceedsNonProLimit()
     }
     
-    
-    
-    @discardableResult
-    func enumerateEventsAndReturnsIfExceedsNonProLimit(matching precidate: NSPredicate? = nil, handler: ((EKEvent) -> Bool)? = nil) -> Bool {
-        var deferredAction: (() -> Void)?
-        
-        if #available(iOS 15.0, *) {
-            let key: StaticString = "enumerateEventsAndReturnsIfExceedsNonProLimit"
-            let signpostID = Self.signposter.makeSignpostID()
-            let state = Self.signposter.beginInterval(key, id: signpostID)
-            
-            deferredAction = {
-                Self.signposter.endInterval(key, state)
-            }
-        }
-        
-        defer {
-            deferredAction?()
-        }
-        
-        var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
-        var exceededNonProLimit = false
-        
-        let predicate = precidate ?? eventsPredicate()
-        
-        eventStore.enumerateEvents(matching: predicate) { [unowned self] event, pointer in
-            guard event.url?.host == self.config.eventBaseURL.host else {
-                return
-            }
-            
-            if let nonProLimit = config.maxNonProLimit() {
-                if !exceededNonProLimit {
-                    enumeratedRepeatingInfoSet.insert(event.repeatingInfo)
-                }
-                
-                if enumeratedRepeatingInfoSet.count == nonProLimit {
-                    exceededNonProLimit = true
-                }
-            }
-            
-            if handler?(event) == true {
-                pointer.pointee = true
-            }
-        }
-        
-        return exceededNonProLimit
-    }
     
     func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) -> TaskKind? {
         if let task = taskValue {
@@ -365,15 +271,13 @@ extension EventManager {
         
         var foundEvent: EKEvent?
         
-        enumerateEventsAndReturnsIfExceedsNonProLimit { event in
-            if event.value.isSameTaskValueForRepeatTasks(with: task) {
-                foundEvent = event
-                
-                return true
-            }
-            
-            return false
-        }
+//        enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
+//            if event.value.isSameTaskValueForRepeatTasks(with: task) {
+//                foundEvent = event
+//                completion()
+//                return
+//            }
+//        }
         
         return foundEvent
     }
