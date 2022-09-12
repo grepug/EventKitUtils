@@ -34,6 +34,34 @@ public class TaskEditorViewController: DiffableListViewController {
     
     public var onDismiss: ((Bool) -> Void)?
     
+    lazy var doneButton = UIBarButtonItem(systemItem: .done, primaryAction: .init { [weak self] _ in
+        guard let self = self else { return }
+        
+        self.log("before done action")
+        
+        self.view.endEditing(true)
+        
+        Task {
+            await self.doneEditor()
+            
+            self.log("after done action")
+        }
+    })
+    
+    lazy var cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: .init { [weak self] _ in
+        guard let self = self else { return }
+        
+        self.log("before cancelButton action")
+        
+        self.view.endEditing(true)
+        
+        Task {
+            await self.handleCancelEditor()
+            
+            self.log("after cancelButton action")
+        }
+    })
+    
     public init(task: TaskKind, eventManager: EventManager) {
         self.task = task.isValueType ? eventManager.taskObject(task) : task
         self.em = eventManager
@@ -93,6 +121,9 @@ public class TaskEditorViewController: DiffableListViewController {
         super.viewDidLoad()
         
         isModalInPresentation = true
+        navigationItem.rightBarButtonItem = doneButton
+        navigationItem.leftBarButtonItem = cancelButton
+        
         setupNavigationBar()
         reload(animating: false)
         
@@ -138,9 +169,7 @@ public class TaskEditorViewController: DiffableListViewController {
 extension TaskEditorViewController: TaskHandling {
     func setupNavigationBar() {
         title = "task_editor_title".loc
-        
-        setupDoneButton()
-        setupCancelButton()
+        doneButton.isEnabled = task.dateErrorMessage == nil
     }
     
     func doneEditor() async {
@@ -158,7 +187,10 @@ extension TaskEditorViewController: TaskHandling {
         let finalAction: () async -> Void = { [weak self] in
             guard let self = self else { return }
             
-            await self.saveTaskAndPresentErrorAlert(self.task)
+            guard await self.saveTaskAndPresentErrorAlert(self.task) else {
+                return
+            }
+            
             self.dismissEditor(shouldOpenTaskList: self.isCreating)
         }
         
@@ -174,7 +206,7 @@ extension TaskEditorViewController: TaskHandling {
         
         let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo, uniquedById: true))
         
-        guard !tasks.isEmpty else {
+        guard tasks.count > 1 else {
             await finalAction()
             return
         }
@@ -196,9 +228,13 @@ extension TaskEditorViewController: TaskHandling {
                 savingTaskObjects.append(taskObject)
             }
             
-            await saveTasksAndPresentErrorAlert(savingTaskObjects)
+            guard await saveTasksAndPresentErrorAlert(savingTaskObjects) else {
+                return
+            }
         } else {
-            await saveTaskAndPresentErrorAlert(task)
+            guard await saveTaskAndPresentErrorAlert(task) else {
+                return
+            }
         }
         
         dismissEditor()
@@ -271,52 +307,6 @@ extension TaskEditorViewController: TaskHandling {
 private extension TaskEditorViewController {
     func log(_ msg: String) {
         em.config.log?(msg + " at TaskEditorViewController")
-    }
-    
-    func setupDoneButton() {
-        log("before setupDoneButton")
-        
-        let doneButton = UIBarButtonItem(systemItem: .done, primaryAction: .init { [weak self] _ in
-            guard let self = self else { return }
-            
-            self.log("before done action")
-            
-            self.view.endEditing(true)
-            
-            Task {
-                await self.doneEditor()
-                
-                self.log("after done action")
-            }
-        })
-        
-        doneButton.isEnabled = task.dateErrorMessage == nil
-        
-        navigationItem.rightBarButtonItem = doneButton
-        
-        log("after setupDoneButton")
-    }
-    
-    func setupCancelButton() {
-        log("before setupCancelButton")
-        
-        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: .init { [weak self] _ in
-            guard let self = self else { return }
-            
-            self.log("before cancelButton action")
-            
-            self.view.endEditing(true)
-            
-            Task {
-                await self.handleCancelEditor()
-                
-                self.log("after cancelButton action")
-            }
-        })
-        
-        navigationItem.leftBarButtonItem = cancelButton
-        
-        log("after setupCancelButton")
     }
 }
 

@@ -202,15 +202,17 @@ extension TaskEditorViewController {
             .tag("calendar \(isEvent) \(forceReloadToggleFlag)")
             .disableHighlight(!isEvent)
             .accessories([
-                .toggle(isOn: isEvent, isEnabled: !isEvent) { [unowned self] isOn in
+                .toggle(isOn: isEvent, isEnabled: !isEvent) { [weak self] isOn in
+                    guard let self = self else { return }
+                    
                     guard isOn else {
                         fatalError("cannot turn off")
                     }
                     
                     Task {
-                        await convertToEvent()
-                        forceReloadToggleFlag += 1
-                        reload()
+                        await self.convertToEvent()
+                        self.forceReloadToggleFlag += 1
+                        self.reload()
                     }
                 },
                 isEvent ? .disclosureIndicator() : nil

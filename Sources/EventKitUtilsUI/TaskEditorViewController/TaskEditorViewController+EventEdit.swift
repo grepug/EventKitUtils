@@ -24,7 +24,7 @@ extension TaskEditorViewController {
     
     @MainActor
     func convertToEvent() async {
-        view.endEditing(true)
+        _ = view.endEditing(true)
         
         try! await Task.sleep(nanoseconds: 50_000_000)
         
@@ -55,9 +55,11 @@ extension TaskEditorViewController {
         event.calendar = calendar
         event.assignFromTaskKind(task)
         
+        guard await saveTaskAndPresentErrorAlert(event) else {
+            return
+        }
         /// 删除本地 task
         await em.deleteTask(task)
-        await saveTaskAndPresentErrorAlert(event)
         originalTaskValue = event.value
         task = event
         
