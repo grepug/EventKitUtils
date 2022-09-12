@@ -129,12 +129,10 @@ extension EventManager {
         let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
         
         func currentRunID() async -> String? {
-            let predicate = NSPredicate(format: "state == %@", CacheHandlersRunState.completed.rawValue as NSNumber)
-            
-            return await context.perform {
-                return CachedTaskRun.fetch(where: predicate, sortedBy: [
+            await context.perform {
+                CachedTask.fetch(sortedBy: [
                     NSSortDescriptor(key: "createdAt", ascending: false)
-                ], fetchLimit: 1, context: context).first?.id?.uuidString
+                ], fetchLimit: 1, context: context).first?.runID
             }
         }
         
@@ -143,7 +141,7 @@ extension EventManager {
                 return []
             }
             
-            let runIDPredicate = NSPredicate(format: "run.id == %@", UUID(uuidString: runID)! as CVarArg)
+            let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
             let firstOnlyPredicate = NSPredicate(format: "isFirst == %@", firstOnly as NSNumber)
             
             switch type {
@@ -153,7 +151,7 @@ extension EventManager {
                     .map(\.value)
                     .sorted()
                 
-                print("taskvalues", taskValues.count, runID)
+                print("taskvalues", taskValues.count, runID, taskValues.map(\.isFirstRecurrence))
                 
                 return taskValues
             case .repeatingInfo(let info):
@@ -204,6 +202,43 @@ extension EventManager {
                 task.run = CachedTaskRun.fetch(byId: UUID(uuidString: runID)!,
                                                context: context)!
                 try! context.save()
+            }
+        }
+        
+        func batchInsert(taskValues: [TaskValue], runID: String) -> NSBatchInsertRequest {
+            let count = taskValues.count
+            var index = 0
+            let current = Date()
+            
+            return NSBatchInsertRequest(entity: .entity(forEntityName: "CachedTask", in: context)!,
+                                        managedObjectHandler: { object in
+                guard index < count else {
+                    return true
+                }
+                
+                guard let task = object as? CachedTask else {
+                    return true
+                }
+                
+                task.assignedFromTaskValue(taskValues[index])
+                task.runID = runID
+                task.createdAt = current
+                task.updatedAt = current
+                
+                index += 1
+                
+                return false
+            })
+        }
+        
+        func createTasks(_ taskValues: [TaskValue], withRunID runID: String) async {
+            await StorageProvider.shared.persistentContainer.performBackgroundTask { context in
+                do {
+                    let batchInsert = self.batchInsert(taskValues: taskValues, runID: runID)
+                    try context.execute(batchInsert)
+                } catch {
+                    print("error", error)
+                }
             }
         }
         

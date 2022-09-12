@@ -16,6 +16,7 @@ public protocol CacheHandlers {
     func createRun(id: String, at date: Date) async
     func setRunState(_ state: CacheHandlersRunState, withID id: String) async
     func createTask(_ taskValue: TaskValue, isFirst: Bool, withRunID runID: String) async
+    func createTasks(_ taskValues: [TaskValue], withRunID runID: String) async
     
     func clean() async
 }

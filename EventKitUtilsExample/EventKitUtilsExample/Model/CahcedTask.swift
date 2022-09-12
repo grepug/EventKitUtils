@@ -24,7 +24,7 @@ extension CachedTaskRun: SimpleManagedObject {
 
 extension CachedTask {
     var value: TaskValue {
-        .init(normalizedID: idString!, normalizedTitle: title!, normalizedStartDate: startDate, normalizedEndDate: endDate, normalizedIsAllDay: isAllDay, isCompleted: completionDate != nil, completedAt: completionDate, notes: notes ?? "", keyResultId: keyResultID, linkedValue: linkedRecordValue)
+        .init(normalizedID: idString!, normalizedTitle: title!, normalizedStartDate: startDate, normalizedEndDate: endDate, normalizedIsAllDay: isAllDay, isCompleted: completionDate != nil, completedAt: completionDate, notes: notes ?? "", keyResultId: keyResultID, linkedValue: linkedRecordValue, isFirstRecurrence: isFirst)
     }
     
     func assignedFromTaskValue(_ taskValue: TaskValue) {
@@ -37,5 +37,7 @@ extension CachedTask {
         notes = taskValue.notes
         keyResultID = taskValue.keyResultId
         linkedRecordValue = taskValue.linkedValue ?? 0
+        isFirst = taskValue.isFirstRecurrence
+        print("isFirst@", isFirst, taskValue.isFirstRecurrence)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import EventKit
 
-actor CacheManager {
+public actor CacheManager {
     init(eventStore: EKEventStore, config: TaskConfig, handlers: CacheHandlers, currentRunID: String? = nil, uniquedIDs: Set<String> = []) {
         self.eventStore = eventStore
         self.config = config
@@ -23,64 +23,42 @@ actor CacheManager {
     var handlers: CacheHandlers
     var currentRunID: String?
     var uniquedIDs: Set<String> = []
+    public var isPending: Bool = false
 }
 
 extension CacheManager {
-    func makeCache() async {
+    public func makeCache() async {
         Task {
             await handlers.clean()
         }
         
+        isPending = true
+        
         let date = Date()
         let runID = UUID().uuidString
-        self.currentRunID = runID
         
         await handlers.createRun(id: runID, at: date)
         await makeCacheImpl(runID: runID)
-    }
-    
-    func insertIdToUniqueIds(_ id: String) {
-        uniquedIDs.insert(id)
+        
+        isPending = false
     }
     
     private func makeCacheImpl(runID: String) async {
-        var runState = CacheHandlersRunState.inProgress
-        var _tasks: [Task<Void, Never>] = []
+        var tasks: [TaskValue] = []
+        var uniquedIDs: Set<String> = []
         
-        enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event, completion in
-            guard let self = self else {
-                completion()
-                return
-            }
+        enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
+            let isFirst = !uniquedIDs.contains(event.normalizedID)
+            uniquedIDs.insert(event.normalizedID)
+            var task = event.value
+            task.isFirstRecurrence = isFirst
+            tasks.append(task)
             
-            let _task = Task {
-                /// 当 `runID` 变化后，停止该遍历
-                print("runID", await self.currentRunID!, runID)
-                
-                guard await self.currentRunID == runID else {
-                    await self.handlers.setRunState(.stopped, withID: runID)
-                    completion()
-                    return
-                }
-                
-                let isFirst = !(await self.uniquedIDs.contains(event.normalizedID))
-                await self.insertIdToUniqueIds(event.normalizedID)
-                
-                await self.handlers.createTask(event.value,
-                                               isFirst: isFirst,
-                                               withRunID: runID)
-            }
-            
-            _tasks.append(_task)
+            print("isFirst!", isFirst)
         }
         
-        
-        if runState != .stopped {
-            runState = .completed
-        }
-        
-        await _tasks.awaitAll()
-        await handlers.setRunState(runState, withID: runID)
+        await handlers.createTasks(tasks, withRunID: runID)
+        await handlers.setRunState(.completed, withID: runID)
     }
 }
 

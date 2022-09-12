@@ -12,7 +12,7 @@ import UIKit
 
 public class EventManager {
     public let config: TaskConfig
-    var cacheManager: CacheManager2
+    public var cacheManager: CacheManager
     
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public var recordsOfKeyResult: Dictionary<String, [RecordValue]> = .init()
@@ -43,11 +43,14 @@ public class EventManager {
 //        NotificationCenter.default.publisher(for: .EKEventStoreChanged)
         reloadCaches
             .receive(on: queue)
-            .flatMap { _ in self.cacheManager.makeCache() }
+//            .flatMap { _ in self.cacheManager.makeCache() }
             .sink { runID in
                 print("reloaded runID", runID)
-                self.cachesReloaded.send()
-                self.cachesReloaded2.send(runID)
+//                self.cachesReloaded.send()
+//                self.cachesReloaded2.send(runID)
+                Task {
+                    await self.cacheManager.makeCache()
+                }
             }
             .store(in: &cancellables)
     }
@@ -55,18 +58,18 @@ public class EventManager {
 }
 
 public extension EventManager {
-    func nextEvent() async {
-        await withCheckedContinuation { continuation in
-            self.cachesReloaded2
-                .filter { id in id == self.cacheManager.currentRunID }
-                .prefix(1)
-                .sink { id in
-                    print("resumed!!", id, self.cacheManager.currentRunID)
-                    continuation.resume(returning: ())
-                }
-                .store(in: &cancellables)
-        }
-    }
+//    func nextEvent() async {
+//        await withCheckedContinuation { continuation in
+//            self.cachesReloaded2
+//                .filter { id in id == self.cacheManager.currentRunID }
+//                .prefix(1)
+//                .sink { id in
+//                    print("resumed!!", id, self.cacheManager.currentRunID)
+//                    continuation.resume(returning: ())
+//                }
+//                .store(in: &cancellables)
+//        }
+//    }
     
     var selectedCalendarIdentifier: String? {
         get { config.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }

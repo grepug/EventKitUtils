@@ -117,14 +117,15 @@ extension TestingViweModel {
             signposter.endInterval("tvm createTenRepeatEvents", state)
         }
         
-        for index in 0..<30 {
+        for index in 0..<100 {
             date = Calendar.current.date(byAdding: .hour, value: 1, to: date)!
             let info = TaskRepeatingInfo(title: "repeat \(index)", keyResultID: "abc")
             
             await createNeverEndRepeatTask(info: info, startDate: date)
         }
         
-        em.reloadCaches.send()
+//        em.reloadCaches.send()
+        await em.cacheManager.makeCache()
 //        try! await Task.sleep(nanoseconds: 1_000_000_000 * 1)
     }
     
@@ -136,9 +137,10 @@ extension TestingViweModel {
             signposter.endInterval("tvm testIsTenUniqueEvents", state)
         }
         
-        await em.nextEvent()
-        let tasks = await self.em.fetchTasks(with: .segment(.incompleted), onlyFirst: true)
-        assert(tasks.count == 30)
+        if await em.cacheManager.isPending == false {
+            let tasks = await self.em.fetchTasks(with: .segment(.incompleted), onlyFirst: true)
+            assert(tasks.count == 100)
+        }
     }
 }
 
