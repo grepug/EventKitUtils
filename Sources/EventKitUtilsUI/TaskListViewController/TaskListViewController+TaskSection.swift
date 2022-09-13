@@ -11,7 +11,11 @@ import MenuBuilder
 import EventKitUtils
 import UIKitUtils
 
-extension TaskListViewController {
+extension TaskListViewController: TaskHandling {
+    public var taskHandlingViewController: UIViewController {
+        self
+    }
+    
     @ListBuilder
     func taskSection(_ tasks: [TaskValue], groupedState: TaskKindState?) -> [DLSection] {
         DLSection { [unowned self] in
@@ -29,9 +33,14 @@ extension TaskListViewController {
             
             for task in tasks {
                 DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task) { [unowned self] in
-                        await em.toggleCompletion(task)
-                        reloadList()
+                    TaskListCell(task: task) { [weak self] in
+                        guard let self = self else { return }
+                        
+                        guard await self.toggleCompletionOrPresentError(task) else {
+                            return
+                        }
+                        
+                        self.reloadList()
                     } presentEditor: { [unowned self] in
                         presentTaskEditor(task: task)
                     }

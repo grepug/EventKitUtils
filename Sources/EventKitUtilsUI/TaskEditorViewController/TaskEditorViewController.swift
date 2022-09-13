@@ -167,6 +167,10 @@ public class TaskEditorViewController: DiffableListViewController {
 }
 
 extension TaskEditorViewController: TaskHandling {
+    public var taskHandlingViewController: UIViewController {
+        self
+    }
+    
     func setupNavigationBar() {
         title = "task_editor_title".loc
         doneButton.isEnabled = task.dateErrorMessage == nil

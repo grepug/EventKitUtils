@@ -8,8 +8,9 @@
 import UIKit
 import EventKitUtils
 
-public protocol TaskHandling: UIViewController {
+public protocol TaskHandling {
     var em: EventManager { get }
+    var taskHandlingViewController: UIViewController { get }
 }
 
 public extension TaskHandling {
@@ -38,10 +39,22 @@ public extension TaskHandling {
         }
     }
     
+    func toggleCompletionOrPresentError(_ task: TaskKind) async -> Bool {
+        do {
+            try await em.toggleCompletion(task)
+            
+            return true
+        } catch {
+            await handleError(error: error)
+            
+            return false
+        }
+    }
+    
     private func handleError(error: Error) async {
         let nsError = error as NSError
         let message = nsError.localizedDescription
         
-        await presentAlertController(title: "alert_title_task_save_failed".loc, message: message, actions: [.ok()])
+        await taskHandlingViewController.presentAlertController(title: "alert_title_task_save_failed".loc, message: message, actions: [.ok()])
     }
 }

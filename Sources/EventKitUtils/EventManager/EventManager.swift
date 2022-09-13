@@ -84,14 +84,14 @@ public extension EventManager {
         return fetchEvent(withTaskValue: task.value)
     }
     
-    func toggleCompletion(_ task: TaskKind) async {
+    func toggleCompletion(_ task: TaskKind) async throws {
         guard let taskObject = taskObject(task) else {
             return
         }
         
         taskObject.toggleCompletion()
         
-        try! await saveTask(taskObject)
+        try await saveTask(taskObject)
     }
     
     func saveTask(_ task: TaskKind, savingRecurence: Bool = false, commit: Bool = true) async throws {

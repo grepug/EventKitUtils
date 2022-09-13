@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 
 public class TaskSummaryCardViewModel: ObservableObject {
-    unowned let em: EventManager
+    unowned public let em: EventManager
     unowned let parentVC: UIViewController
     
     @Published var tasks: [TaskValue] = []
@@ -51,7 +51,12 @@ public class TaskSummaryCardViewModel: ObservableObject {
     }
 }
 
-extension TaskSummaryCardViewModel {
+extension TaskSummaryCardViewModel: TaskHandling {
+    public var taskHandlingViewController: UIViewController {
+        parentVC
+    }
+    
+    @MainActor
     func checkTask(_ task: TaskValue) async {
         checkedTaskIds.insert(task.normalizedID)
         
@@ -59,7 +64,9 @@ extension TaskSummaryCardViewModel {
         
         for taskID in checkedTaskIds {
             if let task = tasks.first(where: { $0.normalizedID == taskID }) {
-                await em.toggleCompletion(task)
+                guard await toggleCompletionOrPresentError(task) else {
+                    return
+                }
             }
         }
         

@@ -17,7 +17,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     
     var groupedTasks: TaskGroupsByState = [:]
     @Published var segment: FetchTasksSegmentType
-    unowned let em: EventManager
+    unowned public let em: EventManager
     var taskRepeatingInfo: TaskRepeatingInfo?
     
     var cancellables = Set<AnyCancellable>()
