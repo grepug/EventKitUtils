@@ -10,12 +10,11 @@ import UIKit
 import EventKit
 import EventKitUtils
 import Combine
+import Toast
 
 public class TaskListViewController: DiffableListViewController, ObservableObject {
-    typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
-    typealias TasksByState = [TaskKindState?: [TaskValue]]
-    
     var groupedTasks: TaskGroupsByState = [:]
+    var tasks: [TaskValue] = []
     @Published var segment: FetchTasksSegmentType
     unowned let em: EventManager
     var taskRepeatingInfo: TaskRepeatingInfo?
@@ -127,21 +126,24 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         $segment
             .merge(with: reloadingSubject)
             .merge(with: eventsChangedPublisher)
-            .debounce(for: 0.1, scheduler: RunLoop.main)
-            .dropFirst(2)
-            .prepend(segment)
-            .compactMap { [weak self] segment in
-                self?.fetchTasksPublisher(for: segment)
-            }
-            .switchToLatest()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] groups in
+            .throttle(for: 0.3, scheduler: RunLoop.current, latest: false)
+            .sink { [weak self] _ in
                 guard let self = self else { return }
                 
-                self.groupedTasks = groups
-                self.reload()
+                Task {
+                    self.view.makeToastActivity(.center)
+                    await self.handleReloadList()
+                    self.view.hideToastActivity()
+                }
             }
             .store(in: &cancellables)
+    }
+    
+    func handleReloadList() async {
+        let tasks = await em.fetchTasks(with: fetchingType)
+        groupedTasks = await em.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
+        
+        reload()
     }
 }
 
@@ -158,68 +160,11 @@ extension TaskListViewController {
         return .segment(segment)
     }
     
-    func fetchTasksPublisher(for segment: FetchTasksSegmentType) -> AnyPublisher<TaskGroupsByState, Never> {
-        Future { [weak self] promise in
-            guard let self = self else {
-                promise(.success([]))
-                return
-            }
-            
-            Task {
-                let tasks = await self.em.fetchTasks(with: self.fetchingType)
-                promise(.success(tasks))
-            }
-        }
-        .compactMap { [weak self] in self?.groupTasks($0) }
-        .eraseToAnyPublisher()
-    }
-    
     var eventsChangedPublisher: AnyPublisher<FetchTasksSegmentType, Never> {
         em.cachesReloaded
             .debounce(for: 1, scheduler: RunLoop.current)
             .map { [unowned self] _ in segment }
             .eraseToAnyPublisher()
-    }
-}
-
-extension TaskListViewController {
-    func addToCache(_ state: TaskKindState?, _ task: TaskValue, in cache: inout TasksByState) {
-        if cache[state] == nil {
-            cache[state] = []
-        }
-        
-        cache[state]!.append(task)
-    }
-    
-    func groupTasks(_ tasks: [TaskValue]) -> TaskGroupsByState {
-        var cache: TasksByState = [:]
-        
-        if isRepeatingList {
-            cache[nil] = tasks.sorted()
-            
-            return cache
-        }
-        
-        if segment == .completed {
-            cache[nil] = tasks.filter { $0.isCompleted }
-        } else {
-            for task in tasks {
-                if task.displayInSegment(segment) {
-                    addToCache(task.state, task, in: &cache)
-                }
-            }
-        }
-        
-        var dict: TaskGroupsByState = [:]
-        let countsOfTitleGrouped = tasks.countsOfRepeatingGrouped
-        
-        for (state, tasks) in cache {
-            dict[state] = tasks
-                .sorted(in: state, of: segment)
-                .repeatingMerged(withCountsOfTitleGrouped: countsOfTitleGrouped)
-        }
-        
-        return dict
     }
 }
 

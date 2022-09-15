@@ -142,16 +142,15 @@ extension EventManager {
             }
             
             let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
-            let firstOnlyPredicate = NSPredicate(format: "isFirst == %@", firstOnly as NSNumber)
+            let firstOnlyPredicate = firstOnly ? NSPredicate(format: "isFirst == %@", firstOnly as NSNumber) : nil
             
             switch type {
             case .segment:
                 let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [runIDPredicate, firstOnlyPredicate].compactMap { $0 })
                 let taskValues = CachedTask.fetch(where: predicate)
                     .map(\.value)
-                    .sorted()
                 
-                print("taskvalues", taskValues.count, runID, taskValues.map(\.isFirstRecurrence))
+                print("taskvalues", taskValues.count, runID, taskValues.map(\.normalizedTitle))
                 
                 return taskValues
             case .repeatingInfo(let info):

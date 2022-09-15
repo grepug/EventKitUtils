@@ -40,8 +40,8 @@ public class EventManager {
     let queue = DispatchQueue(label: "com.vision.app.events.manager", qos: .userInteractive)
     
     func setupEventStore() {
-//        NotificationCenter.default.publisher(for: .EKEventStoreChanged)
-        reloadCaches
+        NotificationCenter.default.publisher(for: .EKEventStoreChanged)
+//        reloadCaches
             .receive(on: queue)
 //            .flatMap { _ in self.cacheManager.makeCache() }
             .sink { runID in
@@ -53,6 +53,10 @@ public class EventManager {
                 }
             }
             .store(in: &cancellables)
+        
+        Task {
+            await self.cacheManager.makeCache()
+        }
     }
     
 }
