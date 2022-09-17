@@ -17,9 +17,17 @@ extension TaskListViewController {
 
 extension EventManager {
     func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) async -> TaskGroupsByState {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                let dict = self.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
+        await withCheckedContinuation { [weak self] continuation in
+            guard let self = self else {
+                continuation.resume(returning: [:])
+                return
+            }
+            
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let dict = self?.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList) else {
+                    continuation.resume(returning: [:])
+                    return
+                }
                 continuation.resume(returning: dict)
             }
         }
@@ -33,7 +41,7 @@ extension EventManager {
         cache[state]!.append(task)
     }
     
-    private func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) -> TaskGroupsByState {
+    func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) -> TaskGroupsByState {
         var cache: TasksByState = [:]
         
         if isRepeatingList {

@@ -41,13 +41,10 @@ public class EventManager {
     
     func setupEventStore() {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
-//        reloadCaches
-            .receive(on: queue)
-//            .flatMap { _ in self.cacheManager.makeCache() }
+            .throttle(for: 1, scheduler: queue, latest: false)
             .sink { runID in
                 print("reloaded runID", runID)
-//                self.cachesReloaded.send()
-//                self.cachesReloaded2.send(runID)
+
                 Task {
                     await self.cacheManager.makeCache()
                 }
@@ -62,19 +59,6 @@ public class EventManager {
 }
 
 public extension EventManager {
-//    func nextEvent() async {
-//        await withCheckedContinuation { continuation in
-//            self.cachesReloaded2
-//                .filter { id in id == self.cacheManager.currentRunID }
-//                .prefix(1)
-//                .sink { id in
-//                    print("resumed!!", id, self.cacheManager.currentRunID)
-//                    continuation.resume(returning: ())
-//                }
-//                .store(in: &cancellables)
-//        }
-//    }
-    
     var selectedCalendarIdentifier: String? {
         get { config.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
         set { config.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }

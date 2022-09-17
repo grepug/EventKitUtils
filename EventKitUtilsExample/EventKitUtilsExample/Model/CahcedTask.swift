@@ -7,25 +7,109 @@
 
 import StorageProvider
 import EventKitUtils
+import Foundation
 
 extension CachedTask: SimpleManagedObject {
     
 }
 
-extension CachedTaskRun: SimpleManagedObject {
-    var sortedTasks: [CachedTask] {
-        guard let tasks = tasks as? Set<CachedTask> else {
-            return []
+extension CachedTask: TaskKind, CachedTaskKind {
+    public var normalizedRunID: String {
+        get {
+            runID ?? ""
         }
+        set {
+            runID = newValue
+        }
+    }
+    
+    public var normalizedID: String {
+        idString ?? ""
+    }
+    
+    public var normalizedTitle: String {
+        get {
+            title ?? ""
+        }
+        set(newValue) {
+            title = newValue
+        }
+    }
+    
+    public var normalizedStartDate: Date? {
+        get {
+            startDate
+        }
+        set(newValue) {
+            startDate = newValue
+        }
+    }
+    
+    public var normalizedEndDate: Date? {
+        get {
+            endDate
+        }
+        set(newValue) {
+            endDate = newValue
+        }
+    }
+    
+    public var normalizedIsAllDay: Bool {
+        get {
+            isAllDay
+        }
+        set(newValue) {
+            isAllDay = newValue
+        }
+    }
+    
+    public var premisedIsDateEnabled: Bool? {
+        nil
+    }
+    
+    public var completedAt: Date? {
+        get {
+            completionDate
+        }
+        set(newValue) {
+            completionDate = newValue
+        }
+    }
+    
+    public var keyResultId: String? {
+        get {
+            keyResultID
+        }
+        set(newValue) {
+            keyResultID = newValue
+        }
+    }
+    
+    public var linkedValue: Double? {
+        get {
+            linkedRecordValue
+        }
+        set(newValue) {
+            linkedRecordValue = newValue ?? 0
+        }
+    }
+    
+    public var kindIdentifier: EventKitUtils.TaskKindIdentifier {
+        .managedObject
+    }
+    
+    public var isValueType: Bool {
+        false
+    }
+    
+    public func toggleCompletion() {
         
-        return tasks.map { $0 }
     }
-}
-
-extension CachedTask {
-    var value: TaskValue {
-        .init(normalizedID: idString!, normalizedTitle: title!, normalizedStartDate: startDate, normalizedEndDate: endDate, normalizedIsAllDay: isAllDay, isCompleted: completionDate != nil, completedAt: completionDate, notes: notes ?? "", keyResultId: keyResultID, linkedValue: linkedRecordValue, isFirstRecurrence: isFirst)
+    
+    public func updateVersion() {
+        
     }
+    
     
     func assignedFromTaskValue(_ taskValue: TaskValue) {
         idString = taskValue.normalizedID

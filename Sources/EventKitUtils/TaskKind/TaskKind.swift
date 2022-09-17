@@ -19,7 +19,6 @@ public protocol TaskKind {
     var normalizedEndDate: Date? { get set }
     var normalizedIsAllDay: Bool { get set }
     var premisedIsDateEnabled: Bool? { get }
-    var isCompleted: Bool { get set }
     var completedAt: Date? { get set }
     var notes: String? { get set }
     var keyResultId: String? { get set }
@@ -150,6 +149,10 @@ public extension TaskKind {
         }
     }
     
+    var isCompleted: Bool {
+        completedAt != nil
+    }
+    
     func dateFormatted(endDateOnly: Bool = false) -> String? {
         guard let range = dateRange else {
             return nil
@@ -193,7 +196,6 @@ public extension TaskKind {
         normalizedStartDate = task.normalizedStartDate
         normalizedEndDate = task.normalizedEndDate
         normalizedIsAllDay = task.normalizedIsAllDay
-        isCompleted = task.isCompleted
         completedAt = isCompleted ? task.completedAt : nil
         notes = task.notes
         keyResultId = task.keyResultId

@@ -33,6 +33,7 @@
 		2A5B41A6288D37870089A70D /* StorageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProvider.swift; sourceTree = "<group>"; };
 		2A703F8728993B6200D3C401 /* EventKitUtilsExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EventKitUtilsExample.entitlements; sourceTree = "<group>"; };
 		2A8C586928CC38E40046D873 /* CahcedTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CahcedTask.swift; sourceTree = "<group>"; };
+		2AB4CC7D28D467D70095C206 /* StorageProvider */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StorageProvider; path = ../../StorageProvider; sourceTree = "<group>"; };
 		2AC063D528C8F61A00A915F3 /* TestingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingViewController.swift; sourceTree = "<group>"; };
 		2AC063D928C8FB8500A915F3 /* TestingViweModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingViweModel.swift; sourceTree = "<group>"; };
 		2AD089F32890C69F003002E6 /* EventSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSettings.swift; sourceTree = "<group>"; };
@@ -125,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				2AF5D7622886589D00778D98 /* EventKitUtils */,
+				2AB4CC7D28D467D70095C206 /* StorageProvider */,
 			);
 			name = Packages;
 			sourceTree = "<group>";

@@ -28,16 +28,16 @@ public actor CacheManager {
 
 extension CacheManager {
     public func makeCache() async {
-        Task {
-            await handlers.clean()
+        guard !isPending else {
+            return
         }
         
         isPending = true
         
-        let date = Date()
+        try? await handlers.clean()
+        
         let runID = UUID().uuidString
         
-        await handlers.createRun(id: runID, at: date)
         await makeCacheImpl(runID: runID)
         
         isPending = false
@@ -57,8 +57,7 @@ extension CacheManager {
             print("isFirst!", isFirst)
         }
         
-        await handlers.createTasks(tasks, withRunID: runID)
-        await handlers.setRunState(.completed, withID: runID)
+        try! await handlers.createTasks(tasks, withRunID: runID)
     }
 }
 

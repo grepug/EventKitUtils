@@ -64,6 +64,8 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         em.config.log?(message)
     }
     
+    var isLoading = false
+    
     lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: FetchTasksSegmentType.allCases.map(\.text))
         sc.selectedSegmentIndex = segment.rawValue
@@ -162,7 +164,7 @@ extension TaskListViewController {
     
     var eventsChangedPublisher: AnyPublisher<FetchTasksSegmentType, Never> {
         em.cachesReloaded
-            .debounce(for: 1, scheduler: RunLoop.current)
+            .throttle(for: 1, scheduler: RunLoop.current, latest: false)
             .map { [unowned self] _ in segment }
             .eraseToAnyPublisher()
     }

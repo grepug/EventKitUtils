@@ -37,15 +37,6 @@
       }
     },
     {
-      "identity" : "storageprovider",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/grepug/StorageProvider.git",
-      "state" : {
-        "branch" : "dev_3.3.10",
-        "revision" : "dbbb7b891ac16cdb8d7fad1241c8613a8be5906c"
-      }
-    },
-    {
       "identity" : "swift-collections",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",

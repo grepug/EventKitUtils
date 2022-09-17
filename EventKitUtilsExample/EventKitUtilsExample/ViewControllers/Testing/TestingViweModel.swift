@@ -20,9 +20,9 @@ class TestingViweModel {
     
     @MainActor
     func run() async {
-        await deleteAllCalendarEvents()
+//        await deleteAllCalendarEvents()
         
-        try! await Task.delayed(byTimeInterval: 3) {
+//        try! await Task.delayed(byTimeInterval: 3) {
 //            await self.createNeverEndRepeatTask(info: self.repeatInfo)
 //            await self.testUniqueness()
 //            await self.testDeleteFirstAndFuture()
@@ -32,8 +32,8 @@ class TestingViweModel {
 //            await self.testDeleteSecond()
             
             await self.createTenRepeatEvents()
-            await self.testIsTenUniqueEvents()
-        }.value
+//            await self.testIsTenUniqueEvents()
+//        }.value
     }
 }
 
