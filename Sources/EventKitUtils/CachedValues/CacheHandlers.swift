@@ -15,16 +15,8 @@ public protocol CacheHandlers {
 }
 
 extension CacheHandlers {
-    func currentRunID() async -> String? {
-        let context = cachedTaskKind.newBackgroundContext()
-        
-        return try? await cachedTaskKind.fetch(where: nil, sortedBy: [
-                NSSortDescriptor(key: "createdAt", ascending: false)
-            ], fetchLimit: 1, context: context).first?.normalizedRunID
-    }
-    
     func fetchTaskValues(by type: EventKitUtils.FetchTasksType, firstOnly: Bool) async -> [EventKitUtils.TaskValue] {
-        guard let runID = await currentRunID() else {
+        guard let runID = await currentRunID else {
             return []
         }
         
@@ -34,18 +26,9 @@ extension CacheHandlers {
         switch type {
         case .segment:
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [runIDPredicate, firstOnlyPredicate].compactMap { $0 })
-            let context = cachedTaskKind.newBackgroundContext()
             
-            return await context.performAsync {
-                let request = cachedTaskKind.fetchRequest()
-                request.predicate = predicate
-                    
-                let tasks = try! context.fetch(request) as! [CachedTaskKind]
-                let taskValues = tasks.map(\.value)
-
-                print("taskvalues", taskValues.count, runID)
-                
-                return taskValues
+            return try! await cachedTaskKind.fetch(where: predicate) { objects in
+                objects.map(\.value)
             }
         case .repeatingInfo(let info):
             let predicate1 = NSPredicate(format: "title == %@ && keyResultID == %@",
@@ -53,16 +36,8 @@ extension CacheHandlers {
                                          (info.keyResultID ?? "") as CVarArg)
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1, runIDPredicate].compactMap { $0 })
             
-            let context = cachedTaskKind.newBackgroundContext()
-            
-            return await context.performAsync {
-                let request = cachedTaskKind.fetchRequest()
-                request.predicate = predicate
-                    
-                let tasks = try! context.fetch(request) as! [CachedTaskKind]
-                let taskValues = tasks.map(\.value)
-                
-                return taskValues
+            return try! await cachedTaskKind.fetch(where: predicate) { objects in
+                objects.map(\.value)
             }
         default:
             return []
@@ -71,32 +46,6 @@ extension CacheHandlers {
 }
 
 extension CacheHandlers {
-    private func batchInsert(taskValues: [TaskValue], runID: String) -> NSBatchInsertRequest {
-        let count = taskValues.count
-        var index = 0
-        let current = Date()
-        
-        return NSBatchInsertRequest(entity: cachedTaskKind.entity(),
-                                    managedObjectHandler: { object in
-            guard index < count else {
-                return true
-            }
-            
-            guard var task = object as? CachedTaskKind else {
-                return true
-            }
-            
-            task.assignFromTaskKind(taskValues[index])
-            task.normalizedRunID = runID
-            task.createdAt = current
-            task.updatedAt = current
-            
-            index += 1
-            
-            return false
-        })
-    }
-    
     func createTasks(_ taskValues: [TaskValue], withRunID runID: String) async throws {
         try await withCheckedThrowingContinuation { continuation in
             persistentContainer.performBackgroundTask { context in
@@ -140,26 +89,40 @@ extension CacheHandlers {
     }
 }
 
-extension NSManagedObjectContext {
-    func perform<T>(action: @escaping () throws -> T) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            self.perform {
-                do {
-                    let result = try action()
-                    continuation.resume(returning: result)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+private extension CacheHandlers {
+    var currentRunID: String? {
+        get async {
+            try? await cachedTaskKind.fetch(where: nil, sortedBy: [
+                NSSortDescriptor(key: "createdAt", ascending: false)
+            ], fetchLimit: 1) { objects in
+                objects.first?.normalizedRunID
             }
         }
     }
     
-    func performAsync<T>(_ action: @escaping () -> T) async -> T {
-        await withCheckedContinuation { continuation in
-            self.perform {
-                let result = action()
-                continuation.resume(returning: result)
+    func batchInsert(taskValues: [TaskValue], runID: String) -> NSBatchInsertRequest {
+        let count = taskValues.count
+        var index = 0
+        let current = Date()
+        
+        return NSBatchInsertRequest(entity: cachedTaskKind.entity(),
+                                    managedObjectHandler: { object in
+            guard index < count else {
+                return true
             }
-        }
+            
+            guard var task = object as? CachedTaskKind else {
+                return true
+            }
+            
+            task.assignFromTaskKind(taskValues[index])
+            task.normalizedRunID = runID
+            task.createdAt = current
+            task.updatedAt = current
+            
+            index += 1
+            
+            return false
+        })
     }
 }

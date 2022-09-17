@@ -53,8 +53,6 @@ extension CacheManager {
             var task = event.value
             task.isFirstRecurrence = isFirst
             tasks.append(task)
-            
-            print("isFirst!", isFirst)
         }
         
         try! await handlers.createTasks(tasks, withRunID: runID)

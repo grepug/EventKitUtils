@@ -50,10 +50,6 @@ public class EventManager {
                 }
             }
             .store(in: &cancellables)
-        
-        Task {
-            await self.cacheManager.makeCache()
-        }
     }
     
 }
@@ -167,13 +163,17 @@ public extension EventManager {
     }
     
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, onlyFirst: Bool = false) async -> [TaskValue] {
+        guard await cacheManager.isPending == false else {
+            return []
+        }
+        
         var returningFirst = false
         
         var tasks = await withCheckedContinuation { continuation in
             config.fetchNonEventTasks(type) { tasks in
                 if onlyFirst, let first = tasks.first {
-                    continuation.resume(returning: [first])
                     returningFirst = true
+                    continuation.resume(returning: [first])
                     return
                 }
                 

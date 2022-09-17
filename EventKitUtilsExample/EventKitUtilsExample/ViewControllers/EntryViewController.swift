@@ -80,24 +80,25 @@ extension EventManager {
         .init(eventBaseURL: .init(string: "https://okr.vision/a")!) {
             nil
         } fetchNonEventTasks: { type, handler in
-            let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
-            
-            context.perform {
-                var predicate: NSPredicate? = nil
-                
-                switch type {
-                case .segment, .recordValue:
-                    break
-                case .repeatingInfo(let info):
-                    break
-                    //                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
-                case .taskID(_):
-                    break
-                }
-                
-                let missions = Mission.fetch(where: predicate, context: context)
-                handler(missions.map(\.value))
-            }
+            handler([])
+//            let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
+//            
+//            context.perform {
+//                var predicate: NSPredicate? = nil
+//                
+//                switch type {
+//                case .segment, .recordValue:
+//                    break
+//                case .repeatingInfo(let info):
+//                    break
+//                    //                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
+//                case .taskID(_):
+//                    break
+//                }
+//                
+//                let missions = Mission.fetch(where: predicate, context: context)
+//                handler(missions.map(\.value))
+//            }
             
         } createNonEventTask: {
             let mission = Mission.initWithViewContext()
