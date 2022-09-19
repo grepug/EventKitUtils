@@ -117,10 +117,11 @@ extension TaskSummaryCardViewModel {
         parentVC.navigationController?.pushViewController(vc, animated: true)
     }
     
-    func presentTaskEditor(task: TaskValue? = nil) {
-        let task = em.fetchOrCreateTaskObject(from: task)
+    @MainActor
+    func presentTaskEditor(task: TaskValue? = nil) async {
+        let task = await em.fetchOrCreateTaskObject(from: task)?.value
         
-        let vc = em.makeTaskEditorViewController(task: task) { [weak self] shouldOpenTaskList in
+        let vc = await em.makeTaskEditorViewController(task: task) { [weak self] shouldOpenTaskList in
             guard shouldOpenTaskList else {
                 return
             }

@@ -65,7 +65,9 @@ public struct TaskSummaryCard: View {
             Spacer()
             
             Button {
-                vm.presentTaskEditor()
+                Task {
+                    await vm.presentTaskEditor()
+                }
             } label: {
                 Label("v3_task_create_task".loc, systemImage: "plus.circle")
                     .font(.subheadline)
@@ -92,21 +94,25 @@ public struct TaskSummaryCard: View {
                      hidingKRInfo: true) {
             await vm.checkTask(task)
         } presentEditor: {
-            vm.presentTaskEditor(task: task)
+            Task {
+                await vm.presentTaskEditor(task: task)
+            }
         }
         .padding(.top, 12)
         .background(Color(UIColor { $0.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground }))
         .contextMenu {
-            if vm.em.testHasRepeatingTasks(with: task.repeatingInfo) {
-                Button("view_repeat_tasks".loc) {
-                    vm.presentRepeatTasks(for: task)
-                }
-                
-                Divider()
-            }
+//            if vm.em.testHasRepeatingTasks(with: task.repeatingInfo) {
+//                Button("view_repeat_tasks".loc) {
+//                    vm.presentRepeatTasks(for: task)
+//                }
+//                
+//                Divider()
+//            }
             
             Button {
-                vm.presentTaskEditor(task: task)
+                Task {
+                    await vm.presentTaskEditor(task: task)
+                }
             } label: {
                 Label("action_edit".loc, systemImage: "pencil")
             }

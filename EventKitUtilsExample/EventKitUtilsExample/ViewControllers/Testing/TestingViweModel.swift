@@ -39,7 +39,7 @@ class TestingViweModel {
 
 private extension TestingViweModel {
     func fetchEvents() async -> [EKEvent] {
-        let config = em.config
+        let config = em.configuration
         
         return em.eventStore.events(matching: em.eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound, end: config.eventRequestRange.upperBound, calendars: [em.eventStore.defaultCalendarForNewEvents!]))
     }
@@ -58,7 +58,7 @@ private extension TestingViweModel {
     
     func createNeverEndRepeatTask(info: TaskRepeatingInfo, startDate: Date = Date()) async {
         var task = TaskValue(normalizedTitle: info.title)
-        var event = EKEvent(baseURL: em.config.eventBaseURL, eventStore: em.eventStore)
+        var event = EKEvent(baseURL: em.configuration.eventBaseURL, eventStore: em.eventStore)
         let rule = EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
         
         task.keyResultId = info.keyResultID

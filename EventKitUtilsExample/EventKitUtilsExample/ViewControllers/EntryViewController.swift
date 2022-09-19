@@ -76,52 +76,8 @@ class EntryViewController: DiffableListViewController {
 
 
 extension EventManager {
-    private static var taskConfig: TaskConfig {
-        .init(eventBaseURL: .init(string: "https://okr.vision/a")!) {
-            nil
-        } fetchNonEventTasks: { type, handler in
-            handler([])
-//            let context = StorageProvider.shared.persistentContainer.newBackgroundContext()
-//            
-//            context.perform {
-//                var predicate: NSPredicate? = nil
-//                
-//                switch type {
-//                case .segment, .recordValue:
-//                    break
-//                case .repeatingInfo(let info):
-//                    break
-//                    //                    predicate = NSPredicate(format: "title = %@", title as CVarArg)
-//                case .taskID(_):
-//                    break
-//                }
-//                
-//                let missions = Mission.fetch(where: predicate, context: context)
-//                handler(missions.map(\.value))
-//            }
-            
-        } createNonEventTask: {
-            let mission = Mission.initWithViewContext()
-            
-            return mission
-        } taskById: { id in
-            guard let uuid = UUID(uuidString: id) else {
-                return nil
-            }
-            
-            return Mission.fetch(byId: uuid)
-        } taskCountWithRepeatingInfo: { task in
-            0
-        } saveTask: { taskValue in
-            
-        } deleteTaskByID: { id in
-            
-        } fetchKeyResultInfo: { _ in
-            nil
-        }
-    }
-    
-    static let shared = EventManager(config: EventManager.taskConfig,
+    static let shared = EventManager(configuration: MyEventConfiguration(),
+                                     uiConfiguration: MyEventUIConfiguration(),
                                      cacheHandlers: MyCacheHandlers())
 }
 
@@ -133,6 +89,85 @@ extension EventManager {
         
         var cachedTaskKind: CachedTaskKind.Type {
             CachedTask.self
+        }
+    }
+    
+    struct MyEventConfiguration: EventConfiguration {
+        var eventBaseURL: URL {
+            .init(string: "https://okr.vision/a")!
+        }
+        
+        var appGroupIdentifier: String? {
+            nil
+        }
+        
+        var maxNonProLimit: Int? {
+            nil
+        }
+        
+        var eventRequestRange: Range<Date> {
+            let current = Date()
+            let start = Calendar.current.date(byAdding: .year, value: -1, to: current)!
+            let end = Calendar.current.date(byAdding: .year, value: 1, to: current)!
+            
+            return start..<end
+        }
+        
+        func fetchTaskCount(with repeatingInfo: EventKitUtils.TaskRepeatingInfo) async -> Int? {
+            nil
+        }
+        
+        func fetchNonEventTasks(type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
+            []
+        }
+        
+        func createNonEventTask() async -> EventKitUtils.TaskValue {
+            let context = Mission.newBackgroundContext()
+            
+            return await withCheckedContinuation { continuation in
+                let mission = Mission.initWithViewContext(context)
+                continuation.resume(returning: mission.value)
+            }
+        }
+        
+        func fetchTask(byID id: String) async -> EventKitUtils.TaskValue? {
+            nil
+        }
+        
+        func saveTask(_ taskValue: EventKitUtils.TaskValue) async {
+            
+        }
+        
+        func deleteTask(byID id: String) async {
+            
+        }
+        
+        func fetchKeyResultInfo(byID id: String) async -> EventKitUtils.KeyResultInfo? {
+            nil
+        }
+        
+        
+    }
+    
+    struct MyEventUIConfiguration: EventUIConfiguration {
+        func presentNonProErrorAlert() {
+            
+        }
+        
+        func makeKeyResultSelector(completion: @escaping (String) -> Void) -> UIViewController {
+            .init()
+        }
+        
+        func makeKeyResultDetail(byID id: String) -> UIViewController? {
+            nil
+        }
+        
+        func log(_ message: String) {
+            
+        }
+        
+        func logError(_ error: Error) {
+            
         }
     }
 }

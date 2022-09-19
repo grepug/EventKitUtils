@@ -10,16 +10,17 @@ import Combine
 import EventKit
 
 public actor CacheManager {
-    init(eventStore: EKEventStore, config: TaskConfig, handlers: CacheHandlers, currentRunID: String? = nil, uniquedIDs: Set<String> = []) {
+    init(eventStore: EKEventStore, eventConfiguration: EventConfiguration, handlers: CacheHandlers, currentRunID: String? = nil, uniquedIDs: Set<String> = [], isPending: Bool = false) {
         self.eventStore = eventStore
-        self.config = config
+        self.eventConfiguration = eventConfiguration
         self.handlers = handlers
         self.currentRunID = currentRunID
         self.uniquedIDs = uniquedIDs
+        self.isPending = isPending
     }
     
     var eventStore: EKEventStore
-    var config: TaskConfig
+    var eventConfiguration: EventConfiguration
     var handlers: CacheHandlers
     var currentRunID: String?
     var uniquedIDs: Set<String> = []
@@ -63,8 +64,8 @@ extension CacheManager {
     func eventsPredicate() -> NSPredicate {
         let eventStore = EKEventStore()
         let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
-        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
-                                                      end: config.eventRequestRange.upperBound,
+        let predicate = eventStore.predicateForEvents(withStart: eventConfiguration.eventRequestRange.lowerBound,
+                                                      end: eventConfiguration.eventRequestRange.upperBound,
                                                       calendars: calendars)
         
         return predicate
@@ -92,14 +93,14 @@ extension CacheManager {
         var exceededNonProLimit = false
         
         let predicate = precidate ?? eventsPredicate()
-        let config = config
+        let config = eventConfiguration
         
         eventStore.enumerateEvents(matching: predicate) { event, pointer in
             guard event.url?.host == config.eventBaseURL.host else {
                 return
             }
             
-            if let nonProLimit = config.maxNonProLimit() {
+            if let nonProLimit = config.maxNonProLimit {
                 if !exceededNonProLimit {
                     enumeratedRepeatingInfoSet.insert(event.repeatingInfo)
                 }

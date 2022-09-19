@@ -11,7 +11,8 @@ import Combine
 import UIKit
 
 public class EventManager {
-    public let config: TaskConfig
+    public let configuration: EventConfiguration
+    public let uiConfiguration: EventUIConfiguration?
     public var cacheManager: CacheManager
     
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
@@ -27,11 +28,13 @@ public class EventManager {
     public var eventStore: EKEventStore
     var cancellables = Set<AnyCancellable>()
     
-    public init(config: TaskConfig, cacheHandlers: CacheHandlers) {
-        self.config = config
+    public init(configuration: EventConfiguration, uiConfiguration: EventUIConfiguration, cacheHandlers: CacheHandlers) {
+        self.configuration = configuration
+        self.uiConfiguration = uiConfiguration
         self.eventStore = .init()
+        
         self.cacheManager = .init(eventStore: eventStore,
-                                  config: config,
+                                  eventConfiguration: configuration,
                                   handlers: cacheHandlers)
         
         setupEventStore()
@@ -56,8 +59,8 @@ public class EventManager {
 
 public extension EventManager {
     var selectedCalendarIdentifier: String? {
-        get { config.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
-        set { config.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
+        get { configuration.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
+        set { configuration.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
     }
     
     var defaultCalendarToSaveEvents: EKCalendar? {
@@ -75,8 +78,8 @@ public extension EventManager {
 }
 
 public extension EventManager {
-    func taskObject(_ task: TaskKind) -> TaskKind? {
-        if let task = config.taskById(task.normalizedID) {
+    func taskObject(_ task: TaskKind) async -> TaskKind? {
+        if let task = await configuration.fetchTask(byID: task.normalizedID) {
             return task
         }
         
@@ -84,7 +87,7 @@ public extension EventManager {
     }
     
     func toggleCompletion(_ task: TaskKind) async {
-        guard let taskObject = taskObject(task) else {
+        guard let taskObject = await taskObject(task) else {
             return
         }
         
@@ -94,26 +97,26 @@ public extension EventManager {
     }
     
     func saveTask(_ task: TaskKind, savingRecurence: Bool = false, commit: Bool = true) async throws {
-        if task.isValueType, let task = taskObject(task) {
+        if task.isValueType, let task = await taskObject(task) {
             try await saveTask(task)
         } else if let event = task as? EKEvent {
             try eventStore.save(event, span: savingRecurence ? .futureEvents : .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            await config.saveTask(task.value)
+            await configuration.saveTask(task.value)
         } else {
             assertionFailure("no such task")
         }
     }
     
     func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false, commit: Bool = true) async {
-        if task.isValueType, let task = taskObject(task) {
+        if task.isValueType, let task = await taskObject(task) {
             await deleteTask(task, deletingRecurence: deletingRecurence)
         } else if let event = task as? EKEvent {
             try! eventStore.remove(event,
                                    span: deletingRecurence ? .futureEvents : .thisEvent,
                                    commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            await config.deleteTaskByID(task.normalizedID)
+            await configuration.deleteTask(byID: task.normalizedID)
         }
     }
     
@@ -137,8 +140,10 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func testHasRepeatingTasks(with repeatingInfo: TaskRepeatingInfo) -> Bool {
-        let count = config.taskCountWithRepeatingInfo(repeatingInfo)
+    func testHasRepeatingTasks(with repeatingInfo: TaskRepeatingInfo) async -> Bool {
+        guard let count = await configuration.fetchTaskCount(with: repeatingInfo) else {
+            return false
+        }
         
         if count > 1 {
             return true
@@ -168,17 +173,11 @@ public extension EventManager {
         }
         
         var returningFirst = false
+        var tasks = await configuration.fetchNonEventTasks(type: type)
         
-        var tasks = await withCheckedContinuation { continuation in
-            config.fetchNonEventTasks(type) { tasks in
-                if onlyFirst, let first = tasks.first {
-                    returningFirst = true
-                    continuation.resume(returning: [first])
-                    return
-                }
-                
-                continuation.resume(returning: tasks)
-            }
+        if onlyFirst, let first = tasks.first {
+            returningFirst = true
+            return [first]
         }
         
         if returningFirst {
@@ -190,7 +189,7 @@ public extension EventManager {
         if fetchingKRInfo {
             for (index, task) in tasks.enumerated() {
                 if let krId = task.keyResultId {
-                    let krInfo = await config.fetchKeyResultInfo(krId)
+                    let krInfo = await configuration.fetchKeyResultInfo(byID: krId)
                     tasks[index].keyResultInfo = krInfo
                 }
             }
@@ -204,7 +203,7 @@ public extension EventManager {
     }
     
     func checkIfExceedsNonProLimit() -> Bool {
-        guard !config.isPro else {
+        guard !configuration.isPro else {
             return false
         }
             
@@ -213,12 +212,12 @@ public extension EventManager {
     }
     
     
-    func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) -> TaskKind? {
+    func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) async -> TaskKind? {
         if let task = taskValue {
-            return self.taskObject(task)
+            return await self.taskObject(task)
         }
         
-        var taskObject = config.createNonEventTask()
+        var taskObject = await configuration.createNonEventTask()
         taskObject.isDateEnabled = true
         
         return taskObject
@@ -228,7 +227,7 @@ public extension EventManager {
         var afterTasks: [TaskKind] = []
         
         for task in tasks {
-            var taskObject = taskObject(task)!
+            var taskObject = await taskObject(task)!
             taskObject.postpone()
             afterTasks.append(taskObject)
             
@@ -246,8 +245,8 @@ public extension EventManager {
 extension EventManager {
     func eventsPredicate() -> NSPredicate {
         let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
-        let predicate = eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound,
-                                                      end: config.eventRequestRange.upperBound,
+        let predicate = eventStore.predicateForEvents(withStart: configuration.eventRequestRange.lowerBound,
+                                                      end: configuration.eventRequestRange.upperBound,
                                                       calendars: calendars)
         
         return predicate
@@ -274,9 +273,9 @@ extension EventManager {
     }
 }
 
-fileprivate extension TaskConfig {
+fileprivate extension EventConfiguration {
     var userDefaults: UserDefaults {
-        if let appGroup = appGroup,
+        if let appGroup = appGroupIdentifier,
         let userDefaults = UserDefaults(suiteName: appGroup) {
             return userDefaults
         }

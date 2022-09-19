@@ -52,7 +52,7 @@ public struct TaskActionMenuProvider {
         if !hidingOpenKR && isContextMenu, let krId = task.keyResultId {
             MBGroup {
                 MBButton("action_view_kr".loc) {
-                    guard let krDetail = em.config.makeKeyResultDetail!(krId) else {
+                    guard let krDetail = em.uiConfiguration?.makeKeyResultDetail(byID: krId) else {
                         return
                     }
                     
@@ -61,7 +61,8 @@ public struct TaskActionMenuProvider {
             }
         }
         
-        if !hidingShowingRepeatTasks && isContextMenu && em.testHasRepeatingTasks(with: repeatingInfo) {
+//        em.testHasRepeatingTasks(with: repeatingInfo)
+        if !hidingShowingRepeatTasks && isContextMenu {
             MBGroup {
                 MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) {
                     guard let listView = listView else {

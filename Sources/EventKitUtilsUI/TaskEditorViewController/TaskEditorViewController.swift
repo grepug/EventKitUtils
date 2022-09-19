@@ -16,15 +16,17 @@ import Combine
 import UIKitUtils
 
 public class TaskEditorViewController: DiffableListViewController {
-    var task: TaskKind! {
-        willSet {
-            if let managedObject = newValue as? NSManagedObject {
-                if managedObject.managedObjectContext?.concurrencyType != .mainQueueConcurrencyType {
-                    fatalError("managed task object in editor should be in main queue type")
-                }
-            }
-        }
-    }
+//    var task: TaskKind! {
+//        willSet {
+//            if let managedObject = newValue as? NSManagedObject {
+//                if managedObject.managedObjectContext?.concurrencyType != .mainQueueConcurrencyType {
+//                    fatalError("managed task object in editor should be in main queue type")
+//                }
+//            }
+//        }
+//    }
+    
+    var task: TaskValue!
 
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
@@ -34,8 +36,8 @@ public class TaskEditorViewController: DiffableListViewController {
     
     public var onDismiss: ((Bool) -> Void)?
     
-    public init(task: TaskKind, eventManager: EventManager) {
-        self.task = task.isValueType ? eventManager.taskObject(task) : task
+    public init(task: TaskValue, eventManager: EventManager) {
+        self.task = task
         self.em = eventManager
         self.originalTaskValue = task.value
         
@@ -50,8 +52,12 @@ public class TaskEditorViewController: DiffableListViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var config: TaskConfig {
-        em.config
+    var config: EventConfiguration {
+        em.configuration
+    }
+    
+    var uiConfig: EventUIConfiguration {
+        em.uiConfiguration!
     }
     
     var eventStore: EKEventStore {
@@ -131,7 +137,7 @@ public class TaskEditorViewController: DiffableListViewController {
             return
         }
         
-        keyResultInfo = await em.config.fetchKeyResultInfo(id)
+        keyResultInfo = await config.fetchKeyResultInfo(byID: id)
     }
 }
 
@@ -190,7 +196,7 @@ extension TaskEditorViewController: TaskHandling {
             let uniquedTasks = ([currentTask] + tasks).uniquedById
             
             for task in uniquedTasks {
-                var taskObject = em.taskObject(task)!
+                var taskObject = await em.taskObject(task)!
                 
                 taskObject.assignAsRepeatingTask(from: currentTask)
                 savingTaskObjects.append(taskObject)
@@ -270,7 +276,7 @@ extension TaskEditorViewController: TaskHandling {
 
 private extension TaskEditorViewController {
     func log(_ msg: String) {
-        em.config.log?(msg + " at TaskEditorViewController")
+        uiConfig.log(msg + " at TaskEditorViewController")
     }
     
     func setupDoneButton() {
@@ -321,8 +327,16 @@ private extension TaskEditorViewController {
 }
 
 public extension EventManager {
-    func makeTaskEditorViewController(task: TaskKind? = nil, onDismiss: ((Bool) -> Void)? = nil) -> UIViewController {
-        let task = task ?? fetchOrCreateTaskObject()!
+    @MainActor
+    func makeTaskEditorViewController(task _task: TaskValue? = nil, onDismiss: ((Bool) -> Void)? = nil) async -> UIViewController {
+        let task: TaskValue
+        
+        if let _task {
+            task = _task
+        } else {
+            task = await fetchOrCreateTaskObject()!.value
+        }
+        
         let vc = TaskEditorViewController(task: task, eventManager: self)
         let navVC = UINavigationController(rootViewController: vc)
         

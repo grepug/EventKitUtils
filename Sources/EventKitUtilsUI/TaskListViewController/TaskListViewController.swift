@@ -61,7 +61,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     }
     
     public override func log(message: String) {
-        em.config.log?(message)
+        em.uiConfiguration?.log(message)
     }
     
     var isLoading = false
@@ -85,7 +85,9 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         let image = UIImage(systemName: "plus")?.withConfiguration(symbolConfiguration)
         button.setImage(image, for: .normal)
         button.addAction(.init { [unowned self] _ in
-            presentTaskEditor()
+            Task {
+                await self.presentTaskEditor()
+            }
         }, for: .touchUpInside)
         
         return button
@@ -186,10 +188,8 @@ extension TaskListViewController {
         }
     }
     
-    func presentTaskEditor(task: TaskValue? = nil) {
-        let taskObject = em.fetchOrCreateTaskObject(from: task)
-        
-        let vc = em.makeTaskEditorViewController(task: taskObject) { [weak self] _ in
+    func presentTaskEditor(task: TaskValue? = nil) async {
+        let vc = await em.makeTaskEditorViewController(task: task) { [weak self] _ in
             self?.reloadList()
         }
         

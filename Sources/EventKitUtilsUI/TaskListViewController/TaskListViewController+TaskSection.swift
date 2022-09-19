@@ -33,7 +33,9 @@ extension TaskListViewController {
                         await em.toggleCompletion(task)
                         reloadList()
                     } presentEditor: { [unowned self] in
-                        presentTaskEditor(task: task)
+                        Task {
+                            await self.presentTaskEditor(task: task)
+                        }
                     }
                 }))
                 .tag(task.cellTag)
@@ -99,7 +101,9 @@ extension TaskListViewController {
                                eventManager: em,
                                diffableListVC: { [weak self] in self },
                                hidingShowingRepeatTasks: isRepeatingList) { [weak self] in
-            self?.presentTaskEditor(task: task)
+            Task {
+                await self?.presentTaskEditor(task: task)
+            }
         } manuallyRemoveThisTaskSinceItIsTheLastOne: { [weak self] in
             self?.removeTask(task)
         } afterDeletion: { [weak self] in

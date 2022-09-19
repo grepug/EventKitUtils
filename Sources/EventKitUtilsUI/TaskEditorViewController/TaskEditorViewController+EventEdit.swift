@@ -24,12 +24,12 @@ extension TaskEditorViewController {
     
     @MainActor
     func convertToEvent() async {
-        view.endEditing(true)
+        _ = view.endEditing(true)
         
         try! await Task.sleep(nanoseconds: 50_000_000)
         
         guard !em.checkIfExceedsNonProLimit() else {
-            config.presentNonProErrorAlert?({ [weak self] in self })
+            uiConfig.presentNonProErrorAlert()
             return
         }
         
@@ -59,7 +59,7 @@ extension TaskEditorViewController {
         await em.deleteTask(task)
         await saveTaskAndPresentErrorAlert(event)
         originalTaskValue = event.value
-        task = event
+        task = event.value
         
         try! await Task.sleep(nanoseconds: 200_000_000)
     }
