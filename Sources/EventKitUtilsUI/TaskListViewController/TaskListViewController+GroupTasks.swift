@@ -33,7 +33,9 @@ extension EventManager {
         }
     }
     
-    private func addToCache(_ state: TaskKindState?, _ task: TaskValue, in cache: inout TasksByState) {
+    private func addToCache(_ task: TaskValue, in cache: inout TasksByState) {
+        let state = task.state
+        
         if cache[state] == nil {
             cache[state] = []
         }
@@ -41,7 +43,7 @@ extension EventManager {
         cache[state]!.append(task)
     }
     
-    func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) -> TaskGroupsByState {
+    private func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) -> TaskGroupsByState {
         var cache: TasksByState = [:]
         
         if isRepeatingList {
@@ -55,18 +57,17 @@ extension EventManager {
         } else {
             for task in tasks {
                 if task.displayInSegment(segment) {
-                    addToCache(task.state, task, in: &cache)
+                    addToCache(task, in: &cache)
                 }
             }
         }
         
         var dict: TaskGroupsByState = [:]
-        let countsOfTitleGrouped = tasks.countsOfRepeatingGrouped
         
         for (state, tasks) in cache {
             dict[state] = tasks
                 .sorted(in: state, of: segment)
-                .repeatingMerged(withCountsOfTitleGrouped: countsOfTitleGrouped)
+                .repeatingMerged()
         }
         
         return dict

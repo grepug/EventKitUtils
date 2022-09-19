@@ -83,6 +83,10 @@ extension EventManager {
 
 extension EventManager {
     struct MyCacheHandlers: CacheHandlers {
+        var stateNSExpression: NSExpression {
+            .init(forKeyPath: \CachedTask.state_)
+        }
+        
         var persistentContainer: NSPersistentContainer {
             StorageProvider.shared.persistentContainer
         }
@@ -90,9 +94,21 @@ extension EventManager {
         var cachedTaskKind: CachedTaskKind.Type {
             CachedTask.self
         }
+        
+        var completionDateNSExpression: NSExpression {
+            .init(forKeyPath: \CachedTask.completionDate)
+        }
+        
+        var prefixNSExpression: NSExpression {
+            .init(forKeyPath: \CachedTask.order_)
+        }
     }
     
     struct MyEventConfiguration: EventConfiguration {
+        func fetchNonEventTasks(type: EventKitUtils.FetchTasksType, prefix: Int?) async -> [EventKitUtils.TaskValue] {
+            []
+        }
+        
         var eventBaseURL: URL {
             .init(string: "https://okr.vision/a")!
         }
@@ -115,10 +131,6 @@ extension EventManager {
         
         func fetchTaskCount(with repeatingInfo: EventKitUtils.TaskRepeatingInfo) async -> Int? {
             nil
-        }
-        
-        func fetchNonEventTasks(type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
-            []
         }
         
         func createNonEventTask() async -> EventKitUtils.TaskValue {

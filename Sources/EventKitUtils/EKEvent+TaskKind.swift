@@ -8,6 +8,11 @@
 import EventKit
 
 extension EKEvent: TaskKind {
+    public var repeatingCount: Int? {
+        get { nil }
+        set {}
+    }
+    
     public var kindIdentifier: TaskKindIdentifier {
         .event
     }

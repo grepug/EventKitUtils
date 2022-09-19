@@ -73,34 +73,34 @@ private extension TestingViweModel {
     }
     
     func testUniqueness() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: true)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), prefix: 1)
         assert(tasks.count == 1)
         
-        let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: false)
+        let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
         assert(tasks2.uniqued(by: \.normalizedID).count == 1)
     }
     
     func testDeleteFirstAndFuture() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: true)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), prefix: 1)
         assert(tasks.count == 1)
 
         await em.deleteTasks(tasks)
         
         try! await Task.delayed(byTimeInterval: 3) {
-            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo), onlyFirst: true)
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo), prefix: 1)
             assert(tasks.isEmpty)
         }.value
     }
     
     func testDeleteSecond() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), onlyFirst: false)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
         assert(tasks.count >= 360)
         
         let dropped = Array(tasks.dropFirst())
         await em.deleteTasks(dropped)
         
         try! await Task.delayed(byTimeInterval: 3) {
-            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo), onlyFirst: false)
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo))
             assert(tasks.count == 1)
         }.value
     }
@@ -138,7 +138,7 @@ extension TestingViweModel {
         }
         
         if await em.cacheManager.isPending == false {
-            let tasks = await self.em.fetchTasks(with: .segment(.incompleted), onlyFirst: true)
+            let tasks = await self.em.fetchTasks(with: .segment(.incompleted), prefix: 1)
             assert(tasks.count == 100)
         }
     }

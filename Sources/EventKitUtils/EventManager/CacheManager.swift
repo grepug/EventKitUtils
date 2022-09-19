@@ -30,6 +30,7 @@ public actor CacheManager {
 extension CacheManager {
     public func makeCache() async {
         guard !isPending else {
+            print("isPending!!!")
             return
         }
         
@@ -45,15 +46,21 @@ extension CacheManager {
     }
     
     private func makeCacheImpl(runID: String) async {
-        var tasks: [TaskValue] = []
-        var uniquedIDs: Set<String> = []
+        var tasks: CacheHandlersTaskValuesDict = [:]
         
         enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
-            let isFirst = !uniquedIDs.contains(event.normalizedID)
-            uniquedIDs.insert(event.normalizedID)
-            var task = event.value
-            task.isFirstRecurrence = isFirst
-            tasks.append(task)
+            let id = event.normalizedID
+            let state = event.state
+            
+            if tasks[id] == nil {
+                tasks[id] = [:]
+            }
+            
+            if tasks[id]![state] == nil {
+                tasks[id]![state] = []
+            }
+            
+            tasks[id]![state]!.append(event.value)
         }
         
         try! await handlers.createTasks(tasks, withRunID: runID)

@@ -10,6 +10,15 @@ import EventKitUtils
 import StorageProvider
 
 extension Mission: SimpleManagedObject, TaskKind {
+    public var repeatingCount: Int? {
+        get {
+            nil
+        }
+        set(newValue) {
+            
+        }
+    }
+    
     public var normalizedIsAllDay: Bool {
         get {
             isAllDay

@@ -144,7 +144,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     }
     
     func handleReloadList() async {
-        let tasks = await em.fetchTasks(with: fetchingType)
+        let tasks = await em.fetchTasks(with: fetchingType, prefix: segment.prefix)
         groupedTasks = await em.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
         
         reload()
@@ -200,5 +200,15 @@ extension TaskListViewController {
 extension Date {
     var startOfDay: Self {
         Calendar.current.startOfDay(for: self)
+    }
+}
+
+extension FetchTasksSegmentType {
+    var prefix: Int {
+        switch self {
+        case .today: return 2
+        case .incompleted: return 3
+        case .completed: return 1
+        }
     }
 }

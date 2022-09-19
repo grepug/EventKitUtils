@@ -44,10 +44,10 @@ public class EventManager {
     
     func setupEventStore() {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
+            .map { _ in }
             .throttle(for: 1, scheduler: queue, latest: false)
-            .sink { runID in
-                print("reloaded runID", runID)
-
+            .prepend(())
+            .sink {
                 Task {
                     await self.cacheManager.makeCache()
                 }
@@ -167,24 +167,26 @@ public extension EventManager {
         return isTrue
     }
     
-    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, onlyFirst: Bool = false) async -> [TaskValue] {
-        guard await cacheManager.isPending == false else {
-            return []
-        }
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, prefix: Int? = nil) async -> [TaskValue] {
+        var returningPrefix = false
+        var tasks = await configuration.fetchNonEventTasks(type: type, prefix: prefix)
         
-        var returningFirst = false
-        var tasks = await configuration.fetchNonEventTasks(type: type)
-        
-        if onlyFirst, let first = tasks.first {
-            returningFirst = true
-            return [first]
-        }
-        
-        if returningFirst {
+        if let prefix, tasks.count >= prefix {
+            returningPrefix = true
             return tasks
         }
         
-        tasks += await cacheManager.handlers.fetchTaskValues(by: type, firstOnly: onlyFirst)
+        if returningPrefix {
+            return tasks
+        }
+        
+        var prefixRemaining: Int?
+        
+        if let prefix, prefix > tasks.count {
+            prefixRemaining = prefix - tasks.count
+        }
+        
+        tasks += await cacheManager.handlers.fetchTaskValues(by: type)
         
         if fetchingKRInfo {
             for (index, task) in tasks.enumerated() {
@@ -198,9 +200,9 @@ public extension EventManager {
         return tasks
     }
     
-    func fetchFirstTask(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> TaskValue? {
-        await fetchTasks(with: type, fetchingKRInfo: fetchingKRInfo, onlyFirst: true).first
-    }
+//    func fetchFirstTask(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> TaskValue? {
+//        await fetchTasks(with: type, fetchingKRInfo: fetchingKRInfo, onlyFirst: true).first
+//    }
     
     func checkIfExceedsNonProLimit() -> Bool {
         guard !configuration.isPro else {
@@ -232,7 +234,7 @@ public extension EventManager {
             afterTasks.append(taskObject)
             
             if fetchingMore {
-                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo), onlyFirst: false)
+                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
                     .filter { $0.state == .overdued }
                 await postpondTasks(moreOverduedTasks, fetchingMore: false)
             }

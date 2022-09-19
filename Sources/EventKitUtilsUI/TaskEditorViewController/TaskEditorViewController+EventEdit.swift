@@ -22,7 +22,6 @@ extension TaskEditorViewController {
         ])
     }
     
-    @MainActor
     func convertToEvent() async {
         _ = view.endEditing(true)
         
@@ -65,8 +64,8 @@ extension TaskEditorViewController {
     }
     
     func presentEventEditor() {
-        guard let event = task as? EKEvent else {
-            fatalError("this should be an ekEvent")
+        guard let event else {
+            fatalError("event is nil")
         }
         
         let vc = EKEventEditViewController()

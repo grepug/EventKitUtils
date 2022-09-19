@@ -14,6 +14,36 @@ extension CachedTask: SimpleManagedObject {
 }
 
 extension CachedTask: TaskKind, CachedTaskKind {
+    public var state: EventKitUtils.TaskKindState {
+        get {
+            .init(rawValue: Int(state_))!
+        }
+        set(newValue) {
+            state_ = Int16(newValue.rawValue)
+        }
+    }
+    
+    public var repeatingCount: Int? {
+        get {
+            Int(repeatCount)
+        }
+        set(newValue) {
+            if let newValue {
+                repeatCount = Int32(newValue)
+            }
+        }
+    }
+    
+    public var order: Int {
+        get {
+            Int(order_)
+        }
+        
+        set {
+            order_ = Int32(newValue)
+        }
+    }
+    
     public var normalizedRunID: String {
         get {
             runID ?? ""

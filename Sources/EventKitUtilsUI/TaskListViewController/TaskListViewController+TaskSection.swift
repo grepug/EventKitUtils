@@ -29,12 +29,14 @@ extension TaskListViewController {
             
             for task in tasks {
                 DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task) { [unowned self] in
-                        await em.toggleCompletion(task)
-                        reloadList()
-                    } presentEditor: { [unowned self] in
+                    TaskListCell(task: task) { [weak self] in
+                        guard let self = self else { return }
+                        
+                        await self.em.toggleCompletion(task)
+                        self.reloadList()
+                    } presentEditor: { [weak self] in
                         Task {
-                            await self.presentTaskEditor(task: task)
+                            await self?.presentTaskEditor(task: task)
                         }
                     }
                 }))

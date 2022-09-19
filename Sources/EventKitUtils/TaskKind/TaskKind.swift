@@ -23,6 +23,7 @@ public protocol TaskKind {
     var notes: String? { get set }
     var keyResultId: String? { get set }
     var linkedValue: Double? { get set }
+    var repeatingCount: Int? { get set }
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
     
@@ -182,7 +183,8 @@ public extension TaskKind {
                             linkedValue: linkedValue,
                             createdAt: createdAt,
                             updatedAt: updatedAt,
-                            kindIdentifier: kindIdentifier)
+                            kindIdentifier: kindIdentifier,
+                            repeatingCount: repeatingCount)
         
         return res
     }

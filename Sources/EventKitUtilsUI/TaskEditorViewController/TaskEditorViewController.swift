@@ -27,6 +27,7 @@ public class TaskEditorViewController: DiffableListViewController {
 //    }
     
     var task: TaskValue!
+    var event: EKEvent?
 
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
@@ -178,7 +179,7 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo), onlyFirst: true)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo), prefix: 1)
         
         guard !tasks.isEmpty else {
             await finalAction()

@@ -18,6 +18,10 @@ public enum TaskKindState: Int, CaseIterable {
         case .unscheduled: return "v3_task_state_unscheduled".loc
         }
     }
+    
+    public func isInSegment(_ segment: FetchTasksSegmentType) -> Bool {
+        segment.displayStates.contains(self)
+    }
 }
 
 public extension FetchTasksSegmentType {
