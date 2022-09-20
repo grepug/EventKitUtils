@@ -14,7 +14,7 @@ public protocol EventConfiguration {
     var eventRequestRange: Range<Date> { get }
     
     func fetchTaskCount(with repeatingInfo: TaskRepeatingInfo) async -> Int?
-    func fetchNonEventTasks(type: FetchTasksType, prefix: Int?) async -> [TaskValue]
+    func fetchNonEventTasks(type: FetchTasksType) async -> [TaskValue]
     func createNonEventTask() async -> TaskValue
     func fetchTask(byID id: String) async -> TaskValue?
     func saveTask(_ taskValue: TaskValue) async

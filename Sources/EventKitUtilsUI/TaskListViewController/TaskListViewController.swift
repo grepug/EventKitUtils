@@ -128,26 +128,32 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         setupNavigationBar()
         
         $segment
+            .removeDuplicates()
             .merge(with: reloadingSubject)
             .merge(with: eventsChangedPublisher)
             .throttle(for: 0.3, scheduler: RunLoop.current, latest: false)
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                    
+                self.view.makeToastActivity(.center)
                 
                 Task {
-                    self.view.makeToastActivity(.center)
                     await self.handleReloadList()
-                    self.view.hideToastActivity()
                 }
             }
             .store(in: &cancellables)
     }
     
     func handleReloadList() async {
-        let tasks = await em.fetchTasks(with: fetchingType, prefix: segment.prefix)
-        groupedTasks = await em.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
+        await Task {
+            await em.untilNotPending()
+            
+            let tasks = await em.fetchTasks(with: fetchingType)
+            groupedTasks = await em.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
+        }.value
         
         reload()
+        view.hideToastActivity()
     }
 }
 
@@ -200,15 +206,5 @@ extension TaskListViewController {
 extension Date {
     var startOfDay: Self {
         Calendar.current.startOfDay(for: self)
-    }
-}
-
-extension FetchTasksSegmentType {
-    var prefix: Int {
-        switch self {
-        case .today: return 2
-        case .incompleted: return 3
-        case .completed: return 1
-        }
     }
 }

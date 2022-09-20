@@ -45,14 +45,29 @@ public class EventManager {
     func setupEventStore() {
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .map { _ in }
+            .merge(with: reloadCaches)
             .throttle(for: 1, scheduler: queue, latest: false)
             .prepend(())
             .sink {
                 Task {
                     await self.cacheManager.makeCache()
+                    self.cachesReloaded.send()
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    public func untilNotPending() async {
+        if await cacheManager.isPending {
+            return await withCheckedContinuation { continuation in
+                self.cachesReloaded
+                    .prefix(1)
+                    .sink { _ in
+                        continuation.resume(returning: ())
+                    }
+                    .store(in: &self.cancellables)
+            }
+        }
     }
     
 }
@@ -167,25 +182,8 @@ public extension EventManager {
         return isTrue
     }
     
-    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, prefix: Int? = nil) async -> [TaskValue] {
-        var returningPrefix = false
-        var tasks = await configuration.fetchNonEventTasks(type: type, prefix: prefix)
-        
-        if let prefix, tasks.count >= prefix {
-            returningPrefix = true
-            return tasks
-        }
-        
-        if returningPrefix {
-            return tasks
-        }
-        
-        var prefixRemaining: Int?
-        
-        if let prefix, prefix > tasks.count {
-            prefixRemaining = prefix - tasks.count
-        }
-        
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> [TaskValue] {
+        var tasks = await configuration.fetchNonEventTasks(type: type)
         tasks += await cacheManager.handlers.fetchTaskValues(by: type)
         
         if fetchingKRInfo {

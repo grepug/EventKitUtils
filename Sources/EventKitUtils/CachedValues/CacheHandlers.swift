@@ -28,14 +28,6 @@ extension NSComparisonPredicate {
 }
 
 extension CacheHandlers {
-    private func prefixPredicate(_ prefix: Int?) -> NSPredicate? {
-        guard let prefix else {
-            return nil
-        }
-        
-        return NSComparisonPredicate.created(prefixNSExpression, NSExpression(format: "%@", prefix as NSNumber), type: .lessThanOrEqualTo)
-    }
-    
     private func statePredicates(_ states: [TaskKindState]) -> NSPredicate {
         let predicates = states.map {
             NSCompoundPredicate(andPredicateWithSubpredicates: [
@@ -112,11 +104,15 @@ extension CacheHandlers {
         }
     }
 
-    func clean() async throws {
+    func clean(exceptRunID runID: String) async throws {
         try await withCheckedThrowingContinuation { continuation in
             persistentContainer.performBackgroundTask { context in
                 do {
-                    let deleteRequest = NSBatchDeleteRequest(fetchRequest: cachedTaskKind.fetchRequest())
+                    let request = cachedTaskKind.fetchRequest()
+                    let predicate = NSPredicate(format: "runID != %@", runID as CVarArg)
+                    request.predicate = predicate
+                    
+                    let deleteRequest = NSBatchDeleteRequest(fetchRequest: request)
                     // Execute the request.
                     let deleteResult = try context.execute(deleteRequest) as? NSBatchDeleteResult
                     
@@ -159,8 +155,8 @@ private extension CacheHandlers {
         var k = 0
         
         let idCount = taskIDs.count
-        
         let current = Date()
+        var counts: [String: Int] = [:]
         
         return NSBatchInsertRequest(entity: cachedTaskKind.entity(),
                                     managedObjectHandler: { object in
@@ -181,10 +177,16 @@ private extension CacheHandlers {
             
             let taskValue = curTaskValues[k]
             let taskValueCount = curTaskValues.count
+            let repeatingCount = counts[id] ??
+            tasksByState.values.map { $0 }.reduce(into: 0) { $0 += $1.count }
+            
+            if counts[id] == nil {
+                counts[id] = repeatingCount
+            }
             
             task.assignFromTaskKind(taskValue)
             task.order = k
-            task.repeatingCount = taskValueCount
+            task.repeatingCount = repeatingCount
             task.state = taskValue.state
             
             task.normalizedRunID = runID

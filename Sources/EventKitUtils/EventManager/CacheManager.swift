@@ -30,16 +30,14 @@ public actor CacheManager {
 extension CacheManager {
     public func makeCache() async {
         guard !isPending else {
-            print("isPending!!!")
             return
         }
         
         isPending = true
         
-        try? await handlers.clean()
-        
         let runID = UUID().uuidString
         
+        try? await handlers.clean(exceptRunID: runID)
         await makeCacheImpl(runID: runID)
         
         isPending = false

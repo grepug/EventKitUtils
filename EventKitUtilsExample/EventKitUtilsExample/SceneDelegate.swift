@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import EventKitUtils
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -47,6 +48,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
+        EventManager.shared.reloadCaches.send()
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

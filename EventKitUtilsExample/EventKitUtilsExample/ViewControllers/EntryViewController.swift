@@ -105,7 +105,7 @@ extension EventManager {
     }
     
     struct MyEventConfiguration: EventConfiguration {
-        func fetchNonEventTasks(type: EventKitUtils.FetchTasksType, prefix: Int?) async -> [EventKitUtils.TaskValue] {
+        func fetchNonEventTasks(type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
             []
         }
         

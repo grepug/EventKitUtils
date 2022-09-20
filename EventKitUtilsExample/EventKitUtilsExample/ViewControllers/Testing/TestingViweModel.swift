@@ -73,7 +73,7 @@ private extension TestingViweModel {
     }
     
     func testUniqueness() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), prefix: 1)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
         assert(tasks.count == 1)
         
         let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
@@ -81,13 +81,13 @@ private extension TestingViweModel {
     }
     
     func testDeleteFirstAndFuture() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo), prefix: 1)
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
         assert(tasks.count == 1)
 
         await em.deleteTasks(tasks)
         
         try! await Task.delayed(byTimeInterval: 3) {
-            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo), prefix: 1)
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo))
             assert(tasks.isEmpty)
         }.value
     }
@@ -138,7 +138,7 @@ extension TestingViweModel {
         }
         
         if await em.cacheManager.isPending == false {
-            let tasks = await self.em.fetchTasks(with: .segment(.incompleted), prefix: 1)
+            let tasks = await self.em.fetchTasks(with: .segment(.incompleted))
             assert(tasks.count == 100)
         }
     }
