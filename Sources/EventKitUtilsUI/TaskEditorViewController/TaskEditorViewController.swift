@@ -16,16 +16,6 @@ import Combine
 import UIKitUtils
 
 public class TaskEditorViewController: DiffableListViewController {
-//    var task: TaskKind! {
-//        willSet {
-//            if let managedObject = newValue as? NSManagedObject {
-//                if managedObject.managedObjectContext?.concurrencyType != .mainQueueConcurrencyType {
-//                    fatalError("managed task object in editor should be in main queue type")
-//                }
-//            }
-//        }
-//    }
-    
     var task: TaskValue!
     var event: EKEvent?
 
