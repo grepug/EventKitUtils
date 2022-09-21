@@ -43,8 +43,8 @@ extension TaskListViewController {
                 .tag(task.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(self.taskMenu(for: task, isContextMenu: true)).children)
-                .swipeTrailingActions(.makeActions(taskMenu(for: task)).reversed())
+                .contextMenu(.makeMenu(self.taskMenu(task: task, isContextMenu: true)).children)
+                .swipeTrailingActions(.makeActions(taskMenu(task: task)).reversed())
             }
         }
         .tag(groupedState?.title ?? "tasks")
@@ -97,24 +97,16 @@ extension TaskListViewController {
         await em.postpondTasks(taskValues)
         reloadList()
     }
-    
-    func taskMenu(for task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
-        TaskActionMenuProvider(task: task,
-                               eventManager: em,
-                               diffableListVC: { [weak self] in self },
-                               hidingShowingRepeatTasks: isRepeatingList) { [weak self] in
-            Task {
-                await self?.presentTaskEditor(task: task)
-            }
-        } manuallyRemoveThisTaskSinceItIsTheLastOne: { [weak self] in
-            self?.removeTask(task)
-        } afterDeletion: { [weak self] in
-            self?.reloadList()
+}
+
+extension TaskListViewController: TaskActionMenuHandling {
+    public func taskActionMenu(presentTaskEditorWith task: TaskValue) {
+        Task {
+            await presentTaskEditor(task: task)
         }
-        .taskMenu(isContextMenu: isContextMenu)
     }
     
-    func removeTask(_ task: TaskValue) {
+    public func taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith task: TaskValue) {
         for (key, _) in groupedTasks {
             groupedTasks[key]?.removeAll { $0 == task }
         }
@@ -122,5 +114,17 @@ extension TaskListViewController {
         DispatchQueue.main.async {
             self.reload()
         }
+    }
+    
+    public func taskActionMenu(afterDeletionWith task: TaskValue) {
+        reloadList()
+    }
+    
+    public var hidingOpenKR: Bool {
+        false
+    }
+    
+    public var hidingShowingRepeatTasks: Bool {
+        isRepeatingList
     }
 }
