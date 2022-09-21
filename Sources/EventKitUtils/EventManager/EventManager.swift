@@ -51,7 +51,11 @@ public class EventManager {
             .sink {
                 Task {
                     await self.cacheManager.makeCache()
-                    self.cachesReloaded.send()
+                    
+                    let isMakingCache = await self.cacheManager.isPending
+                    if !isMakingCache {
+                        self.cachesReloaded.send()
+                    }
                 }
             }
             .store(in: &cancellables)

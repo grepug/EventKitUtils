@@ -202,9 +202,3 @@ extension TaskListViewController {
         present(vc, animated: true)
     }
 }
-
-extension Date {
-    var startOfDay: Self {
-        Calendar.current.startOfDay(for: self)
-    }
-}
