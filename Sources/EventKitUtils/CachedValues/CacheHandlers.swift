@@ -18,17 +18,6 @@ public protocol CacheHandlers {
 }
 
 extension CacheHandlers {
-    private func statePredicates(_ states: [TaskKindState]) -> NSPredicate {
-        let predicates = states.map {
-            NSCompoundPredicate(andPredicateWithSubpredicates: [
-                NSComparisonPredicate.created(stateNSExpression, NSExpression(format: "%@", $0.rawValue as NSNumber), type: .equalTo),
-                NSComparisonPredicate.created(prefixNSExpression, NSExpression(format: "0"), type: .equalTo),
-            ])
-        }
-        
-        return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
-    }
-    
     func fetchTaskValues(by type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
         guard let runID = await currentRunID else {
             return []

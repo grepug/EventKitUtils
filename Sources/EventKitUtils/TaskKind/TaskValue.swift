@@ -69,6 +69,10 @@ public struct TaskValue: TaskKind, Equatable {
         ("\(repeatingCount ?? -1)")
     }
     
+    public var isRpeating: Bool {
+        (repeatingCount ?? 0) > 1
+    }
+    
     func isSameTaskValueForRepeatTasks(with lhs: TaskValue) -> Bool {
         let rhs = self
         

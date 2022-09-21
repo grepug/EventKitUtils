@@ -37,7 +37,7 @@ public extension TaskActionMenuHandling {
             }
         }
         
-        if !hidingShowingRepeatTasks && isContextMenu && (task.repeatingCount ?? 0) > 1 {
+        if !hidingShowingRepeatTasks && isContextMenu && task.isRpeating {
             MBGroup {
                 MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) { [weak self] in
                     guard let self = self else { return }
