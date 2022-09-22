@@ -30,7 +30,6 @@ extension TaskEditorViewController {
                     vc.view.makeToast("自定义重复规则需要在日历日程编辑页设置", position: .center)
                 }
                 
-                self.forceReloadToggleFlag += 1
                 self.reload()
             }
         }
@@ -42,7 +41,7 @@ extension TaskEditorViewController {
             DLCell {
                 DLText("重复")
             }
-            .tag("repeat \(event.taskRecurrenceRule.title) \(forceReloadToggleFlag)")
+            .tag("repeat \(event.taskRecurrenceRule.title) \(forceReloadFlag)")
             .accessories(.popUpMenu(menu: .makeMenu(self.repeatingMenu),
                                     value: event.taskRecurrenceRule.title))
             
@@ -72,7 +71,7 @@ extension TaskEditorViewController {
                     .secondary()
                     .color(.secondaryLabel)
             }
-            .tag("calendar \(isEvent) \(forceReloadToggleFlag)")
+            .tag("calendar \(isEvent) \(forceReloadFlag)")
             .accessories([
                 .label("开启日历同步", color: .accentColor),
             ])
@@ -81,7 +80,6 @@ extension TaskEditorViewController {
                 
                 Task {
                     await self.convertToEvent()
-                    self.forceReloadToggleFlag += 1
                     self.reload()
                 }
             }
