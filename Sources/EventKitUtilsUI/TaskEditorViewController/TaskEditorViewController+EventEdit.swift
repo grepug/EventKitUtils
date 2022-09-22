@@ -50,20 +50,24 @@ extension TaskEditorViewController {
             return
         }
         
+        view.makeToastActivity(.center)
+        
         var event = EKEvent(baseURL: config.eventBaseURL, eventStore: eventStore)
         event.calendar = calendar
         event.assignFromTaskKind(task)
         
-        /// 删除本地 task
-        await em.deleteTask(task)
         await saveTaskAndPresentErrorAlert(event)
         originalTaskValue = event.value
         task = event.value
         
+        self.event = event
+        
         try! await Task.sleep(nanoseconds: 200_000_000)
+        
+        view.hideToastActivity()
     }
     
-    func presentEventEditor() {
+    func presentEventEditor(completion: ((UIViewController) -> Void)? = nil) {
         guard let event else {
             fatalError("event is nil")
         }
@@ -77,6 +81,7 @@ extension TaskEditorViewController {
         
         present(vc, animated: true) { [weak self] in
             self?.reload(animating: false)
+            completion?(vc)
         }
     }
 }

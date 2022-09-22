@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, isValueType: Bool = true, kindIdentifier: TaskKindIdentifier = .event, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier = .value, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
@@ -23,7 +23,6 @@ public struct TaskValue: TaskKind, Equatable {
         self.linkedValue = linkedValue
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.isValueType = isValueType
         self.kindIdentifier = kindIdentifier
         self.isFirstRecurrence = isFirstRecurrence
         self.repeatingCount = repeatingCount
@@ -42,7 +41,6 @@ public struct TaskValue: TaskKind, Equatable {
     public var linkedValue: Double?
     public var createdAt: Date?
     public var updatedAt: Date?
-    public var isValueType: Bool = true
     
     public func toggleCompletion() {
         fatalError("cannot toggle a value' completion")
@@ -52,7 +50,7 @@ public struct TaskValue: TaskKind, Equatable {
         fatalError("cannot update a value's version")
     }
     
-    public var kindIdentifier: TaskKindIdentifier = .event
+    public var kindIdentifier: TaskKindIdentifier = .value
     public var isFirstRecurrence: Bool = false
     public var repeatingCount: Int?
     public var keyResultInfo: KeyResultInfo?
@@ -67,6 +65,10 @@ public struct TaskValue: TaskKind, Equatable {
         (keyResultId ?? "") +
         (linkedValueString ?? "") +
         ("\(repeatingCount ?? -1)")
+    }
+    
+    public var isValueType: Bool {
+        kindIdentifier == .value
     }
     
     public var isRpeating: Bool {

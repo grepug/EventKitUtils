@@ -60,7 +60,7 @@ public class TaskEditorViewController: DiffableListViewController {
     }
     
     var isEvent: Bool {
-        task.kindIdentifier == .event
+        event != nil
     }
     
     var isCreating: Bool {
@@ -325,7 +325,12 @@ public extension EventManager {
         if let _task {
             task = _task
         } else {
-            task = await fetchOrCreateTaskObject()!.value
+            let startDate = Date().startOfHour
+            let endDate = startDate.nextHour
+            
+            task = .init(normalizedTitle: "",
+                         normalizedStartDate: startDate,
+                         normalizedEndDate: endDate)
         }
         
         let vc = TaskEditorViewController(task: task, eventManager: self)

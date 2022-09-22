@@ -24,6 +24,20 @@ public extension Date {
         Calendar.current.startOfDay(for: self)
     }
     
+    var startOfHour: Self {
+        let hour = Calendar.current.dateComponents([.hour], from: self).hour!
+        
+        return Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: self)!
+    }
+    
+    var nextHour: Self {
+        Calendar.current.date(byAdding: .hour, value: 1, to: self)!
+    }
+    
+    var nextWeek: Self {
+        Calendar.current.date(byAdding: .day, value: 7, to: self)!
+    }
+    
     var endOfDay: Self {
         let date1 = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
         return Calendar.current.date(byAdding: .second, value: -1, to: date1)!

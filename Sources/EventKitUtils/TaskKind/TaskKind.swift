@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 public enum TaskKindIdentifier {
-    case event, managedObject
+    case event, managedObject, value
 }
 
 public protocol TaskKind {

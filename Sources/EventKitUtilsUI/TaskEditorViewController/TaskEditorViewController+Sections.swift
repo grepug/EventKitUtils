@@ -193,42 +193,6 @@ extension TaskEditorViewController {
 
 extension TaskEditorViewController {
     @ListBuilder
-    var calendarLinkingSection: [DLSection] {
-        DLSection { [unowned self] in
-            DLCell {
-                DLText("task_editor_sync_to_calendar".loc)
-                DLText("task_editor_sync_to_calendar_desc".loc)
-                    .secondary()
-                    .color(.secondaryLabel)
-            }
-            .tag("calendar \(isEvent) \(forceReloadToggleFlag)")
-            .disableHighlight(!isEvent)
-            .accessories([
-                .toggle(isOn: isEvent, isEnabled: !isEvent) { [unowned self] isOn in
-                    guard isOn else {
-                        fatalError("cannot turn off")
-                    }
-                    
-                    Task {
-                        await convertToEvent()
-                        forceReloadToggleFlag += 1
-                        reload()
-                    }
-                },
-                isEvent ? .disclosureIndicator() : nil
-            ])
-            .onTapAndDeselect { [unowned self] _ in
-                guard isEvent else {
-                    return
-                }
-                
-                presentEventEditor()
-            }
-        }
-        .tag("4")
-    }
-    
-    @ListBuilder
     var remarkSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell(using: .textEditor(text: task.notes,
