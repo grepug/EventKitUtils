@@ -10,13 +10,10 @@ import Combine
 import EventKit
 
 public actor CacheManager {
-    init(eventStore: EKEventStore, eventConfiguration: EventConfiguration, handlers: CacheHandlers, currentRunID: String? = nil, uniquedIDs: Set<String> = [], isPending: Bool = false) {
+    init(eventStore: EKEventStore, eventConfiguration: EventConfiguration, handlers: CacheHandlers) {
         self.eventStore = eventStore
         self.eventConfiguration = eventConfiguration
         self.handlers = handlers
-        self.currentRunID = currentRunID
-        self.uniquedIDs = uniquedIDs
-        self.isPending = isPending
     }
     
     var eventStore: EKEventStore

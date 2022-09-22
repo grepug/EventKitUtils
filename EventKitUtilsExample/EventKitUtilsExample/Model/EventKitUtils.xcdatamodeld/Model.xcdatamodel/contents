@@ -4,6 +4,7 @@
         <attribute name="completionDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="hasLinkedRecordValue" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="idString" optional="YES" attributeType="String"/>
         <attribute name="isAllDay" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

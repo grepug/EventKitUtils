@@ -20,7 +20,6 @@ public class EventManager {
     
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
-    public let cachesReloaded2 = PassthroughSubject<String, Never>()
     
     /// 使用一个唯一的 eventStore 可能会导致内存泄漏，但目前看来影响不大
     /// 因为每创建一个 EKEvent 实例，会强关联在 EKEventStore 上，可能必须 EKEventStore 释放后，该 EKEvent 才会释放
@@ -28,7 +27,7 @@ public class EventManager {
     public var eventStore: EKEventStore
     var cancellables = Set<AnyCancellable>()
     
-    public init(configuration: EventConfiguration, uiConfiguration: EventUIConfiguration, cacheHandlers: CacheHandlers) {
+    public init(configuration: EventConfiguration, uiConfiguration: EventUIConfiguration? = nil, cacheHandlers: CacheHandlers) {
         self.configuration = configuration
         self.uiConfiguration = uiConfiguration
         self.eventStore = .init()
@@ -80,6 +79,11 @@ public extension EventManager {
     var selectedCalendarIdentifier: String? {
         get { configuration.userDefaults.string(forKey: "EventKitUtils_selectedCalendarIdentifier") }
         set { configuration.userDefaults.set(newValue, forKey: "EventKitUtils_selectedCalendarIdentifier") }
+    }
+    
+    var isDefaultSyncingToCalendarEnabled: Bool {
+        get { configuration.userDefaults.bool(forKey: "isDefaultSyncingToCalendarEnabled") }
+        set { configuration.userDefaults.set(newValue, forKey: "isDefaultSyncingToCalendarEnabled") }
     }
     
     var defaultCalendarToSaveEvents: EKCalendar? {
@@ -158,34 +162,7 @@ public extension EventManager {
         
         try! eventStore.commit()
     }
-    
-    func testHasRepeatingTasks(with repeatingInfo: TaskRepeatingInfo) async -> Bool {
-        guard let count = await configuration.fetchTaskCount(with: repeatingInfo) else {
-            return false
-        }
         
-        if count > 1 {
-            return true
-        }
-        
-        var foundEvent: EKEvent?
-        var isTrue = false
-        
-//        enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
-//            if repeatingInfo == event.repeatingInfo {
-//                if foundEvent != nil || count == 1 {
-//                    isTrue = true
-//                    completion()
-//                    return
-//                }
-//
-//                foundEvent = event
-//            }
-//        }
-
-        return isTrue
-    }
-    
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> [TaskValue] {
         var tasks = await configuration.fetchNonEventTasks(type: type)
         tasks += await cacheManager.handlers.fetchTaskValues(by: type)
@@ -201,10 +178,6 @@ public extension EventManager {
         
         return tasks
     }
-    
-//    func fetchFirstTask(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> TaskValue? {
-//        await fetchTasks(with: type, fetchingKRInfo: fetchingKRInfo, onlyFirst: true).first
-//    }
     
     func checkIfExceedsNonProLimit() -> Bool {
         guard !configuration.isPro else {

@@ -74,8 +74,8 @@ public class TaskEditorViewController: DiffableListViewController {
     public override var list: DLList {
         DLList { [unowned self] in
             self.titleSection
-            self.plannedDateSection
             self.keyResultLinkingSection
+            self.plannedDateSection
 
             if self.task.isDateEnabled {
                 self.calendarLinkingSection

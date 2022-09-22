@@ -12,7 +12,7 @@
 		2A5B41A5288D37080089A70D /* EventKitUtils.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */; };
 		2A5B41A7288D37870089A70D /* StorageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5B41A6288D37870089A70D /* StorageProvider.swift */; };
 		2A84D4B8288A36070017D5C5 /* UIKitUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 2A84D4B7288A36070017D5C5 /* UIKitUtils */; };
-		2A8C586A28CC38E40046D873 /* CahcedTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8C586928CC38E40046D873 /* CahcedTask.swift */; };
+		2A8C586A28CC38E40046D873 /* CachedTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8C586928CC38E40046D873 /* CachedTask.swift */; };
 		2AC063D628C8F61A00A915F3 /* TestingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC063D528C8F61A00A915F3 /* TestingViewController.swift */; };
 		2AC063DA28C8FB8500A915F3 /* TestingViweModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC063D928C8FB8500A915F3 /* TestingViweModel.swift */; };
 		2AD089F42890C69F003002E6 /* EventSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD089F32890C69F003002E6 /* EventSettings.swift */; };
@@ -32,7 +32,7 @@
 		2A5B41A4288D37080089A70D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		2A5B41A6288D37870089A70D /* StorageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProvider.swift; sourceTree = "<group>"; };
 		2A703F8728993B6200D3C401 /* EventKitUtilsExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EventKitUtilsExample.entitlements; sourceTree = "<group>"; };
-		2A8C586928CC38E40046D873 /* CahcedTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CahcedTask.swift; sourceTree = "<group>"; };
+		2A8C586928CC38E40046D873 /* CachedTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedTask.swift; sourceTree = "<group>"; };
 		2AB4CC7D28D467D70095C206 /* StorageProvider */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StorageProvider; path = ../../StorageProvider; sourceTree = "<group>"; };
 		2AC063D528C8F61A00A915F3 /* TestingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingViewController.swift; sourceTree = "<group>"; };
 		2AC063D928C8FB8500A915F3 /* TestingViweModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingViweModel.swift; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 				2AF5D76A2888424300778D98 /* Mission.swift */,
 				2A5B41A3288D37080089A70D /* EventKitUtils.xcdatamodeld */,
 				2A5B41A6288D37870089A70D /* StorageProvider.swift */,
-				2A8C586928CC38E40046D873 /* CahcedTask.swift */,
+				2A8C586928CC38E40046D873 /* CachedTask.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -233,7 +233,7 @@
 			files = (
 				2AFA1DA7289B807300758525 /* TaskSummaryCard.swift in Sources */,
 				2AD089F42890C69F003002E6 /* EventSettings.swift in Sources */,
-				2A8C586A28CC38E40046D873 /* CahcedTask.swift in Sources */,
+				2A8C586A28CC38E40046D873 /* CachedTask.swift in Sources */,
 				2AF5D7522886584D00778D98 /* ViewController.swift in Sources */,
 				2AF5D76D2889404000778D98 /* EntryViewController.swift in Sources */,
 				2AF5D74E2886584D00778D98 /* AppDelegate.swift in Sources */,

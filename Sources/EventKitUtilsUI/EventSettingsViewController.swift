@@ -54,9 +54,11 @@ public class EventSettingsViewController: DiffableListViewController {
                     DLText("event_settings_enable".loc)
                 }
                 .tag("enabling \(isEnabled) \(forceReloadToggleFlag)")
-                .accessories([.toggle(isOn: isEnabled, action: { [unowned self] isOn in
+                .accessories([.toggle(isOn: isEnabled, action: { [weak self] isOn in
+                    guard let self = self else { return }
+                    
                     Task {
-                        await handleToggle(isOn: isOn)
+                        await self.handleToggleEnabled(isOn: isOn)
                     }
                 })])
             }
@@ -64,6 +66,17 @@ public class EventSettingsViewController: DiffableListViewController {
             .footer("event_settings_enable_footer".loc)
             
             if isEnabled {
+                DLSection { [unowned self] in
+                    DLCell {
+                        DLText("新建任务默认同步到日历")
+                    }
+                    .tag("enabling default to calendar \(em.isDefaultSyncingToCalendarEnabled) \(forceReloadToggleFlag)")
+                    .accessories([.toggle(isOn: em.isDefaultSyncingToCalendarEnabled, action: { [weak self] isOn in
+                        self?.em.isDefaultSyncingToCalendarEnabled = isOn
+                    })])
+                }
+                .tag("isDefaultSyncingToCalendarEnabled")
+                
                 DLSection { [unowned self] in
                     DLCell(using: .swiftUI(movingTo: self, content: {
                         VStack(alignment: .leading) {
@@ -135,7 +148,7 @@ public class EventSettingsViewController: DiffableListViewController {
         store.defaultCalendarForNewEvents?.calendarIdentifier
     }
     
-    func handleToggle(isOn: Bool) async {
+    func handleToggleEnabled(isOn: Bool) async {
         guard isOn else {
             Self.openSettings()
             reload()
@@ -164,6 +177,7 @@ extension EventSettingsViewController {
             presentGoingToSystemSettingsAlert()
         case .authorized:
             isGranted = true
+            em.isDefaultSyncingToCalendarEnabled = true
             reload()
         @unknown default:
             presentGoingToSystemSettingsAlert()

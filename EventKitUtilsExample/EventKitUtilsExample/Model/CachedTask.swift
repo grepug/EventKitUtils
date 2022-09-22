@@ -117,10 +117,16 @@ extension CachedTask: TaskKind, CachedTaskKind {
     
     public var linkedValue: Double? {
         get {
-            linkedRecordValue
+            hasLinkedRecordValue ? linkedRecordValue : nil
         }
+        
         set(newValue) {
-            linkedRecordValue = newValue ?? 0
+            if let newValue {
+                linkedRecordValue = newValue
+                hasLinkedRecordValue = true
+            } else {
+                hasLinkedRecordValue = false
+            }
         }
     }
     
