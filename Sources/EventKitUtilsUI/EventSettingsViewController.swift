@@ -116,6 +116,31 @@ public class EventSettingsViewController: DiffableListViewController {
                 .tag("calendars")
                 .firstCellAsHeader()
                 .footer("event_settings_sync_notice".loc)
+                
+                DLSection {
+                    DLCell(using: .swiftUI(movingTo: self, content: {
+                        Text("删除所有日历任务".loc)
+                            .foregroundColor(.red)
+                            .frame(height: 44)
+                    }))
+                    .tag("deletion")
+                    .onTapAndDeselect { [weak self] _ in
+                        guard let self = self else { return }
+                        
+                        let enumerator = EventEnumerator(eventManager: self.em)
+                        
+                        self.view.makeToastActivity(.center)
+                        
+                        enumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event, completion in
+                            try? self?.em.eventStore.remove(event, span: .futureEvents, commit: false)
+                        }
+                        
+                        try! self.em.eventStore.commit()
+                        
+                        self.view.hideToastActivity()
+                    }
+                }
+                .tag("reset")
             }
         }
     }

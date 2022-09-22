@@ -40,10 +40,14 @@ extension CacheManager {
         isPending = false
     }
     
+    var eventEnumerator: EventEnumerator {
+        .init(eventStore: eventStore, eventConfiguration: eventConfiguration)
+    }
+    
     private func makeCacheImpl(runID: String) async {
         var tasks: CacheHandlersTaskValuesDict = [:]
         
-        enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
+        eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
             let id = event.normalizedID
             let state = event.state
             
@@ -59,62 +63,5 @@ extension CacheManager {
         }
         
         try! await handlers.createTasks(tasks, withRunID: runID)
-    }
-}
-
-extension CacheManager {
-    func eventsPredicate() -> NSPredicate {
-        let eventStore = EKEventStore()
-        let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
-        let predicate = eventStore.predicateForEvents(withStart: eventConfiguration.eventRequestRange.lowerBound,
-                                                      end: eventConfiguration.eventRequestRange.upperBound,
-                                                      calendars: calendars)
-        
-        return predicate
-    }
-    
-    @discardableResult
-    func enumerateEventsAndReturnsIfExceedsNonProLimit(matching precidate: NSPredicate? = nil, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
-        var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
-        var exceededNonProLimit = false
-        
-        let predicate = precidate ?? eventsPredicate()
-        let config = eventConfiguration
-        
-        eventStore.enumerateEvents(matching: predicate) { event, pointer in
-            guard event.url?.host == config.eventBaseURL.host else {
-                return
-            }
-            
-            if let nonProLimit = config.maxNonProLimit {
-                if !exceededNonProLimit {
-                    enumeratedRepeatingInfoSet.insert(event.repeatingInfo)
-                }
-                
-                if enumeratedRepeatingInfoSet.count == nonProLimit {
-                    exceededNonProLimit = true
-                }
-            }
-            
-            handler?(event) {
-                pointer.pointee = true
-            }
-        }
-        
-        return exceededNonProLimit
-    }
-}
-
-/// 参考：
-/// https://forums.swift.org/t/taskgroup-vs-an-array-of-tasks/53931/2
-extension Array where Element == Task<Void, Never> {
-    func awaitAll() async {
-        await withTaskGroup(of: Void.self) { group in
-            for task in self {
-                group.addTask {
-                    await task.value
-                }
-            }
-        }
     }
 }
