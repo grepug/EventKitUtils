@@ -40,7 +40,7 @@ extension CacheManager {
         isPending = false
     }
     
-    var eventEnumerator: EventEnumerator {
+    private var eventEnumerator: EventEnumerator {
         .init(eventStore: eventStore, eventConfiguration: eventConfiguration)
     }
     
