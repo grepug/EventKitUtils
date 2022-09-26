@@ -154,7 +154,7 @@ extension TaskEditorViewController: TaskHandling {
         let finalAction: () async -> Void = { [weak self] in
             guard let self = self else { return }
             
-            await self.saveTaskAndPresentErrorAlert(self.task)
+            await self.saveTaskAndPresentErrorAlert(self.event ?? self.task)
             self.dismissEditor(shouldOpenTaskList: self.isCreating)
         }
         

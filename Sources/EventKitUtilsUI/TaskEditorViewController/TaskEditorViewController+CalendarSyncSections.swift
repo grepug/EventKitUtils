@@ -9,6 +9,7 @@ import DiffableList
 import MenuBuilder
 import EventKit
 import EventKitUtils
+import UIKit
 
 extension TaskEditorViewController {
     @MenuBuilder
@@ -38,6 +39,14 @@ extension TaskEditorViewController {
     @ListBuilder
     func calendarSyncSettingsSection(event: EKEvent) -> [DLSection] {
         DLSection { [unowned self] in
+            DLCell(using: .header(" "))
+                .accessories([
+                    .labelButton(title: "编辑日历日程", action: { [weak self] button in
+                        self?.presentEventEditor()
+                    })
+                ])
+                .tag("calendarHeader")
+            
             DLCell {
                 DLText("重复")
             }
@@ -60,6 +69,7 @@ extension TaskEditorViewController {
             }
         }
         .tag("repeating")
+        .firstCellAsHeader()
     }
     
     @ListBuilder
