@@ -13,7 +13,7 @@ extension EKEvent: TaskKind {
         set {}
     }
     
-    public var kindIdentifier: TaskKindIdentifier {
+    public var kindIdentifier: TaskKindIdentifier? {
         .event
     }
     
@@ -22,7 +22,11 @@ extension EKEvent: TaskKind {
     }
     
     public var normalizedID: String {
-        eventIdentifier
+        get {
+            eventIdentifier
+        }
+        
+        set {}
     }
     
     public var normalizedTitle: String {

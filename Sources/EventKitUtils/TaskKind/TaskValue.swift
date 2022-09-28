@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier = .value, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
@@ -50,7 +50,7 @@ public struct TaskValue: TaskKind, Equatable {
         fatalError("cannot update a value's version")
     }
     
-    public var kindIdentifier: TaskKindIdentifier = .value
+    public var kindIdentifier: TaskKindIdentifier?
     public var isFirstRecurrence: Bool = false
     public var repeatingCount: Int?
     public var keyResultInfo: KeyResultInfo?
@@ -68,7 +68,7 @@ public struct TaskValue: TaskKind, Equatable {
     }
     
     public var isValueType: Bool {
-        kindIdentifier == .value
+        true
     }
     
     public var isRpeating: Bool {
@@ -78,9 +78,7 @@ public struct TaskValue: TaskKind, Equatable {
     func isSameTaskValueForRepeatTasks(with lhs: TaskValue) -> Bool {
         let rhs = self
         
-        return lhs.normalizedID == rhs.normalizedID &&
-        lhs.normalizedStartDate == rhs.normalizedStartDate &&
-        lhs.normalizedEndDate == rhs.normalizedEndDate
+        return lhs.normalizedID == rhs.normalizedID && lhs.normalizedStartDate == rhs.normalizedStartDate && lhs.normalizedEndDate == rhs.normalizedEndDate
     }
 }
 

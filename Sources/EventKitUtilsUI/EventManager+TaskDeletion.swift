@@ -33,7 +33,9 @@ extension EventManager {
             return true
         }
         
-        if task.isRpeating {
+        let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
+        
+        if repeatingTasks.count > 1 {
             let deletionOptions = await presentDeletingTasksAlert(parentVC: vc)
             
             switch deletionOptions {
@@ -45,7 +47,7 @@ extension EventManager {
                 return true
             case .deletingAll:
                 removeTask?()
-//                await self.deleteTasks(tasks)
+                await self.deleteTasks(repeatingTasks)
                 
                 return true
             }

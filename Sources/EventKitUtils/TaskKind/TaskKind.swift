@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 
 public enum TaskKindIdentifier {
-    case event, managedObject, value
+    case event, managedObject
 }
 
 public protocol TaskKind {
-    var normalizedID: String { get }
+    var normalizedID: String { get set }
     var normalizedTitle: String { get set }
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
@@ -27,7 +27,7 @@ public protocol TaskKind {
     var createdAt: Date? { get }
     var updatedAt: Date? { get }
     
-    var kindIdentifier: TaskKindIdentifier { get }
+    var kindIdentifier: TaskKindIdentifier? { get }
     var isValueType: Bool { get }
     
     func toggleCompletion()
@@ -194,6 +194,7 @@ public extension TaskKind {
     }
     
     mutating func assignFromTaskKind(_ task: TaskKind) {
+        normalizedID = task.normalizedID
         normalizedTitle = task.normalizedTitle
         normalizedStartDate = task.normalizedStartDate
         normalizedEndDate = task.normalizedEndDate

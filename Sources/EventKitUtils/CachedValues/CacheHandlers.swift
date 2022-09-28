@@ -52,13 +52,15 @@ extension CacheHandlers {
         case .repeatingInfo(let info):
             let predicate1 = NSPredicate(format: "title == %@ && keyResultID == %@",
                                          info.title as CVarArg,
-                                         (info.keyResultID ?? "") as CVarArg)
+                                         info.keyResultID.map { $0 as CVarArg } ?? NSNull())
             predicates.append(predicate1)
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
-            return try! await cachedTaskKind.fetch(where: predicate) { objects in
+            let tasks = try! await cachedTaskKind.fetch(where: predicate) { objects in
                 objects.map(\.value)
             }
+            
+            return tasks
         default:
             return []
         }

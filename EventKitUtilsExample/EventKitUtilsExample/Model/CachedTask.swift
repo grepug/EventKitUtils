@@ -54,7 +54,12 @@ extension CachedTask: TaskKind, CachedTaskKind {
     }
     
     public var normalizedID: String {
-        idString ?? ""
+        get {
+            idString ?? ""
+        }
+        set {
+            idString = newValue
+        }
     }
     
     public var normalizedTitle: String {
@@ -130,7 +135,7 @@ extension CachedTask: TaskKind, CachedTaskKind {
         }
     }
     
-    public var kindIdentifier: EventKitUtils.TaskKindIdentifier {
+    public var kindIdentifier: EventKitUtils.TaskKindIdentifier? {
         .event
     }
     
@@ -158,6 +163,5 @@ extension CachedTask: TaskKind, CachedTaskKind {
         keyResultID = taskValue.keyResultId
         linkedRecordValue = taskValue.linkedValue ?? 0
         isFirst = taskValue.isFirstRecurrence
-        print("isFirst@", isFirst, taskValue.isFirstRecurrence)
     }
 }

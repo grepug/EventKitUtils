@@ -74,7 +74,7 @@ extension Mission: SimpleManagedObject, TaskKind {
         isCompleted.toggle()
     }
     
-    public var kindIdentifier: TaskKindIdentifier {
+    public var kindIdentifier: TaskKindIdentifier? {
         .managedObject
     }
     
