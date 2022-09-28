@@ -18,13 +18,17 @@ public class EventManager {
     public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
     public var recordsOfKeyResult: Dictionary<String, [RecordValue]> = .init()
     
+    /// haah
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
     
-    /// 使用一个唯一的 eventStore 可能会导致内存泄漏，但目前看来影响不大
-    /// 因为每创建一个 EKEvent 实例，会强关联在 EKEventStore 上，可能必须 EKEventStore 释放后，该 EKEvent 才会释放
-    /// 解决办法就是每次在创建 EKEvent 的时候重新初始化一个 EKEventStore ，但要注意，保存该 EKEvent 必须要使用创建它的 EKEventStore 实例
+    /// the singleton of ``EventStore``
+    ///
+    /// - 使用一个唯一的 eventStore 可能会导致内存泄漏，但目前看来影响不大
+    /// - 因为每创建一个 EKEvent 实例，会强关联在 EKEventStore 上，可能必须 EKEventStore 释放后，该 EKEvent 才会释放
+    /// - 解决办法就是每次在创建 EKEvent 的时候重新初始化一个 EKEventStore ，但要注意，保存该 EKEvent 必须要使用创建它的 EKEventStore 实例
     public var eventStore: EKEventStore
+    
     var cancellables = Set<AnyCancellable>()
     
     public init(configuration: EventConfiguration, uiConfiguration: EventUIConfiguration? = nil, cacheHandlers: CacheHandlers) {
@@ -109,6 +113,12 @@ public extension EventManager {
         return fetchEvent(withTaskValue: task.value)
     }
     
+    /// Toggle the completion status of the task
+    ///
+    /// You should implement an Optimistic UI mechanism to use this method, due to this method requires a quick time interval to complete, while the toggling UI should be smooth for user.
+    ///
+    /// Suggestion: use it in the background queue.
+    /// - Parameter task: the task kind to toggle completion
     func toggleCompletion(_ task: TaskKind) async {
         guard let taskObject = await taskObject(task) else {
             return
@@ -119,6 +129,11 @@ public extension EventManager {
         try! await saveTask(taskObject)
     }
     
+    /// Save the Task
+    /// - Parameters:
+    ///   - task: the task kind to save
+    ///   - savingRecurence: should save the recurrences
+    ///   - commit: should commit to the EKEventStore
     func saveTask(_ task: TaskKind, savingRecurence: Bool = false, commit: Bool = true) async throws {
         if task.isValueType, let task = await taskObject(task) {
             try await saveTask(task)
@@ -131,6 +146,14 @@ public extension EventManager {
         }
     }
     
+    /// Delete a task
+    ///
+    /// The task kind can be ``TaskValue``, ``EKEvent``. If delete a ``TaskValue``, you should firstly find the real object to this value, which should also be a ``TaskKind``.
+    ///
+    /// - Parameters:
+    ///   - task: the task kind to delete
+    ///   - deletingRecurence: should delete the recurrences
+    ///   - commit: should commit to the EKEventStore
     func deleteTask(_ task: TaskKind, deletingRecurence: Bool = false, commit: Bool = true) async {
         if task.isValueType, let task = await taskObject(task) {
             await deleteTask(task, deletingRecurence: deletingRecurence)
@@ -143,6 +166,19 @@ public extension EventManager {
         }
     }
     
+    /// Delete tasks
+    ///
+    /// Types of deleting tasks
+    ///   - Trailing swiping / Opening Context Menu on the TaskList cell, which may delete recurrences
+    ///   - Trailing swiping / Opening Context Menu on the TaskList cell (Recurrence Task List), which delete only this task
+    ///   - Delete Task button in the ``TaskEditorViewController``, which delete this Task and the recurrences
+    ///   - Cancel button in the  navbar of ``TaskEditorViewController``, which delete only this task only when creating
+    /// Regroup the array of task kinds into four types:
+    ///   - non event tasks
+    ///   - the first recurrence of the ``EKEvent``, if any, removing the rest
+    ///   - the first recurrence of the ``EKEvent`` in this array
+    ///   - the detached EKEvents
+    /// - Parameter tasks: task kinds to delete
     func deleteTasks(_ tasks: [TaskKind]) async {
         let tasks = tasks.uniquedById
 
@@ -179,15 +215,15 @@ public extension EventManager {
         return tasks
     }
     
+    /// Check the total number of EKEvents exceeds the limit for non Pro users
+    /// - Returns: the boolean that indicates if events
     func checkIfExceedsNonProLimit() -> Bool {
         guard !configuration.isPro else {
             return false
         }
             
-        return true
-//        return enumerateEventsAndReturnsIfExceedsNonProLimit()
+        return EventEnumerator(eventManager: self).enumerateEventsAndReturnsIfExceedsNonProLimit()
     }
-    
     
     func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) async -> TaskKind? {
         if let task = taskValue {
@@ -220,15 +256,11 @@ public extension EventManager {
 }
 
 extension EventManager {
-    func eventsPredicate() -> NSPredicate {
-        let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
-        let predicate = eventStore.predicateForEvents(withStart: configuration.eventRequestRange.lowerBound,
-                                                      end: configuration.eventRequestRange.upperBound,
-                                                      calendars: calendars)
-        
-        return predicate
-    }
-    
+    /// Fetch EKEvent instance by ``TaskValue``
+    ///
+    /// Narrowed down the date range of events, improving the performance
+    /// - Parameter task: the ``TaskValue``
+    /// - Returns: an Optional ``EKEvent``
     func fetchEvent(withTaskValue task: TaskValue) -> EKEvent? {
         /// 若 event 不是重复事件，则可以直接用 id 拿到
         if let event = eventStore.event(withIdentifier: task.normalizedID),
@@ -236,15 +268,26 @@ extension EventManager {
             return event
         }
         
+        guard let startDate = task.normalizedStartDate,
+              let endDate = task.normalizedEndDate else {
+            return nil
+        }
+        
+        let eventEnumerator = EventEnumerator(eventManager: self)
+        let offsetStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)
+        let offsetEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)
+        let predicate = eventEnumerator.eventsPredicate(withStart: offsetStartDate, end: offsetEndDate)
+        
         var foundEvent: EKEvent?
         
-//        enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
-//            if event.value.isSameTaskValueForRepeatTasks(with: task) {
-//                foundEvent = event
-//                completion()
-//                return
-//            }
-//        }
+        eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: predicate) { event, completion in
+            if event.value.isSameTaskValueForRepeatTasks(with: task) {
+                foundEvent = event
+                completion()
+                return
+            }
+            
+        }
         
         return foundEvent
     }

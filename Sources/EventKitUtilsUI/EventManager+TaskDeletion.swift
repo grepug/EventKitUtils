@@ -9,6 +9,21 @@ import UIKit
 import EventKitUtils
 
 extension EventManager {
+    /// Delete the task, present the "deleting future tasks" alert if it is a repeating task
+    ///
+    /// Deletion flow:
+    /// - if the task is completed, delete it
+    /// - if the task is not completed
+    ///     - if it is repeating, presenting the alert to user to choose whether delete only this one
+    ///     - or all future tasks
+    ///     - otherwise, delete this task
+    ///
+    ///
+    /// - Parameters:
+    ///   - task: the task value to delete
+    ///   - vc: the ``UIViewController`` it is preseted on
+    ///   - removeTask: the handler to manually remove this task in the current view model
+    /// - Returns: a boolean that indicates if deleted successfully
     @discardableResult
     func handleDeleteTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
         if task.isCompleted {

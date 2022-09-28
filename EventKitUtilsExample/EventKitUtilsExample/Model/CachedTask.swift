@@ -131,7 +131,7 @@ extension CachedTask: TaskKind, CachedTaskKind {
     }
     
     public var kindIdentifier: EventKitUtils.TaskKindIdentifier {
-        .managedObject
+        .event
     }
     
     public var isValueType: Bool {

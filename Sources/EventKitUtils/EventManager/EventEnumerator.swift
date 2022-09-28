@@ -21,11 +21,16 @@ public struct EventEnumerator {
     var eventStore: EKEventStore
     var eventConfiguration: EventConfiguration
     
-    func eventsPredicate() -> NSPredicate {
+    var calendars: [EKCalendar] {
+        eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
+    }
+    
+    public func eventsPredicate(withStart startDate: Date? = nil, end: Date? = nil) -> NSPredicate {
         let eventStore = EKEventStore()
-        let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
-        let predicate = eventStore.predicateForEvents(withStart: eventConfiguration.eventRequestRange.lowerBound,
-                                                      end: eventConfiguration.eventRequestRange.upperBound,
+        let startDate = startDate ?? eventConfiguration.eventRequestRange.lowerBound
+        let endDate = end ?? eventConfiguration.eventRequestRange.upperBound
+        let predicate = eventStore.predicateForEvents(withStart: startDate,
+                                                      end: endDate,
                                                       calendars: calendars)
         
         return predicate
