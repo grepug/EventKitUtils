@@ -29,7 +29,7 @@ public class TaskEditorViewController: DiffableListViewController {
     public init(task: TaskValue, eventManager: EventManager) {
         self.task = task
         self.em = eventManager
-        self.originalTaskValue = task.value
+        self.originalTaskValue = task
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -67,7 +67,19 @@ public class TaskEditorViewController: DiffableListViewController {
     }
     
     var hasChanges: Bool {
-        task.value != originalTaskValue
+        if let event {
+            return event.value != originalTaskValue
+        }
+        
+        return task != originalTaskValue
+    }
+    
+    var hasNoError: Bool {
+        if let event {
+            return event.dateErrorMessage == nil
+        }
+        
+        return task.dateErrorMessage == nil
     }
     
     public override var list: DLList {
@@ -240,7 +252,9 @@ extension TaskEditorViewController: TaskHandling {
     
     func handleCancelEditor() async {
         guard !task.isEmpty else {
-            await em.deleteTask(task)
+            if task.kindIdentifier == .event {
+                await em.deleteTask(task)
+            }
             
             dismissEditor()
             return
@@ -266,7 +280,13 @@ extension TaskEditorViewController: TaskHandling {
         
         switch result {
         case .delete:
-            let deleted = await em.handleDeleteTask(task: task.value, on: self)
+            if task.isValueType {
+                dismissEditor()
+                return
+            }
+            
+            let deleted = await em.handleDeleteTask(task: task, on: self)
+            
             if deleted {
                 dismissEditor()
             }
@@ -308,7 +328,7 @@ private extension TaskEditorViewController {
             }
         })
         
-        doneButton.isEnabled = task.dateErrorMessage == nil
+        doneButton.isEnabled = hasNoError
         
         navigationItem.rightBarButtonItem = doneButton
         
