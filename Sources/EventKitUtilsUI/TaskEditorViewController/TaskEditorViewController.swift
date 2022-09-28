@@ -90,7 +90,28 @@ public class TaskEditorViewController: DiffableListViewController {
         
         isModalInPresentation = true
         setupNavigationBar()
-        reload(animating: false)
+        
+        if task.kindIdentifier == .event {
+            Task {
+                guard let event = await em.taskObject(task) as? EKEvent else {
+                    return
+                }
+                
+                self.event = event
+                
+                // set a default end date for recurrence if it absents
+                if event.hasRecurrenceRules {
+                    if event.recurrenceEndDate == nil,
+                       let startDate = event.normalizedStartDate {
+                        event.setTaskRecurrenceRule(event.taskRecurrenceRule, end: .init(end: startDate.nextWeek))
+                    }
+                }
+                
+                reload(animating: false)
+            }
+        } else {
+            reload(animating: false)
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             self?.becomeFirstResponder(at: [0, 0])
@@ -220,6 +241,7 @@ extension TaskEditorViewController: TaskHandling {
     func handleCancelEditor() async {
         guard !task.isEmpty else {
             await em.deleteTask(task)
+            
             dismissEditor()
             return
         }

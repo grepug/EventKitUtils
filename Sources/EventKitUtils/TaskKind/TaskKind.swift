@@ -18,6 +18,7 @@ public protocol TaskKind {
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
     var normalizedIsAllDay: Bool { get set }
+    var normalizedIsInterval: Bool { get set }
     var premisedIsDateEnabled: Bool? { get }
     var completedAt: Date? { get set }
     var notes: String? { get set }

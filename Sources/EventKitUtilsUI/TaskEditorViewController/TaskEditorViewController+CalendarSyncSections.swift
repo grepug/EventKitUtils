@@ -16,9 +16,13 @@ extension TaskEditorViewController {
     var repeatingMenu: [MBMenu] {
         for item in TaskRecurrenceRule.allCases.filter({ $0 != .custom }) {
             MBButton(item.title, checked: event?.taskRecurrenceRule == item) { [weak self] in
-                guard let self = self else { return }
+                guard let self, let event = self.event else { return }
                 
-                self.event?.setTaskRecurrenceRule(item)
+                guard let recurrenceEndDate = event.recurrenceEndDate ?? event.normalizedStartDate?.nextWeek else {
+                    return
+                }
+                
+                event.setTaskRecurrenceRule(item, end: .init(end: recurrenceEndDate))
                 self.reload()
             }
         }
@@ -56,7 +60,7 @@ extension TaskEditorViewController {
             
             if event.taskRecurrenceRule != .never {
                 DLCell(using: .datePicker(labelText: "结束重复",
-                                          date: event.recurrenceEndDate ?? Date().nextWeek,
+                                          date: event.recurrenceEndDate!,
                                           valueDidChange: { [weak self] date in
                     guard let self, let event = self.event else { return }
                     

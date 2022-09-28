@@ -9,12 +9,13 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, normalizedIsInterval: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
         self.normalizedEndDate = normalizedEndDate
         self.normalizedIsAllDay = normalizedIsAllDay
+        self.normalizedIsInterval = normalizedIsInterval
         self.premisedIsDateEnabled = premisedIsDateEnabled
         self.isCompleted = isCompleted
         self.completedAt = completedAt
@@ -28,11 +29,13 @@ public struct TaskValue: TaskKind, Equatable {
         self.repeatingCount = repeatingCount
         self.keyResultInfo = keyResultInfo
     }
+    
     public var normalizedID: String = UUID().uuidString
     public var normalizedTitle: String
     public var normalizedStartDate: Date?
     public var normalizedEndDate: Date?
     public var normalizedIsAllDay: Bool = false
+    public var normalizedIsInterval: Bool = false
     public var premisedIsDateEnabled: Bool?
     public var isCompleted: Bool = false
     public var completedAt: Date?

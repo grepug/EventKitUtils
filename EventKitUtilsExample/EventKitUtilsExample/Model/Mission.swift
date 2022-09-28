@@ -28,6 +28,11 @@ extension Mission: SimpleManagedObject, TaskKind {
         }
     }
     
+    public var normalizedIsInterval: Bool {
+        get { false }
+        set {}
+    }
+    
     public var premisedIsDateEnabled: Bool? {
         nil
     }

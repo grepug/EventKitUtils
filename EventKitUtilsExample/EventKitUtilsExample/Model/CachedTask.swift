@@ -98,6 +98,11 @@ extension CachedTask: TaskKind, CachedTaskKind {
         }
     }
     
+    public var normalizedIsInterval: Bool {
+        get { normalizedStartDate == normalizedEndDate }
+        set {}
+    }
+    
     public var premisedIsDateEnabled: Bool? {
         nil
     }

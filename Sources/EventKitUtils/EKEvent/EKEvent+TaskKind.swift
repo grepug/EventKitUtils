@@ -64,6 +64,17 @@ extension EKEvent: TaskKind {
         set { isAllDay = newValue }
     }
     
+    public var normalizedIsInterval: Bool {
+        get { normalizedStartDate == normalizedEndDate }
+        set {
+            guard let normalizedStartDate else {
+                return
+            }
+            
+            normalizedEndDate = Calendar.current.date(byAdding: .hour, value: 1, to: normalizedStartDate)
+        }
+    }
+    
     public var premisedIsDateEnabled: Bool? { nil }
     
     public var isCompleted: Bool {
