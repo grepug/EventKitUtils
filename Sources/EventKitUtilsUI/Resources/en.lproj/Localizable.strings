@@ -68,3 +68,5 @@
 "alert_action_delete_this_task" = "Only Delete This Task";
 "alert_action_delete_all_tasks" = "Delete All Future Tasks";
 "alert_title_task_save_failed" = "Failed to Save";
+
+"no_tasks" = "No Tasks";

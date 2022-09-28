@@ -13,6 +13,22 @@ import UIKitUtils
 
 extension TaskListViewController {
     @ListBuilder
+    var noDataSection: [DLSection] {
+        DLSection { [unowned self] in
+            DLCell(using: .swiftUI(movingTo: self, content: {
+                Text("no_tasks".loc)
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 256)
+            }))
+            .backgroundConfiguration(.clear())
+            .disableHighlight()
+            .tag("none")
+        }
+        .tag("noData")
+    }
+    
+    @ListBuilder
     func taskSection(_ tasks: [TaskValue], groupedState: TaskKindState?) -> [DLSection] {
         DLSection { [unowned self] in
             let headerTag = self.taskHeaderTag(state: groupedState, count: tasks.count)

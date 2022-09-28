@@ -14,7 +14,7 @@ import Toast
 
 public class TaskListViewController: DiffableListViewController, ObservableObject {
     var groupedTasks: TaskGroupsByState = [:]
-    var tasks: [TaskValue] = []
+    var isListEmpty: Bool = false
     @Published var segment: FetchTasksSegmentType
     unowned public let em: EventManager
     var taskRepeatingInfo: TaskRepeatingInfo?
@@ -95,7 +95,9 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     
     public override var list: DLList {
         DLList { [unowned self] in
-            if isRepeatingList {
+            if self.isListEmpty {
+              noDataSection
+            } else if isRepeatingList {
                 if let tasks = self.groupedTasks[nil] {
                     taskSection(tasks, groupedState: nil)
                 }
@@ -150,6 +152,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             
             let tasks = await em.fetchTasks(with: fetchingType)
             groupedTasks = await em.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
+            isListEmpty = tasks.isEmpty
         }.value
         
         reload()
