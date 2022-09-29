@@ -25,7 +25,7 @@ extension CacheHandlers {
         
         let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
         let isCompletedPredicate: (Bool) -> NSPredicate = { isTrue in
-            NSComparisonPredicate.created(completionDateNSExpression, NSExpression(format: "nil"), type: isTrue ? .equalTo : .notEqualTo)
+            NSComparisonPredicate.created(completionDateNSExpression, NSExpression(format: "nil"), type: isTrue ? .notEqualTo : .equalTo)
         }
         var predicates = [runIDPredicate]
         
@@ -35,18 +35,14 @@ extension CacheHandlers {
             case .completed:
                 predicates.append(isCompletedPredicate(true))
             case .incompleted, .today:
-                break
+                predicates.append(statePredicates(segment.displayStates))
             }
-            
-            predicates.append(statePredicates(segment.displayStates))
             
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
             let tasks = try! await cachedTaskKind.fetch(where: predicate) { objects in
                 objects.map(\.value)
             }
-            
-            print("taskscount", tasks.count)
             
             return tasks
         case .repeatingInfo(let info):

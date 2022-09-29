@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EventManager+GroupTasks.swift
 //  
 //
 //  Created by Kai Shao on 2022/9/15.
@@ -10,10 +10,6 @@ import EventKitUtils
 
 typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
 typealias TasksByState = [TaskKindState?: [TaskValue]]
-
-extension TaskListViewController {
-    
-}
 
 extension EventManager {
     func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) async -> TaskGroupsByState {

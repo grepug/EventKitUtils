@@ -77,7 +77,7 @@ private extension TestingViweModel {
         assert(tasks.count == 1)
         
         let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
-        assert(tasks2.uniqued(by: \.normalizedID).count == 1)
+        assert((tasks2 as [TaskKind]).uniquedById.count == 1)
     }
     
     func testDeleteFirstAndFuture() async {

@@ -316,7 +316,9 @@ extension Date {
 public extension Array where Element == TaskKind {
     /// 用来过滤掉日历创建的重复日程
     var uniquedById: [Element] {
-        uniqued(by: \.normalizedID)
+        uniqued { el in
+            el.normalizedID.split(separator: "/").first!
+        }
     }
 }
 
@@ -327,6 +329,24 @@ public extension Array {
         
         for el in self {
             let id = el[keyPath: keyPath]
+            
+            if ids.contains(id) {
+                continue
+            }
+            
+            res.append(el)
+            ids.insert(id)
+        }
+        
+        return res
+    }
+    
+    func uniqued<T: Hashable>(byID id: (Element) -> T) -> [Element] {
+        var res: [Element] = []
+        var ids: Set<T> = []
+        
+        for el in self {
+            let id = id(el)
             
             if ids.contains(id) {
                 continue

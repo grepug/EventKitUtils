@@ -120,6 +120,7 @@ public extension EventManager {
     /// - Parameter task: the task kind to toggle completion
     func toggleCompletion(_ task: TaskKind) async {
         guard let taskObject = await taskObject(task) else {
+            assertionFailure()
             return
         }
         
@@ -189,9 +190,16 @@ public extension EventManager {
     /// - Parameter tasks: task kinds to delete
     func deleteTasks(_ tasks: [TaskKind]) async {
         let tasks = tasks.uniquedById
+        
+        print("taskscount", tasks.count, tasks.map(\.normalizedID))
 
         for task in tasks {
             await deleteTask(task, deletingRecurrences: true, commit: false)
+            
+            print("taskscount @@@",
+                  task.normalizedID,
+                  task.normalizedStartDate,
+                  task.isCompleted)
         }
         
         try! eventStore.commit()

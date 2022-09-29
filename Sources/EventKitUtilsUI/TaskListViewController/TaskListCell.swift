@@ -114,7 +114,6 @@ public struct TaskListCell: View {
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
-//                .padding(.bottom, task.notes.isEmpty != true ? 4 : 0)
             }
             
             if showingNotes, let notes = task.notes, !notes.isEmpty {
