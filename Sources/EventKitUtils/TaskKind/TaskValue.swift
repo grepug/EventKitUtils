@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, normalizedIsInterval: Bool = false, premisedIsDateEnabled: Bool? = nil, isCompleted: Bool = false, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, normalizedIsInterval: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
@@ -17,7 +17,6 @@ public struct TaskValue: TaskKind, Equatable {
         self.normalizedIsAllDay = normalizedIsAllDay
         self.normalizedIsInterval = normalizedIsInterval
         self.premisedIsDateEnabled = premisedIsDateEnabled
-        self.isCompleted = isCompleted
         self.completedAt = completedAt
         self.notes = notes
         self.keyResultId = keyResultId
@@ -37,7 +36,7 @@ public struct TaskValue: TaskKind, Equatable {
     public var normalizedIsAllDay: Bool = false
     public var normalizedIsInterval: Bool = false
     public var premisedIsDateEnabled: Bool?
-    public var isCompleted: Bool = false
+//    public var isCompleted: Bool = false
     public var completedAt: Date?
     public var notes: String?
     public var keyResultId: String?
@@ -76,6 +75,10 @@ public struct TaskValue: TaskKind, Equatable {
     
     public var isRpeating: Bool {
         (repeatingCount ?? 0) > 1
+    }
+    
+    public var isCompleted: Bool {
+        completedAt != nil
     }
     
     func isSameTaskValueForRepeatTasks(with lhs: TaskValue) -> Bool {

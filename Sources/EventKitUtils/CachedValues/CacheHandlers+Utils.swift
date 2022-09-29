@@ -52,8 +52,7 @@ extension CacheHandlers {
             
             let taskValue = curTaskValues[k]
             let taskValueCount = curTaskValues.count
-            let repeatingCount = counts[id] ??
-            tasksByState.values.map { $0 }.reduce(into: 0) { $0 += $1.count }
+            let repeatingCount = counts[id] ?? tasksByState.values.map { $0 }.reduce(into: 0) { $0 += $1.count }
             
             if counts[id] == nil {
                 counts[id] = repeatingCount

@@ -110,6 +110,7 @@ public class TaskEditorViewController: DiffableListViewController {
                 }
                 
                 self.event = event
+                self.originalTaskValue = event.value
                 
                 // set a default end date for recurrence if it absents
                 if event.hasRecurrenceRules {

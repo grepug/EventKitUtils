@@ -177,7 +177,6 @@ public extension TaskKind {
                             normalizedEndDate: normalizedEndDate,
                             normalizedIsAllDay: normalizedIsAllDay,
                             premisedIsDateEnabled: premisedIsDateEnabled,
-                            isCompleted: isCompleted,
                             completedAt: completedAt,
                             notes: notes,
                             keyResultId: keyResultId,
@@ -200,7 +199,7 @@ public extension TaskKind {
         normalizedStartDate = task.normalizedStartDate
         normalizedEndDate = task.normalizedEndDate
         normalizedIsAllDay = task.normalizedIsAllDay
-        completedAt = isCompleted ? task.completedAt : nil
+        completedAt = task.completedAt
         notes = task.notes
         keyResultId = task.keyResultId
         linkedValue = task.linkedValue
