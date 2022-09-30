@@ -189,7 +189,7 @@ public extension EventManager {
     ///  In the implementation, we unique tasks by their IDs. Because a set of repeating events share a **same** ID, we can find the first recurrence by calling ``EventStore.event(withIdentifier:)``, and delete the first recurrence and its future events.
     /// - Parameter tasks: task kinds to delete
     func deleteTasks(_ tasks: [TaskKind]) async {
-        let tasks = tasks.uniquedById
+        let tasks = tasks.uniquedByIdIgnoringRecurrenceID
         
         print("taskscount", tasks.count, tasks.map(\.normalizedID))
 
@@ -312,7 +312,6 @@ extension EventManager {
                 completion()
                 return
             }
-            
         }
         
         return foundEvent

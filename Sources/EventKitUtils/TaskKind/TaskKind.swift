@@ -314,11 +314,16 @@ extension Date {
 }
 
 public extension Array where Element == TaskKind {
-    /// 用来过滤掉日历创建的重复日程
-    var uniquedById: [Element] {
+    /// Filter out duplicated IDs, ignoring recurrence suffix, e.g. /RID=xxxxxxxx
+    var uniquedByIdIgnoringRecurrenceID: [Element] {
         uniqued { el in
             el.normalizedID.split(separator: "/").first!
         }
+    }
+    
+    /// Filter out duplicated IDs
+    var uniquedById: [Element] {
+        uniqued(byID: \.normalizedID)
     }
 }
 
