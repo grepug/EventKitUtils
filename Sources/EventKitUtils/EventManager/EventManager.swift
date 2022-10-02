@@ -104,8 +104,8 @@ public extension EventManager {
 }
 
 public extension EventManager {
-    func taskObject(_ task: TaskKind, firstRecurrence: Bool = false) async -> TaskKind? {
-        if let task = await configuration.fetchTask(byID: task.normalizedID) {
+    func taskObject(_ task: TaskKind, firstRecurrence: Bool = false, creating: Bool = false) async -> TaskKind? {
+        if let task = await configuration.fetchTask(byID: task.normalizedID, creating: creating) {
             return task
         }
         
@@ -134,8 +134,8 @@ public extension EventManager {
     ///   - task: the task kind to save
     ///   - savingRecurence: should save the recurrences
     ///   - commit: should commit to the EKEventStore
-    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, commit: Bool = true) async throws {
-        if task.isValueType, let task = await taskObject(task, firstRecurrence: savingRecurrences) {
+    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, commit: Bool = true, creating: Bool = false) async throws {
+        if task.isValueType, let task = await taskObject(task, firstRecurrence: savingRecurrences, creating: creating) {
             try await saveTask(task)
         } else if let event = task as? EKEvent {
             try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)

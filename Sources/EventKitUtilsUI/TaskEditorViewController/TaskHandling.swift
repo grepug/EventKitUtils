@@ -13,9 +13,9 @@ public protocol TaskHandling: UIViewController {
 }
 
 public extension TaskHandling {
-    func saveTaskAndPresentErrorAlert(_ task: TaskKind, commit: Bool = true) async {
+    func saveTaskAndPresentErrorAlert(_ task: TaskKind, commit: Bool = true, creating: Bool = false) async {
         do {
-            try await em.saveTask(task, commit: commit)
+            try await em.saveTask(task, commit: commit, creating: creating)
         } catch {
             await handleError(error: error)
         }

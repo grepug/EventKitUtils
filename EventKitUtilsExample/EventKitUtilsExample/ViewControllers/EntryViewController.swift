@@ -142,7 +142,7 @@ extension EventManager {
             }
         }
         
-        func fetchTask(byID id: String) async -> EventKitUtils.TaskValue? {
+        func fetchTask(byID id: String, creating: Bool) async -> EventKitUtils.TaskValue? {
             nil
         }
         
