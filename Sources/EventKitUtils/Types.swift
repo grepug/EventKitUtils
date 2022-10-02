@@ -16,7 +16,7 @@ public enum FetchTasksSegmentType: Int, CaseIterable {
         switch self {
         case .today: return "v3_task_list_segment_today".loc
         case .incompleted: return "v3_task_list_segment_incompleted".loc
-        case .completed: return "v3_task_list_segment_completed".loc
+        case .completed: return "已结束".loc
         }
     }
 }

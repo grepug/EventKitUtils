@@ -8,7 +8,7 @@
 import Foundation
 
 public enum EventURLKeys {
-    case keyResultId, linkedQuantity, completedAt, title
+    case keyResultId, linkedQuantity, completedAt, title, abortedAt
     
     public var name: String {
         switch self {
@@ -16,6 +16,7 @@ public enum EventURLKeys {
         case .linkedQuantity: return "v"
         case .completedAt: return "ca"
         case .title: return "t"
+        case .abortedAt: return "ab"
         }
     }
 }

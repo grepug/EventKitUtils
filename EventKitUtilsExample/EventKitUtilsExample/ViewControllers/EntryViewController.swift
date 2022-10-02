@@ -102,6 +102,10 @@ extension EventManager {
         var prefixNSExpression: NSExpression {
             .init(forKeyPath: \CachedTask.order_)
         }
+        
+        var abortionDateNSExpression: NSExpression {
+            .init(forKeyPath: \CachedTask.abortionDate)
+        }
     }
     
     struct MyEventConfiguration: EventConfiguration {

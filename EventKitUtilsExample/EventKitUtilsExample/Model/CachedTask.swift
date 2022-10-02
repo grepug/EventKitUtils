@@ -116,6 +116,11 @@ extension CachedTask: TaskKind, CachedTaskKind {
         }
     }
     
+    public var abortedAt: Date? {
+        get { abortionDate }
+        set { abortionDate = newValue }
+    }
+    
     public var keyResultId: String? {
         get {
             keyResultID
@@ -164,6 +169,7 @@ extension CachedTask: TaskKind, CachedTaskKind {
         endDate = taskValue.normalizedEndDate
         isAllDay = taskValue.normalizedIsAllDay
         completionDate = taskValue.completedAt
+        abortionDate = taskValue.abortedAt
         notes = taskValue.notes
         keyResultID = taskValue.keyResultId
         linkedRecordValue = taskValue.linkedValue ?? 0

@@ -84,9 +84,13 @@ extension CacheHandlers {
     }
     
     func statePredicates(_ states: [TaskKindState]) -> NSPredicate {
-        let predicates = states.map {
-            NSCompoundPredicate(andPredicateWithSubpredicates: [
-                NSComparisonPredicate.created(stateNSExpression, NSExpression(format: "%@", $0.rawValue as NSNumber), type: .equalTo),
+        let predicates = states.map { state in
+            let statePredicate = state.predicate(completionExp: completionDateNSExpression,
+                                                 abortionExp: abortionDateNSExpression,
+                                                 stateExp: prefixNSExpression)
+            
+            return NSCompoundPredicate(andPredicateWithSubpredicates: [
+                statePredicate,
                 NSComparisonPredicate.created(prefixNSExpression, NSExpression(format: "0"), type: .equalTo),
             ])
         }

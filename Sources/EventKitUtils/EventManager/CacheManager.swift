@@ -48,7 +48,7 @@ extension CacheManager {
         var tasks: CacheHandlersTaskValuesDict = [:]
         
         eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
-            let id = event.normalizedID
+            let id = event.normalizedID.eventIDIgnoringRecurrenceID
             let state = event.state
             
             if tasks[id] == nil {

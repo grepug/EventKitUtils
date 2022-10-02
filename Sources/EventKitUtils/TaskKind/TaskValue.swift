@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, originalIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, originalIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, abortedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
@@ -17,6 +17,7 @@ public struct TaskValue: TaskKind, Equatable {
         self.originalIsAllDay = originalIsAllDay
         self.premisedIsDateEnabled = premisedIsDateEnabled
         self.completedAt = completedAt
+        self.abortedAt = abortedAt
         self.notes = notes
         self.keyResultId = keyResultId
         self.linkedValue = linkedValue
@@ -35,6 +36,7 @@ public struct TaskValue: TaskKind, Equatable {
     public var originalIsAllDay: Bool = false
     public var premisedIsDateEnabled: Bool?
     public var completedAt: Date?
+    public var abortedAt: Date?
     public var notes: String?
     public var keyResultId: String?
     public var linkedValue: Double?
@@ -131,7 +133,7 @@ public extension Array where Element == TaskValue {
 
 extension Array where Element == TaskValue {
     enum SortType {
-        case endDateAsc, creationDateAsc, completionDesc
+        case endDateAsc, creationDateAsc, completionDesc, abortionDesc
         
         func sorted(_ a: TaskValue, _ b: TaskValue) -> Bool? {
             if a.isCompleted != b.isCompleted {
@@ -151,6 +153,10 @@ extension Array where Element == TaskValue {
                 if let d1 = a.completedAt, let d2 = b.completedAt, d1 != d2 {
                     return d1 > d2
                 }
+            case .abortionDesc:
+                if let d1 = a.abortedAt, let d2 = b.abortedAt, d1 != d2 {
+                    return d1 > d2
+                }
             }
             
             return nil
@@ -164,6 +170,14 @@ extension Array where Element == TaskValue {
                 
                 if state == .unscheduled {
                     return [.creationDateAsc]
+                }
+                
+                if state == .completed {
+                    return [.completionDesc]
+                }
+                
+                if state == .aborted {
+                    return [.abortionDesc]
                 }
                 
                 assert(false, "no way for this")

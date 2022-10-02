@@ -48,13 +48,9 @@ extension EventManager {
             return cache
         }
         
-        if segment == .completed {
-            cache[nil] = tasks.filter { $0.isCompleted }
-        } else {
-            for task in tasks {
-                if task.displayInSegment(segment) {
-                    addToCache(task, in: &cache)
-                }
+        for task in tasks {
+            if task.displayInSegment(segment) {
+                addToCache(task, in: &cache)
             }
         }
         

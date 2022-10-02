@@ -20,6 +20,7 @@ public protocol TaskKind {
     var originalIsAllDay: Bool { get set }
     var premisedIsDateEnabled: Bool? { get }
     var completedAt: Date? { get set }
+    var abortedAt: Date? { get set }
     var notes: String? { get set }
     var keyResultId: String? { get set }
     var linkedValue: Double? { get set }
@@ -188,6 +189,10 @@ public extension TaskKind {
         completedAt != nil
     }
     
+    var isAborted: Bool {
+        abortedAt != nil
+    }
+    
     func dateFormatted(endDateOnly: Bool = false) -> String? {
         guard let range = dateRange else {
             return nil
@@ -233,6 +238,7 @@ public extension TaskKind {
         normalizedEndDate = task.normalizedEndDate
         originalIsAllDay = task.originalIsAllDay
         completedAt = task.completedAt
+        abortedAt = task.abortedAt
         notes = task.notes
         keyResultId = task.keyResultId
         linkedValue = task.linkedValue
@@ -323,6 +329,14 @@ private extension TaskKind {
 
 public extension TaskKind {
     var state: TaskKindState {
+        if isAborted {
+            return .aborted
+        }
+        
+        if isCompleted {
+            return .completed
+        }
+        
         guard isDateEnabled,
               let endDate = normalizedEndDate,
               let range = dateRange else {
@@ -358,7 +372,7 @@ public extension TaskKind {
         case .incompleted:
             return !isCompleted
         case .completed:
-            return isCompleted
+            return isCompleted || state == .aborted
         }
     }
 }
@@ -384,11 +398,17 @@ extension Date {
     }
 }
 
+public extension String {
+    var eventIDIgnoringRecurrenceID: String {
+        String(split(separator: "/").first!)
+    }
+}
+
 public extension Array where Element == TaskKind {
     /// Filter out duplicated IDs, ignoring recurrence suffix, e.g. /RID=xxxxxxxx
     var uniquedByIdIgnoringRecurrenceID: [Element] {
         uniqued { el in
-            el.normalizedID.split(separator: "/").first!
+            el.normalizedID.eventIDIgnoringRecurrenceID
         }
     }
     

@@ -13,6 +13,7 @@ public protocol CacheHandlers {
     var cachedTaskKind: CachedTaskKind.Type { get }
     var persistentContainer: NSPersistentContainer { get }
     var completionDateNSExpression: NSExpression { get }
+    var abortionDateNSExpression: NSExpression { get }
     var prefixNSExpression: NSExpression { get }
     var stateNSExpression: NSExpression { get }
 }
@@ -24,19 +25,11 @@ extension CacheHandlers {
         }
         
         let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
-        let isCompletedPredicate: (Bool) -> NSPredicate = { isTrue in
-            NSComparisonPredicate.created(completionDateNSExpression, NSExpression(format: "nil"), type: isTrue ? .notEqualTo : .equalTo)
-        }
         var predicates = [runIDPredicate]
         
         switch type {
         case .segment(let segment):
-            switch segment {
-            case .completed:
-                predicates.append(isCompletedPredicate(true))
-            case .incompleted, .today:
-                predicates.append(statePredicates(segment.displayStates))
-            }
+            predicates.append(statePredicates(segment.displayStates))
             
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             

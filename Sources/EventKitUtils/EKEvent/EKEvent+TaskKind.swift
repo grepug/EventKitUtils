@@ -64,6 +64,21 @@ extension EKEvent: TaskKind {
         }
     }
     
+    public var abortedAt: Date? {
+        get {
+            guard let value = getValue(forKey: .abortedAt), let double = Double(value) else {
+                return nil
+            }
+            
+            return Date(timeIntervalSince1970: double)
+        }
+        
+        set {
+            setValue(newValue.map { String($0.timeIntervalSince1970) },
+                     forKey: .abortedAt)
+        }
+    }
+    
     public var completedAt: Date? {
         get {
             guard let value = getValue(forKey: .completedAt), let double = Double(value) else {

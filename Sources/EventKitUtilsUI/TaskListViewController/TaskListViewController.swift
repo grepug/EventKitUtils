@@ -102,16 +102,9 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
                     taskSection(tasks, groupedState: nil)
                 }
             } else {
-                switch self.segment {
-                case .today, .incompleted:
-                    for state in TaskKindState.allCases {
-                        if let tasks = self.groupedTasks[state], !tasks.isEmpty {
-                            taskSection(tasks, groupedState: state)
-                        }
-                    }
-                case .completed:
-                    if let tasks = self.groupedTasks[nil], !tasks.isEmpty {
-                        taskSection(tasks, groupedState: nil)
+                for state in TaskKindState.allCases {
+                    if let tasks = self.groupedTasks[state], !tasks.isEmpty {
+                        taskSection(tasks, groupedState: state)
                     }
                 }
             }
