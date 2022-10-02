@@ -132,7 +132,7 @@ extension TaskListViewController: TaskActionMenuHandling {
         }
     }
     
-    public func taskActionMenu(afterDeletionWith task: TaskValue) {
+    public func taskActionMenu(reloadListWith task: TaskValue) {
         reloadList()
     }
     

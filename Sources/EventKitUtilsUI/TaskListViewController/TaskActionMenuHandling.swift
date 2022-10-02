@@ -17,7 +17,7 @@ public protocol TaskActionMenuHandling: DiffableListViewController {
     
     func taskActionMenu(presentTaskEditorWith task: TaskValue)
     func taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith task: TaskValue)
-    func taskActionMenu(afterDeletionWith task: TaskValue)
+    func taskActionMenu(reloadListWith task: TaskValue)
 }
 
 public extension TaskActionMenuHandling {
@@ -36,6 +36,8 @@ public extension TaskActionMenuHandling {
                 }
             }
         }
+        
+        
         
         if !hidingShowingRepeatTasks && isContextMenu && task.isRpeating {
             MBGroup {
@@ -60,6 +62,19 @@ public extension TaskActionMenuHandling {
             self?.taskActionMenu(presentTaskEditorWith: task)
         }
         
+        MBButton("放弃", image: .init(systemName: "xmark"), color: .systemYellow) { [weak self] completion in
+            guard let self = self else { return }
+            
+            Task {
+                await self.em.abortTask(task)
+                self.taskActionMenu(reloadListWith: task)
+                
+                DispatchQueue.main.async {
+                    completion(true)
+                }
+            }
+        }
+        
         MBButton.delete { [weak self] in
             guard let self = self else { return false }
             
@@ -67,7 +82,7 @@ public extension TaskActionMenuHandling {
                 self?.taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith: task)
             }
             
-            self.taskActionMenu(afterDeletionWith: task)
+            self.taskActionMenu(reloadListWith: task)
             
             return res
         }

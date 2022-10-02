@@ -287,6 +287,10 @@ public extension TaskKind {
         normalizedStartDate = current
         normalizedEndDate = endDate
     }
+    
+    mutating func toggleAbortion() {
+        abortedAt = isAborted ? nil : Date()
+    }
 }
 
 private extension TaskKind {
