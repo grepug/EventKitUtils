@@ -2,7 +2,7 @@
 //  File.swift
 //  
 //
-//  Created by Kai on 2022/7/19.
+//  Created by Kai Shao on 2022/9/30.
 //
 
 import Foundation
@@ -20,6 +20,10 @@ public extension Date {
         Calendar.current.date(byAdding: .day, value: 1, to: self)!
     }
     
+    var yesterday: Self {
+        Calendar.current.date(byAdding: .day, value: -1, to: self)!
+    }
+    
     var startOfDay: Self {
         Calendar.current.startOfDay(for: self)
     }
@@ -32,6 +36,10 @@ public extension Date {
     
     var nextHour: Self {
         Calendar.current.date(byAdding: .hour, value: 1, to: self)!
+    }
+    
+    var prevHour: Self {
+        Calendar.current.date(byAdding: .hour, value: -1, to: self)!
     }
     
     var nextWeek: Self {
@@ -71,25 +79,30 @@ public extension Date {
     }
 }
 
-extension String {
-    var loc: Self {
-        String(format: NSLocalizedString(self, bundle: .module, comment: ""), "")
+public extension Date {
+    enum NeareastTimeType {
+        case half, hour
     }
     
-    func loc(_ string: String) -> Self {
-        String(format: NSLocalizedString(self, bundle: .module, comment: ""), string)
-    }
-}
-
-extension Double {
-    func toString(toFixed fixed: Int, dropingDotZero: Bool = false) -> String {
-        let string = String(format: "%.\(fixed)f", self)
-        let decimal = truncatingRemainder(dividingBy: 1)
+    func nearestTime(in type: NeareastTimeType = .half) -> Date {
+        let min = Calendar.current.component(.minute, from: self)
         
-        if dropingDotZero && decimal == 0 {
-            return String(Int(self))
+        switch type {
+        case .hour:
+            if min > 30 {
+                return nextHour.startOfHour
+            }
+            
+            return startOfHour
+        case .half:
+            switch min {
+            case 0..<15:
+                return startOfHour
+            case 15..<30:
+                return Calendar.current.date(bySetting: .minute, value: 30, of: self)!
+            default:
+                return startOfHour.nextHour
+            }
         }
-        
-        return string
     }
 }

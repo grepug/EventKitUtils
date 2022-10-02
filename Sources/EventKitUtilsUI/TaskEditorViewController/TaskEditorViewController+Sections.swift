@@ -35,64 +35,52 @@ extension TaskEditorViewController {
     @ListBuilder
     var plannedDateSection: [DLSection] {
         DLSection { [unowned self] in
-//            DLCell {
-//                DLText("task_editor_plan_date".loc)
-//            }
-//            .tag("enable planDate \(isEvent) \(task.isDateEnabled)")
-//            .accessories([.toggle(isOn: task.isDateEnabled, isEnabled: !isEvent, action: { [unowned self] isOn in
-//                task.isDateEnabled = isOn
-//                task.updateVersion()
-//                reload()
-//            })])
+            DLCell {
+                DLText("task_editor_all_day".loc)
+            }
+            .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
+            .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
+                task.normalizedIsAllDay = isOn
+                reload()
+            })])
             
-            if task.isDateEnabled {
-                DLCell {
-                    DLText("task_editor_all_day".loc)
-                }
-                .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
-                .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
-                    task.normalizedIsAllDay = isOn
-                    reload()
-                })])
-                
-                DLCell {
-                    DLText("时间段".loc)
-                }
-                .tag("is interval \(task.isDateEnabled) \(task.normalizedIsInterval)")
-                .accessories([.toggle(isOn: task.normalizedIsInterval, action: { [unowned self] isOn in
-                    task.normalizedIsInterval = isOn
-                    reload()
-                })])
-                
-                if task.normalizedIsInterval {
-                    DLCell(using: .datePicker(labelText: "task_editor_start_date".loc,
-                                              date: task.normalizedStartDate!,
-                                              mode: datePickerMode,
-                                              valueDidChange: { [unowned self] date in
-                        task.normalizedStartDate = date
-                        #if !targetEnvironment(macCatalyst)
-                        reload(animating: false)
-                        #endif
-                    }))
-                    .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
-                }
-                
-                DLCell(using: .datePicker(labelText: task.normalizedIsInterval ? "task_editor_end_date".loc : "时间",
-                                          date: task.normalizedEndDate!,
+            DLCell {
+                DLText("时间段".loc)
+            }
+            .tag("is interval \(task.isDateEnabled) \(task.normalizedIsInterval)")
+            .accessories([.toggle(isOn: task.normalizedIsInterval, action: { [unowned self] isOn in
+                task.normalizedIsInterval = isOn
+                reload()
+            })])
+            
+            if task.normalizedIsInterval {
+                DLCell(using: .datePicker(labelText: "task_editor_start_date".loc,
+                                          date: task.normalizedStartDate!,
                                           mode: datePickerMode,
                                           valueDidChange: { [unowned self] date in
-                    task.normalizedEndDate = date
-                    
-                    if task.normalizedIsInterval {
-                        task.normalizedStartDate = date
-                    }
-                    
+                    task.normalizedStartDate = date
                     #if !targetEnvironment(macCatalyst)
                     reload(animating: false)
                     #endif
                 }))
-                .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode) \(task.normalizedIsInterval)")
+                .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
             }
+            
+            DLCell(using: .datePicker(labelText: task.normalizedIsInterval ? "task_editor_end_date".loc : "时间",
+                                      date: task.normalizedEndDate!,
+                                      mode: datePickerMode,
+                                      valueDidChange: { [unowned self] date in
+                task.normalizedEndDate = date
+                
+                if task.normalizedIsInterval {
+                    task.normalizedStartDate = date
+                }
+                
+                #if !targetEnvironment(macCatalyst)
+                reload(animating: false)
+                #endif
+            }))
+            .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode) \(task.normalizedIsInterval)")
         }
         .tag("2 \(self.task.durationString ?? "") \(self.task.isDateEnabled)")
         .listConfig { [unowned self] config in

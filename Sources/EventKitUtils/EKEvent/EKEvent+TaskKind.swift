@@ -59,19 +59,49 @@ extension EKEvent: TaskKind {
         set { endDate = newValue }
     }
     
+    func setDefaultDates(isInterval: Bool, isAllDay: Bool) {
+        if isAllDay {
+            let date = Date().startOfDay.nextHour
+            normalizedEndDate = date
+            
+            if isInterval {
+                normalizedStartDate = date.yesterday
+            } else {
+                normalizedStartDate = date
+            }
+        } else {
+            let date = Date().nearestTime(in: .half)
+            
+            normalizedEndDate = date
+            
+            if isInterval {
+                normalizedStartDate = date.prevHour
+            } else {
+                normalizedStartDate = date
+            }
+        }
+    }
+    
     public var normalizedIsAllDay: Bool {
         get { isAllDay }
-        set { isAllDay = newValue }
+        set {
+            isAllDay = newValue
+            
+            setDefaultDates(isInterval: normalizedIsInterval, isAllDay: newValue)
+        }
     }
     
     public var normalizedIsInterval: Bool {
-        get { normalizedStartDate == normalizedEndDate }
-        set {
-            guard let normalizedStartDate else {
-                return
+        get {
+            if normalizedIsAllDay {
+                return normalizedStartDate?.startOfDay != normalizedEndDate?.startOfDay
             }
             
-            normalizedEndDate = Calendar.current.date(byAdding: .hour, value: 1, to: normalizedStartDate)
+            return normalizedStartDate != normalizedEndDate
+        }
+        
+        set {
+           setDefaultDates(isInterval: newValue, isAllDay: normalizedIsAllDay)
         }
     }
     

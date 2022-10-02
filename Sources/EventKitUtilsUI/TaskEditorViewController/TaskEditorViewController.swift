@@ -16,8 +16,24 @@ import Combine
 import UIKitUtils
 
 public class TaskEditorViewController: DiffableListViewController {
-    var task: TaskValue!
-    var event: EKEvent?
+//    var taskValue: TaskValue!
+//    var event: EKEvent?
+    
+    var task: TaskKind
+    
+//    var task: TaskKind {
+//        get {
+//            event ?? taskValue
+//        }
+//
+//        set {
+//            if var event {
+//                event.assignFromTaskKind(newValue)
+//            } else {
+//                taskValue = newValue.value
+//            }
+//        }
+//    }
 
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
@@ -58,6 +74,10 @@ public class TaskEditorViewController: DiffableListViewController {
         task.normalizedIsAllDay ? .date : .dateAndTime
     }
     
+    var event: EKEvent? {
+        task as? EKEvent
+    }
+    
     var isEvent: Bool {
         event != nil
     }
@@ -71,7 +91,7 @@ public class TaskEditorViewController: DiffableListViewController {
             return event.value != originalTaskValue
         }
         
-        return task != originalTaskValue
+        return task.value != originalTaskValue
     }
     
     var hasNoError: Bool {
@@ -109,7 +129,7 @@ public class TaskEditorViewController: DiffableListViewController {
                     return
                 }
                 
-                self.event = event
+                self.task = event
                 self.originalTaskValue = event.value
                 
                 // set a default end date for recurrence if it absents
@@ -215,7 +235,7 @@ extension TaskEditorViewController: TaskHandling {
         }
         
         if savingFutureTasks {
-            let currentTask = self.task!
+            let currentTask = self.task
             var savingTaskObjects: [TaskKind] = []
             let uniquedTasks = ([currentTask] + tasks).uniquedById
             
@@ -286,7 +306,7 @@ extension TaskEditorViewController: TaskHandling {
                 return
             }
             
-            let deleted = await em.handleDeleteTask(task: task, on: self)
+            let deleted = await em.handleDeleteTask(task: task.value, on: self)
             
             if deleted {
                 dismissEditor()

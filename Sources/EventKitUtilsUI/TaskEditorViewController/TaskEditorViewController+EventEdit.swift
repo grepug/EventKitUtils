@@ -58,9 +58,9 @@ extension TaskEditorViewController {
         
         await saveTaskAndPresentErrorAlert(event)
         originalTaskValue = event.value
-        task = event.value
+//        task = event.value
         
-        self.event = event
+        self.task = event
         
         try! await Task.sleep(nanoseconds: 200_000_000)
         
