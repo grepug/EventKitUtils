@@ -231,7 +231,7 @@ public extension TaskKind {
         normalizedTitle = task.normalizedTitle
         normalizedStartDate = task.normalizedStartDate
         normalizedEndDate = task.normalizedEndDate
-        normalizedIsAllDay = task.normalizedIsAllDay
+        originalIsAllDay = task.originalIsAllDay
         completedAt = task.completedAt
         notes = task.notes
         keyResultId = task.keyResultId
@@ -285,8 +285,6 @@ public extension TaskKind {
 
 private extension TaskKind {
     func isInterval(startAt startDate: Date, endAt endDate: Date, isAllDay: Bool) -> Bool {
-        print("date!!", startDate, endDate, isAllDay, startDate.isSameDay(with: endDate))
-        
         if isAllDay {
             return !startDate.isSameDay(with: endDate)
         }
@@ -301,8 +299,6 @@ private extension TaskKind {
         if isAllDay {
             let date = Date()
             endDate = date
-            
-            print("date!! isInterval", isInterval)
             
             if isInterval {
                 startDate = date.yesterday
