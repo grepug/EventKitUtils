@@ -59,6 +59,11 @@ public extension Date {
         Calendar.current.date(byAdding: .hour, value: -1, to: self)!
     }
     
+    func isSameDay(with date: Date) -> Bool {
+        Calendar.current.isDate(date, inSameDayAs: self) ||
+        abs(date.timeIntervalSince1970 - timeIntervalSinceNow) < 3 * 60
+    }
+    
     func days(to date: Date, includingLastDay: Bool = true) -> Int {
         let days = Calendar.current.dateComponents([.day], from: startOfDay, to: date.tomorrow.startOfDay).day ?? 0
         

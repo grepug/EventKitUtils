@@ -17,8 +17,7 @@ public protocol TaskKind {
     var normalizedTitle: String { get set }
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
-    var normalizedIsAllDay: Bool { get set }
-    var normalizedIsInterval: Bool { get set }
+    var originalIsAllDay: Bool { get set }
     var premisedIsDateEnabled: Bool? { get }
     var completedAt: Date? { get set }
     var notes: String? { get set }
@@ -69,6 +68,40 @@ public extension TaskKind {
                 normalizedStartDate = nil
                 normalizedEndDate = nil
             }
+        }
+    }
+    
+    var normalizedIsInterval: Bool {
+        get {
+            guard let startDate = normalizedStartDate, let endDate = normalizedEndDate else {
+                return false
+            }
+            
+            return isInterval(startAt: startDate, endAt: endDate, isAllDay: normalizedIsAllDay)
+        }
+        
+        set {
+            let (startDate, endDate) = calculateDefaultDates(isInterval: newValue, isAllDay: normalizedIsAllDay)
+            normalizedStartDate = startDate
+            normalizedEndDate = endDate
+        }
+    }
+    
+    var normalizedIsAllDay: Bool {
+        get { originalIsAllDay }
+        set {
+            guard let _startDate = normalizedStartDate, let _endDate = normalizedEndDate else {
+                return
+            }
+            
+            let prevIsInterval = isInterval(startAt: _startDate, endAt: _endDate, isAllDay: normalizedIsAllDay)
+            let (startDate, endDate) = calculateDefaultDates(isInterval: prevIsInterval, isAllDay: newValue)
+            
+            // The internal implementation force startDate and endDate to be the start of day, if isAllDay is on,
+            // Therefore we need assign to ``isAllDay`` before assign to ``startDate`` and ``endDate``
+            originalIsAllDay = newValue
+            normalizedStartDate = startDate
+            normalizedEndDate = endDate
         }
     }
     
@@ -175,7 +208,7 @@ public extension TaskKind {
                             normalizedTitle: normalizedTitle,
                             normalizedStartDate: normalizedStartDate,
                             normalizedEndDate: normalizedEndDate,
-                            normalizedIsAllDay: normalizedIsAllDay,
+                            originalIsAllDay: normalizedIsAllDay,
                             premisedIsDateEnabled: premisedIsDateEnabled,
                             completedAt: completedAt,
                             notes: notes,
@@ -247,6 +280,48 @@ public extension TaskKind {
         
         normalizedStartDate = current
         normalizedEndDate = endDate
+    }
+}
+
+private extension TaskKind {
+    func isInterval(startAt startDate: Date, endAt endDate: Date, isAllDay: Bool) -> Bool {
+        print("date!!", startDate, endDate, isAllDay, startDate.isSameDay(with: endDate))
+        
+        if isAllDay {
+            return !startDate.isSameDay(with: endDate)
+        }
+        
+        return startDate != endDate
+    }
+    
+    func calculateDefaultDates(isInterval: Bool, isAllDay: Bool) -> (Date, Date) {
+        let startDate: Date
+        let endDate: Date
+        
+        if isAllDay {
+            let date = Date()
+            endDate = date
+            
+            print("date!! isInterval", isInterval)
+            
+            if isInterval {
+                startDate = date.yesterday
+            } else {
+                startDate = date
+            }
+        } else {
+            let date = Date().nearestTime(in: .half)
+            
+            endDate = date
+            
+            if isInterval {
+                startDate = date.prevHour
+            } else {
+                startDate = date
+            }
+        }
+        
+        return (startDate, endDate)
     }
 }
 

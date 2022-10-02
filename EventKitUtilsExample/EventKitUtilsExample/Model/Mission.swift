@@ -19,13 +19,9 @@ extension Mission: SimpleManagedObject, TaskKind {
         }
     }
     
-    public var normalizedIsAllDay: Bool {
-        get {
-            isAllDay
-        }
-        set {
-            isAllDay = newValue
-        }
+    public var originalIsAllDay: Bool {
+        get { isAllDay }
+        set { isAllDay = newValue }
     }
     
     public var normalizedIsInterval: Bool {

@@ -89,7 +89,7 @@ extension CachedTask: TaskKind, CachedTaskKind {
         }
     }
     
-    public var normalizedIsAllDay: Bool {
+    public var originalIsAllDay: Bool {
         get {
             isAllDay
         }

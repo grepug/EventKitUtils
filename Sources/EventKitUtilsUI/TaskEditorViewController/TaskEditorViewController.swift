@@ -16,25 +16,7 @@ import Combine
 import UIKitUtils
 
 public class TaskEditorViewController: DiffableListViewController {
-//    var taskValue: TaskValue!
-//    var event: EKEvent?
-    
     var task: TaskKind
-    
-//    var task: TaskKind {
-//        get {
-//            event ?? taskValue
-//        }
-//
-//        set {
-//            if var event {
-//                event.assignFromTaskKind(newValue)
-//            } else {
-//                taskValue = newValue.value
-//            }
-//        }
-//    }
-
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
     unowned public let em: EventManager

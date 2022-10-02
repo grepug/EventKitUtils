@@ -9,12 +9,12 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, normalizedIsAllDay: Bool = false, normalizedIsInterval: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, originalIsAllDay: Bool = false, normalizedIsInterval: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
         self.normalizedEndDate = normalizedEndDate
-        self.normalizedIsAllDay = normalizedIsAllDay
+        self.originalIsAllDay = originalIsAllDay
         self.normalizedIsInterval = normalizedIsInterval
         self.premisedIsDateEnabled = premisedIsDateEnabled
         self.completedAt = completedAt
@@ -33,10 +33,8 @@ public struct TaskValue: TaskKind, Equatable {
     public var normalizedTitle: String
     public var normalizedStartDate: Date?
     public var normalizedEndDate: Date?
-    public var normalizedIsAllDay: Bool = false
-    public var normalizedIsInterval: Bool = false
+    public var originalIsAllDay: Bool = false
     public var premisedIsDateEnabled: Bool?
-//    public var isCompleted: Bool = false
     public var completedAt: Date?
     public var notes: String?
     public var keyResultId: String?
@@ -89,24 +87,6 @@ public struct TaskValue: TaskKind, Equatable {
 }
 
 public extension Array where Element == TaskValue {
-    func incompletedTasksAfter(_ date: Date, notEqualTo originalTaskValue: TaskValue) -> [TaskValue] {
-        filter { task in
-//            guard originalTaskValue.normalizedID != task.normalizedID else {
-//                return false
-//            }
-            
-            guard !task.isCompleted else {
-                return false
-            }
-            
-            if let endDate = task.normalizedEndDate {
-                return endDate > date
-            }
-            
-            return true
-        }
-    }
-    
     typealias TitleGrouped = OrderedDictionary<TaskRepeatingInfo, [TaskValue]>
     typealias RepeatingGroupedCounts = [TaskRepeatingInfo: Int]
     
@@ -142,12 +122,6 @@ public extension Array where Element == TaskValue {
         
         for (_, tasks) in cache {
             if let first = tasks.first {
-//                let info = first.repeatingInfo
-                
-//                first.repeatingCount = countsOfTitleGrouped?[info] ??
-//                cache[info]?.count ??
-//                tasks.count
-                
                 taskValues.append(first)
             }
         }

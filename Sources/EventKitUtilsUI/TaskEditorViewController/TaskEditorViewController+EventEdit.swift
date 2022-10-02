@@ -58,7 +58,6 @@ extension TaskEditorViewController {
         
         await saveTaskAndPresentErrorAlert(event)
         originalTaskValue = event.value
-//        task = event.value
         
         self.task = event
         

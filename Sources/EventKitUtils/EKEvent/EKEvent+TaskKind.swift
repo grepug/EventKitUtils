@@ -38,71 +38,18 @@ extension EKEvent: TaskKind {
     }
     
     public var normalizedStartDate: Date? {
-        get {
-            if isAllDay {
-                return startDate.startOfDay
-            }
-            
-            return startDate
-        }
+        get { startDate }
         set { startDate = newValue }
     }
     
     public var normalizedEndDate: Date? {
-        get {
-            if isAllDay {
-                return endDate.endOfDay
-            }
-            
-            return endDate
-        }
+        get { endDate }
         set { endDate = newValue }
     }
     
-    func setDefaultDates(isInterval: Bool, isAllDay: Bool) {
-        if isAllDay {
-            let date = Date().startOfDay.nextHour
-            normalizedEndDate = date
-            
-            if isInterval {
-                normalizedStartDate = date.yesterday
-            } else {
-                normalizedStartDate = date
-            }
-        } else {
-            let date = Date().nearestTime(in: .half)
-            
-            normalizedEndDate = date
-            
-            if isInterval {
-                normalizedStartDate = date.prevHour
-            } else {
-                normalizedStartDate = date
-            }
-        }
-    }
-    
-    public var normalizedIsAllDay: Bool {
+    public var originalIsAllDay: Bool {
         get { isAllDay }
-        set {
-            isAllDay = newValue
-            
-            setDefaultDates(isInterval: normalizedIsInterval, isAllDay: newValue)
-        }
-    }
-    
-    public var normalizedIsInterval: Bool {
-        get {
-            if normalizedIsAllDay {
-                return normalizedStartDate?.startOfDay != normalizedEndDate?.startOfDay
-            }
-            
-            return normalizedStartDate != normalizedEndDate
-        }
-        
-        set {
-           setDefaultDates(isInterval: newValue, isAllDay: normalizedIsAllDay)
-        }
+        set { isAllDay = newValue }
     }
     
     public var premisedIsDateEnabled: Bool? { nil }
