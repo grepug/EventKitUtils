@@ -21,6 +21,19 @@ public protocol TaskActionMenuHandling: DiffableListViewController {
 }
 
 public extension TaskActionMenuHandling {
+    func presentRepeatTaskListViewController(task: TaskValue) {
+        let taskList = TaskListViewController(eventManager: em,
+                                              repeatingInfo: task.repeatingInfo)
+        let nav = taskList.navigationControllerWrapped()
+        
+        nav.modalPresentationStyle = .popover
+        
+        let indexPath = listView.indexPath(forItemIdentifier: task.cellTag)!
+        nav.popoverPresentationController?.sourceView = self.listView.cellForItem(at: indexPath)
+        
+        present(nav, animated: true)
+    }
+    
     @MenuBuilder
     func taskMenu(task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
         if !hidingOpenKR && isContextMenu, let krId = task.keyResultId {
@@ -37,29 +50,18 @@ public extension TaskActionMenuHandling {
             }
         }
         
-        
-        
-        if !hidingShowingRepeatTasks && isContextMenu && task.isRpeating {
+        if !task.state.isEnded && !hidingShowingRepeatTasks && isContextMenu && task.isRpeating {
             MBGroup {
                 MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) { [weak self] in
-                    guard let self = self else { return }
-                    
-                    let taskList = TaskListViewController(eventManager: self.em,
-                                                          repeatingInfo: task.repeatingInfo)
-                    let nav = taskList.navigationControllerWrapped()
-                    
-                    nav.modalPresentationStyle = .popover
-                    
-                    let indexPath = self.listView.indexPath(forItemIdentifier: task.cellTag)!
-                    nav.popoverPresentationController?.sourceView = self.listView.cellForItem(at: indexPath)
-                    
-                    self.present(nav, animated: true)
+                    self?.presentRepeatTaskListViewController(task: task)
                 }
             }
         }
         
-        MBButton.edit { [weak self] in
-            self?.taskActionMenu(presentTaskEditorWith: task)
+        if !task.state.isEnded {
+            MBButton.edit { [weak self] in
+                self?.taskActionMenu(presentTaskEditorWith: task)
+            }
         }
         
         let abortTitle = task.isAborted ? "取消放弃" : "放弃"

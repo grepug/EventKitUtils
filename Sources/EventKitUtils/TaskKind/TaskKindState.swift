@@ -37,6 +37,16 @@ public enum TaskKindState: Int, CaseIterable {
     }
 }
 
+public extension TaskKindState {
+    /// is completed or aborted
+    var isEnded: Bool {
+        switch self {
+        case .completed, .aborted: return true
+        default: return false
+        }
+    }
+}
+
 public extension FetchTasksSegmentType {
     var displayStates: [TaskKindState] {
         switch self {

@@ -20,13 +20,14 @@ public struct TaskListCell: View {
     ///   - hidingDate: a boolean indicates whether hiding the dates
     ///   - check: a method to toggle completion the task
     ///   - onTap: a method triggers when the whole task cell is tapped
-    public init(task: TaskValue, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, onTap: (() -> Void)? = nil) {
+    public init(task: TaskValue, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, hidingRepeatingCount: Bool = false, check: @escaping () async -> Void, onTap: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
         self.checked = checked
         self.showingNotes = showingNotes
         self.hidingKRInfo = hidingKRInfo
         self.hidingDate = hidingDate
+        self.hidingRepeatingCount = hidingRepeatingCount
         self.check = check
         self.onTap = onTap
     }
@@ -37,6 +38,7 @@ public struct TaskListCell: View {
     var showingNotes: Bool
     var hidingKRInfo: Bool = false
     var hidingDate: Bool = false
+    var hidingRepeatingCount: Bool = false
     var check: () async -> Void
     var onTap: (() -> Void)?
     
@@ -82,7 +84,7 @@ public struct TaskListCell: View {
                 HStack {
                     Text(task.normalizedTitle)
                         .bold()
-                        .foregroundColor(task.isCompleted ? .gray : Color(UIColor.label))
+                        .foregroundColor(task.state.isEnded ? .gray : Color(UIColor.label))
                         
                     if task.kindIdentifier == .event {
                         Image(systemName: "calendar")
@@ -101,7 +103,7 @@ public struct TaskListCell: View {
                             .foregroundColor(task.dateColor)
                     }
                     
-                    if let repeatingCount = task.repeatingCount, repeatingCount > 1 {
+                    if !hidingRepeatingCount, let repeatingCount = task.repeatingCount, repeatingCount > 1 {
                         Label("\(repeatingCount)", systemImage: "repeat")
                             .foregroundColor(.secondary)
                     }

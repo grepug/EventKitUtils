@@ -174,7 +174,7 @@ public extension TaskKind {
     }
     
     var dateColor: Color {
-        if isCompleted {
+        if state.isEnded {
             return .secondary
         }
         

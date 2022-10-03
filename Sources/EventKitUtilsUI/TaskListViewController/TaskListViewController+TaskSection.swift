@@ -44,15 +44,15 @@ extension TaskListViewController {
             }
             
             for task in tasks {
-                DLCell(using: .swiftUI(movingTo: self, content: {
-                    TaskListCell(task: task) { [weak self] in
+                DLCell(using: .swiftUI(movingTo: self, content: { [unowned self] in
+                    TaskListCell(task: task, hidingRepeatingCount: isRepeatingList) { [weak self] in
                         guard let self = self else { return }
                         
                         await self.em.toggleCompletion(task)
                         self.reloadList()
                     } onTap: { [weak self] in
                         Task {
-                            await self?.presentTaskEditor(task: task)
+                            await self?.handleTaskCellTap(task: task)
                         }
                     }
                 }))
@@ -97,6 +97,14 @@ extension TaskListViewController {
         }
         
         return nil
+    }
+    
+    func handleTaskCellTap(task: TaskValue) async {
+        if task.state.isEnded {
+            presentRepeatTaskListViewController(task: task)
+        } else {
+            await presentTaskEditor(task: task)
+        }
     }
     
     func handlePostpone() async {
