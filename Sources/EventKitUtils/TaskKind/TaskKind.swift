@@ -291,6 +291,7 @@ public extension TaskKind {
     
     mutating func toggleAbortion() {
         abortedAt = isAborted ? nil : Date()
+        normalizedTitle = normalizedTitle
     }
 }
 
@@ -375,7 +376,7 @@ public extension TaskKind {
             
             return [.today, .overdued].contains(state)
         case .incompleted:
-            return !isCompleted
+            return [.today, .afterToday, .unscheduled].contains(state)
         case .completed:
             return isCompleted || state == .aborted
         }

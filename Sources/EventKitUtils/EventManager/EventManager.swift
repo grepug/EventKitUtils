@@ -145,6 +145,7 @@ public extension EventManager {
         
         for task in tasks {
             guard var taskObject = await taskObject(task) else {
+                assertionFailure()
                 continue
             }
             

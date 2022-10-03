@@ -45,7 +45,8 @@ extension CacheHandlers {
             predicates.append(predicate1)
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
-            let tasks = try! await cachedTaskKind.fetch(where: predicate) { objects in
+            let tasks = try! await cachedTaskKind.fetch(where: predicate,
+                                                        sortedBy: [.init(key: "startDate", ascending: true)]) { objects in
                 objects.map(\.value)
             }
             
