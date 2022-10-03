@@ -62,15 +62,25 @@ public extension TaskActionMenuHandling {
             self?.taskActionMenu(presentTaskEditorWith: task)
         }
         
-        MBButton("放弃", image: .init(systemName: "xmark"), color: .systemYellow) { [weak self] completion in
+        let abortTitle = task.isAborted ? "取消放弃" : "放弃"
+        let abortImageName = task.isAborted ? "arrowshape.turn.up.backward.fill" : "xmark"
+        
+        MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow) { [weak self] completion in
             guard let self = self else { return }
             
-            Task {
-                await self.em.abortTask(task)
-                self.taskActionMenu(reloadListWith: task)
+            if task.isAborted {
                 
-                DispatchQueue.main.async {
-                    completion(true)
+            } else {
+                Task {
+                    let res = await self.em.handleAbortTask(task: task, on: self) { [weak self] in
+                        self?.taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith: task)
+                    }
+                    
+                    self.taskActionMenu(reloadListWith: task)
+                    
+                    DispatchQueue.main.async {
+                        completion(res)
+                    }
                 }
             }
         }

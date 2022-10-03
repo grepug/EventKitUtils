@@ -9,9 +9,6 @@ import UIKit
 import EventKitUtils
 
 extension EventManager {
-    enum GeneralDeletionType {
-        case deletion, abortion
-    }
     /// Delete the task, present the "deleting future tasks" alert if it is a repeating task
     ///
     /// Deletion flow:
@@ -28,7 +25,7 @@ extension EventManager {
     ///   - removeTask: the handler to manually remove this task in the current view model
     /// - Returns: a boolean that indicates if deleted successfully
     @discardableResult
-    func handleDeleteTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil, deletionType: GeneralDeletionType = .deletion) async -> Bool {
+    func handleDeleteTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
         if task.isCompleted {
             removeTask?()
             await self.deleteTask(task)

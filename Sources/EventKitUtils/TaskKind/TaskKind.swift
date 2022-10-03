@@ -41,7 +41,7 @@ public extension TaskKind {
     }
     
     var emoji: String {
-        isCompleted ? "✅" : "⭕️"
+        isAborted ? "❌" : isCompleted ? "✅" : "⭕️"
     }
     
     var isDateEnabled: Bool {
@@ -216,6 +216,7 @@ public extension TaskKind {
                             originalIsAllDay: normalizedIsAllDay,
                             premisedIsDateEnabled: premisedIsDateEnabled,
                             completedAt: completedAt,
+                            abortedAt: abortedAt,
                             notes: notes,
                             keyResultId: keyResultId,
                             linkedValue: linkedValue,

@@ -148,7 +148,7 @@ extension EKEvent {
 extension String {
     func statusEmojiTrimmed() -> String {
         let trimedTitle = trimmingCharacters(in: .whitespacesAndNewlines)
-        let signs = Set<Character>(["⭕️", "✅"])
+        let signs = Set<Character>(["⭕️", "✅", "❌"])
         
         if let firstChar = trimedTitle.first,
            signs.contains(firstChar) {

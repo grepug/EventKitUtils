@@ -50,7 +50,7 @@ extension TaskListViewController {
                         
                         await self.em.toggleCompletion(task)
                         self.reloadList()
-                    } presentEditor: { [weak self] in
+                    } onTap: { [weak self] in
                         Task {
                             await self?.presentTaskEditor(task: task)
                         }

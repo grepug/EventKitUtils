@@ -140,6 +140,22 @@ public extension EventManager {
         try! await saveTask(taskObject)
     }
     
+    func abortTasks(_ tasks: [TaskKind]) async throws {
+        let tasks = tasks.uniquedById
+        
+        for task in tasks {
+            guard var taskObject = await taskObject(task) else {
+                continue
+            }
+            
+            taskObject.toggleAbortion()
+            
+            try await saveTask(taskObject, savingRecurrences: true, commit: false)
+        }
+        
+        try eventStore.commit()
+    }
+    
     /// Save the Task
     /// - Parameters:
     ///   - task: the task kind to save
@@ -206,11 +222,6 @@ public extension EventManager {
 
         for task in tasks {
             await deleteTask(task, deletingRecurrences: true, commit: false)
-            
-            print("taskscount @@@",
-                  task.normalizedID,
-                  task.normalizedStartDate,
-                  task.isCompleted)
         }
         
         try! eventStore.commit()
@@ -223,7 +234,7 @@ public extension EventManager {
             try await saveTask(task, savingRecurrences: true, commit: false)
         }
         
-        try! eventStore.commit()
+        try eventStore.commit()
     }
         
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> [TaskValue] {

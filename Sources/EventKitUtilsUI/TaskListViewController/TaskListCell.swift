@@ -8,8 +8,19 @@
 import SwiftUI
 import EventKitUtils
 
+/// The content view for task list cell, implementing with SwiftUI
 public struct TaskListCell: View {
-    public init(task: TaskValue, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, presentEditor: (() -> Void)? = nil) {
+    /// The initializer for ``TaskListCell``
+    /// - Parameters:
+    ///   - task: the task value
+    ///   - isSummaryCard: a boolean indicates whether is for the Summary View Card
+    ///   - checked: a boolean indicates whether the task is checked, which may be used as a temporary value
+    ///   - showingNotes: a boolean indicates whether showing the notes of the task
+    ///   - hidingKRInfo: a boolean indicates whether hiding the info of the key result
+    ///   - hidingDate: a boolean indicates whether hiding the dates
+    ///   - check: a method to toggle completion the task
+    ///   - onTap: a method triggers when the whole task cell is tapped
+    public init(task: TaskValue, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, check: @escaping () async -> Void, onTap: (() -> Void)? = nil) {
         self.task = task
         self.isSummaryCard = isSummaryCard
         self.checked = checked
@@ -17,7 +28,7 @@ public struct TaskListCell: View {
         self.hidingKRInfo = hidingKRInfo
         self.hidingDate = hidingDate
         self.check = check
-        self.presentEditor = presentEditor
+        self.onTap = onTap
     }
     
     var task: TaskValue
@@ -27,17 +38,23 @@ public struct TaskListCell: View {
     var hidingKRInfo: Bool = false
     var hidingDate: Bool = false
     var check: () async -> Void
-    var presentEditor: (() -> Void)?
-    
+    var onTap: (() -> Void)?
     
     public var body: some View {
         HStack(alignment: .top) {
-            Button {
-                Task {
-                   await check()
+            Group {
+                switch task.state {
+                case .aborted:
+                    Image(systemName: "xmark.circle.fill")
+                default:
+                    Button {
+                        Task {
+                            await check()
+                        }
+                    } label: {
+                        Image(systemName: (task.isCompleted || checked == true) ? "checkmark.circle.fill" : "circle")
+                    }
                 }
-            } label: {
-                Image(systemName: (task.isCompleted || checked == true) ? "checkmark.circle.fill" : "circle")
             }
             .foregroundColor(.gray)
             .offset(y: 2.5)
@@ -55,7 +72,7 @@ public struct TaskListCell: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {
-            presentEditor?()
+            onTap?()
         }
     }
     
@@ -75,11 +92,6 @@ public struct TaskListCell: View {
                 }
                 
                 Spacer()
-                
-//                if task.notes?.isEmpty == false {
-//                    Image(systemName: "")
-//                        .foregroundColor(.gray)
-//                }
             }
             
             if task.isDateEnabled || (task.repeatingCount ?? 0) > 1 {

@@ -93,7 +93,7 @@ public struct TaskSummaryCard: View {
                      checked: vm.checkedTaskIds.contains(task.normalizedID),
                      hidingKRInfo: true) {
             await vm.checkTask(task)
-        } presentEditor: {
+        } onTap: {
             Task {
                 await vm.presentTaskEditor(task: task)
             }
