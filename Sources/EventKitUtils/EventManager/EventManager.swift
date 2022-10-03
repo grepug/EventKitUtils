@@ -21,6 +21,8 @@ public class EventManager {
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
     
+    let generator: UINotificationFeedbackGenerator
+    
     /// the singleton of ``EventStore``
     ///
     /// - 使用一个唯一的 eventStore 可能会导致内存泄漏，但目前看来影响不大
@@ -38,8 +40,10 @@ public class EventManager {
         self.cacheManager = .init(eventStore: eventStore,
                                   eventConfiguration: configuration,
                                   handlers: cacheHandlers)
+        self.generator = .init()
         
         setupEventStore()
+        generator.prepare()
     }
     
     let queue = DispatchQueue(label: "com.vision.app.events.manager", qos: .userInteractive)
@@ -125,6 +129,10 @@ public extension EventManager {
         }
         
         taskObject.toggleCompletion()
+        
+        Task {
+            await generator.notificationOccurred(.success)
+        }
         
         try! await saveTask(taskObject)
     }
