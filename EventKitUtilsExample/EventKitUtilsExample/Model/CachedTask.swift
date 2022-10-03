@@ -109,7 +109,12 @@ extension CachedTask: TaskKind, CachedTaskKind {
     
     public var completedAt: Date? {
         get {
-            completionDate
+            // Workaround: fix Core Data unexpectedly store dates that are nil to 0, which is interpreted as January 1, 2001, at 12:00 a.m. GMT.
+            guard let date = completionDate, date.timeIntervalSinceReferenceDate > 0 else {
+                return nil
+            }
+            
+            return date
         }
         set(newValue) {
             completionDate = newValue
@@ -117,7 +122,14 @@ extension CachedTask: TaskKind, CachedTaskKind {
     }
     
     public var abortedAt: Date? {
-        get { abortionDate }
+        get {
+            // Workaround: fix Core Data unexpectedly store dates that are nil to 0, which is interpreted as January 1, 2001, at 12:00 a.m. GMT.
+            guard let date = abortionDate, date.timeIntervalSinceReferenceDate > 0 else {
+                return nil
+            }
+            
+            return date
+        }
         set { abortionDate = newValue }
     }
     
