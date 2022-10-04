@@ -9,7 +9,7 @@ import Foundation
 import StorageProvider
 import CoreData
 
-typealias CacheHandlersTaskValuesDict = [String: [TaskKindState: [TaskValue]]]
+typealias CacheHandlersTaskValuesDict = [TaskRepeatingInfo: [TaskKindState: [TaskValue]]]
 
 extension CacheHandlers {
     var currentRunID: String? {
@@ -23,19 +23,19 @@ extension CacheHandlers {
     }
     
     func batchInsert(taskValues: CacheHandlersTaskValuesDict, runID: String) -> NSBatchInsertRequest {
-        let taskIDs = taskValues.map { $0.key }
+        let taskRepeatingInfoArr = taskValues.map { $0.key }
         
         var i = 0
         var j = 0
         var k = 0
         
-        let idCount = taskIDs.count
+        let infoCount = taskRepeatingInfoArr.count
         let current = Date()
-        var counts: [String: Int] = [:]
+        var counts: [TaskRepeatingInfo: Int] = [:]
         
         return NSBatchInsertRequest(entity: cachedTaskKind.entity(),
                                     managedObjectHandler: { object in
-            guard i < idCount else {
+            guard i < infoCount else {
                 return true
             }
             
@@ -43,8 +43,8 @@ extension CacheHandlers {
                 return true
             }
             
-            let id = taskIDs[i]
-            let tasksByState = taskValues[id]!
+            let info = taskRepeatingInfoArr[i]
+            let tasksByState = taskValues[info]!
             let states = tasksByState.map { $0.key }
             
             let state = states[j]
@@ -52,10 +52,10 @@ extension CacheHandlers {
             
             let taskValue = curTaskValues[k]
             let taskValueCount = curTaskValues.count
-            let repeatingCount = counts[id] ?? tasksByState.values.map { $0 }.reduce(into: 0) { $0 += $1.count }
+            let repeatingCount = counts[info] ?? tasksByState.values.map { $0 }.reduce(into: 0) { $0 += $1.count }
             
-            if counts[id] == nil {
-                counts[id] = repeatingCount
+            if counts[info] == nil {
+                counts[info] = repeatingCount
             }
             
             task.assignFromTaskKind(taskValue)

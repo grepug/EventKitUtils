@@ -48,18 +48,18 @@ extension CacheManager {
         var tasks: CacheHandlersTaskValuesDict = [:]
         
         eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
-            let id = event.normalizedID.eventIDIgnoringRecurrenceID
+            let repeatingInfo = event.repeatingInfo
             let state = event.state
             
-            if tasks[id] == nil {
-                tasks[id] = [:]
+            if tasks[repeatingInfo] == nil {
+                tasks[repeatingInfo] = [:]
             }
             
-            if tasks[id]![state] == nil {
-                tasks[id]![state] = []
+            if tasks[repeatingInfo]![state] == nil {
+                tasks[repeatingInfo]![state] = []
             }
             
-            tasks[id]![state]!.append(event.value)
+            tasks[repeatingInfo]![state]!.append(event.value)
         }
         
         try! await handlers.createTasks(tasks, withRunID: runID)
