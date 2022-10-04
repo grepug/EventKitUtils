@@ -89,11 +89,7 @@ public class TaskEditorViewController: DiffableListViewController {
             self.titleSection
             self.keyResultLinkingSection
             self.plannedDateSection
-
-            if self.task.isDateEnabled {
-                self.calendarLinkingSection
-            }
-
+            self.calendarLinkingSection
             self.remarkSection
             self.deleteButton
         }
@@ -199,7 +195,10 @@ extension TaskEditorViewController: TaskHandling {
         let finalAction: () async -> Void = { [weak self] in
             guard let self = self else { return }
             
-            await self.saveTaskAndPresentErrorAlert(self.task, creating: self.isCreating)
+            guard await self.saveTaskAndPresentErrorAlert(self.task, creating: self.isCreating) else {
+                return
+            }
+            
             self.dismissEditor(shouldOpenTaskList: self.isCreating)
         }
         
@@ -237,9 +236,13 @@ extension TaskEditorViewController: TaskHandling {
                 savingTaskObjects.append(taskObject)
             }
             
-            await saveTasksAndPresentErrorAlert(savingTaskObjects)
+            guard await saveTasksAndPresentErrorAlert(savingTaskObjects) else {
+                return
+            }
         } else {
-            await saveTaskAndPresentErrorAlert(task)
+            guard await saveTaskAndPresentErrorAlert(task) else {
+                return
+            }
         }
         
         dismissEditor()

@@ -43,7 +43,7 @@ public extension Date {
     }
     
     var nextWeek: Self {
-        Calendar.current.date(byAdding: .day, value: 7, to: self)!
+        Calendar.current.date(byAdding: .day, value: 6, to: self)!
     }
     
     var endOfDay: Self {

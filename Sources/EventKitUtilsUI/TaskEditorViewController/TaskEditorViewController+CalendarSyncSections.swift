@@ -10,10 +10,48 @@ import MenuBuilder
 import EventKit
 import EventKitUtils
 import UIKit
+import SwiftUI
 
 extension TaskEditorViewController {
+    @ListBuilder
+    var calendarLinkingSection: [DLSection] {
+        if let event {
+            if event.isDetached {
+                DLSection { [unowned self] in
+                    DLCell(using: .swiftUI(movingTo: self, content: {
+                        VStack(spacing: 8) {
+                            HStack {
+                                Text("无法编辑重复规则")
+                                    .foregroundColor(.secondary)
+                                
+                                Button {
+                                    
+                                } label: {
+                                    Image(systemName: "questionmark.circle")
+                                }
+                            }
+                            Button { [weak self] in
+                                self?.presentEventEditor()
+                            } label: {
+                                Text("编辑日历日程")
+                                    .font(.subheadline)
+                            }
+                        }
+                    }))
+                    .tag("detached")
+                    .backgroundConfiguration(.clear())
+                }
+                .tag("detached event")
+            } else {
+                calendarSyncSettingsSection(event: event)
+            }
+        } else {
+            calendarSyncEnablingSection
+        }
+    }
+    
     @MenuBuilder
-    var repeatingMenu: [MBMenu] {
+    private var repeatingMenu: [MBMenu] {
         for item in TaskRecurrenceRule.allCases.filter({ $0 != .custom }) {
             MBButton(item.title, checked: event?.taskRecurrenceRule == item) { [weak self] in
                 guard let self, let event = self.event else { return }
@@ -41,15 +79,20 @@ extension TaskEditorViewController {
     }
     
     @ListBuilder
-    func calendarSyncSettingsSection(event: EKEvent) -> [DLSection] {
+    private var editingHeader: [DLCell] {
+        DLCell(using: .header(" "))
+            .accessories([
+                .labelButton(title: "编辑日历日程", action: { [weak self] button in
+                    self?.presentEventEditor()
+                })
+            ])
+            .tag("calendarHeader")
+    }
+    
+    @ListBuilder
+    private func calendarSyncSettingsSection(event: EKEvent) -> [DLSection] {
         DLSection { [unowned self] in
-            DLCell(using: .header(" "))
-                .accessories([
-                    .labelButton(title: "编辑日历日程", action: { [weak self] button in
-                        self?.presentEventEditor()
-                    })
-                ])
-                .tag("calendarHeader")
+            editingHeader
             
             DLCell {
                 DLText("重复")
@@ -77,7 +120,7 @@ extension TaskEditorViewController {
     }
     
     @ListBuilder
-    var calendarSyncEnablingSection: [DLSection] {
+    private var calendarSyncEnablingSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
                 DLText("任务重复、提醒".loc)
@@ -99,15 +142,6 @@ extension TaskEditorViewController {
             }
         }
         .tag("4")
-    }
-    
-    @ListBuilder
-    var calendarLinkingSection: [DLSection] {
-        if let event {
-            calendarSyncSettingsSection(event: event)
-        } else {
-            calendarSyncEnablingSection
-        }
     }
 }
 

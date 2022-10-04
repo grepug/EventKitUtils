@@ -58,7 +58,10 @@ extension TaskEditorViewController {
         event.calendar = calendar
         event.assignFromTaskKind(task)
         
-        await saveTaskAndPresentErrorAlert(event)
+        guard await saveTaskAndPresentErrorAlert(event) else {
+            return
+        }
+        
         originalTaskValue = event.value
         
         self.task = event
