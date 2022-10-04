@@ -137,7 +137,7 @@ public extension EventManager {
         try! await saveTask(taskObject)
     }
     
-    func abortTask(_ task: TaskKind) async {
+    func toggleAbortion(_ task: TaskKind) async {
         guard var taskObject = await taskObject(task) else {
             assertionFailure()
             return
