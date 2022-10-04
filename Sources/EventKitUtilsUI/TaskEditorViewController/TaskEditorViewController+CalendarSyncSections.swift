@@ -52,21 +52,21 @@ extension TaskEditorViewController {
     
     @MenuBuilder
     private var repeatingMenu: [MBMenu] {
-        for item in TaskRecurrenceRule.allCases.filter({ $0 != .custom }) {
-            MBButton(item.title, checked: event?.taskRecurrenceRule == item) { [weak self] in
+        for rule in TaskRecurrenceRule.allCases {
+            MBButton(rule.title, checked: event?.taskRecurrenceRule == rule) { [weak self] in
                 guard let self, let event = self.event else { return }
                 
                 guard let recurrenceEndDate = event.recurrenceEndDate ?? event.normalizedStartDate?.nextWeek else {
                     return
                 }
                 
-                event.setTaskRecurrenceRule(item, end: .init(end: recurrenceEndDate))
+                event.setTaskRecurrenceRule(rule, end: .init(end: recurrenceEndDate))
                 self.reload()
             }
         }
         
         MBGroup { [unowned self] in
-            MBButton(TaskRecurrenceRule.custom.title, checked: event?.taskRecurrenceRule == .custom) { [weak self] in
+            MBButton(TaskRecurrenceRule.custom(.init()).title, checked: event?.taskRecurrenceRule.isCustom == true) { [weak self] in
                 guard let self else { return }
                 
                 self.presentEventEditor { vc in
@@ -109,7 +109,8 @@ extension TaskEditorViewController {
                                           valueDidChange: { [weak self] date in
                     guard let self, let event = self.event else { return }
                     
-                    event.setTaskRecurrenceRule(event.taskRecurrenceRule, end: .init(end: date))
+                    event.setTaskRecurrenceRule(event.taskRecurrenceRule,
+                                                end: .init(end: date))
                     #if !targetEnvironment(macCatalyst)
                     self.reload(animating: false)
                     #endif
@@ -128,6 +129,8 @@ extension TaskEditorViewController {
             if let errorMessage {
                 PromptFooter(text: errorMessage,
                              isError: true)
+            } else {
+                Color.clear.frame(height: 16)
             }
         }))
     }

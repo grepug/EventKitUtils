@@ -7,7 +7,7 @@
 
 import EventKit
 
-public enum TaskRecurrenceRule: CaseIterable {
+public enum TaskRecurrenceRule: Equatable {
     case never,
          daily,
          everyWorkDay,
@@ -16,14 +16,25 @@ public enum TaskRecurrenceRule: CaseIterable {
          everyTwoWeek,
          monthly,
          yearly,
-         custom
+         custom(EKRecurrenceRule)
+    
+    public static var allCases: [TaskRecurrenceRule] {
+        return [.never,
+                .daily,
+                .everyWorkDay,
+                .everyWeekendDay,
+                .weekly,
+                .everyTwoWeek,
+                .monthly,
+                .yearly,]
+    }
     
     public init(ekRecurrenceRule rule: EKRecurrenceRule) {
         guard rule.daysOfTheYear == nil &&
                 rule.daysOfTheMonth == nil &&
                 rule.monthsOfTheYear == nil &&
                 rule.weeksOfTheYear == nil else {
-            self = .custom
+            self = .custom(rule)
             return
         }
         
@@ -36,7 +47,7 @@ public enum TaskRecurrenceRule: CaseIterable {
             case EKWeekday.workDays:
                 self = .everyWorkDay
             default:
-                self = .custom
+                self = .custom(rule)
             }
             
             return
@@ -56,7 +67,7 @@ public enum TaskRecurrenceRule: CaseIterable {
         case .weekly where interval == 2:
             self = .everyTwoWeek
         default:
-            self = .custom
+            self = .custom(rule)
         }
     }
     
@@ -65,8 +76,10 @@ public enum TaskRecurrenceRule: CaseIterable {
         let frequency: EKRecurrenceFrequency
         
         switch self {
-        case .never, .custom:
+        case .never:
             return nil
+        case .custom(let ekRule):
+            return ekRule
         case .daily:
             frequency = .daily
         case .weekly:
@@ -85,6 +98,13 @@ public enum TaskRecurrenceRule: CaseIterable {
         }
         
         return .init(recurrenceWith: frequency, interval: interval, end: end)
+    }
+    
+    public var isCustom: Bool {
+        switch self {
+        case .custom: return true
+        default: return false
+        }
     }
 }
 
@@ -151,20 +171,27 @@ public extension EKEvent {
         }
     }
     
-    func setTaskRecurrenceRule(_ rule: TaskRecurrenceRule, end: EKRecurrenceEnd? = nil) {
+    func setTaskRecurrenceRule(_ rule: TaskRecurrenceRule, end: EKRecurrenceEnd) {
         removeAllRecurrenceRules()
-        
-        if let rule = rule.ekRecurrenceRule(end: end) {
+
+        switch rule {
+        case .custom(let ekRule):
+            let rule = ekRule.copied(end: end)
             addRecurrenceRule(rule)
+        default:
+            if let rule = rule.ekRecurrenceRule(end: end) {
+                addRecurrenceRule(rule)
+            }
         }
     }
 }
 
 public extension EKEvent {
-    func setDefaultRecurrenceEndIfAbsents() {
+    func setDefaultRecurrenceEndIfAbsents(savingWithEventStore eventStore: EKEventStore) {
         if let rule = firstRecurrenceRule, recurrenceEndDate == nil {
             removeAllRecurrenceRules()
-            addRecurrenceRule(rule.copied(end: .init(end: Date().nextWeek)))
+            addRecurrenceRule(rule.copied(end: .init(end: endDate.nextWeek)))
+            try! eventStore.save(self, span: .futureEvents, commit: true)
         }
     }
 }

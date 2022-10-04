@@ -99,9 +99,10 @@ extension TaskEditorViewController: EKEventEditViewDelegate {
         case .saved:
             // set default recurrence end date
             if let event = controller.event {
-                event.setDefaultRecurrenceEndIfAbsents()
+                event.setDefaultRecurrenceEndIfAbsents(savingWithEventStore: controller.eventStore)
             }
             
+            event?.refresh()
             reload()
             dismiss(animated: true)
         case .deleted:
