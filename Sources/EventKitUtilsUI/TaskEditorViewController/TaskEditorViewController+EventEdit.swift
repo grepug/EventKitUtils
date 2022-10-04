@@ -33,7 +33,7 @@ extension TaskEditorViewController {
         }
         
         if let errorMessage = task.dateErrorMessage {
-            presentDateRangeErrorAlert(title: errorMessage)
+            presentErrorAlert(title: errorMessage)
             return
         }
         

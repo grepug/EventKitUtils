@@ -78,7 +78,8 @@ public class TaskEditorViewController: DiffableListViewController {
     
     var hasNoError: Bool {
         if let event {
-            return event.dateErrorMessage == nil
+            return event.dateErrorMessage == nil &&
+            event.recurrencePrompt(withKRinfo: keyResultInfo) == nil
         }
         
         return task.dateErrorMessage == nil
@@ -182,7 +183,12 @@ extension TaskEditorViewController: TaskHandling {
     
     func doneEditor() async {
         if let errorMessage = task.dateErrorMessage {
-            presentDateRangeErrorAlert(title: errorMessage)
+            presentErrorAlert(title: errorMessage)
+            return
+        }
+        
+        if let errorMessage = event?.recurrencePrompt(withKRinfo: keyResultInfo) {
+            presentErrorAlert(title: errorMessage)
             return
         }
         
@@ -311,7 +317,7 @@ extension TaskEditorViewController: TaskHandling {
         }
     }
     
-    func presentDateRangeErrorAlert(title: String) {
+    func presentErrorAlert(title: String) {
         presentAlertController(title: title, message: nil, actions: [.ok()])
     }
     

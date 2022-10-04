@@ -65,7 +65,7 @@ public extension Date {
     }
     
     func days(to date: Date, includingLastDay: Bool = true) -> Int {
-        let days = Calendar.current.dateComponents([.day], from: startOfDay, to: date.tomorrow.startOfDay).day ?? 0
+        let days = abs(Calendar.current.dateComponents([.day], from: startOfDay, to: date.tomorrow.startOfDay).day ?? 0)
         
         if !includingLastDay {
             return days - 1

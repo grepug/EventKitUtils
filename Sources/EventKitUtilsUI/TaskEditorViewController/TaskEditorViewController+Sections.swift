@@ -70,11 +70,11 @@ extension TaskEditorViewController {
                                       date: task.normalizedEndDate!,
                                       mode: datePickerMode,
                                       valueDidChange: { [unowned self] date in
-                task.normalizedEndDate = date
-                
-                if task.normalizedIsInterval {
+                if !task.normalizedIsInterval {
                     task.normalizedStartDate = date
                 }
+                
+                task.normalizedEndDate = date
                 
                 #if !targetEnvironment(macCatalyst)
                 reload(animating: false)
@@ -89,23 +89,11 @@ extension TaskEditorViewController {
             return config
         }
         .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: { [unowned self] in
-            Group {
-                if let string = self.task.durationString {
-                    Text(string)
-                } else if let errorMessage = self.task.dateErrorMessage {
-                    Label {
-                        Text(errorMessage)
-                    } icon: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.red)
-                    }
-                }
+            if let errorMessage = task.dateErrorMessage {
+                PromptFooter(text: errorMessage, isError: true)
+            } else if let text = task.durationString {
+                PromptFooter(text: text)
             }
-            .foregroundColor(.secondary)
-            .font(.footnote)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing)
-            .padding([.top, .bottom], 8)
         }))
     }
 }

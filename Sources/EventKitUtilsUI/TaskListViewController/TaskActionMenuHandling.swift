@@ -67,7 +67,7 @@ public extension TaskActionMenuHandling {
         let abortTitle = task.isAborted ? "取消放弃" : "放弃"
         let abortImageName = task.isAborted ? "arrowshape.turn.up.backward.fill" : "xmark"
         
-        MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow) { [weak self] completion in
+        MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow, destructive: true) { [weak self] completion in
             guard let self = self else { return }
             
             Task {

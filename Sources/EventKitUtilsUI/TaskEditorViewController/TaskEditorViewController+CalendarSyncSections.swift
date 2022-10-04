@@ -91,6 +91,8 @@ extension TaskEditorViewController {
     
     @ListBuilder
     private func calendarSyncSettingsSection(event: EKEvent) -> [DLSection] {
+        let errorMessage = event.recurrencePrompt(withKRinfo: self.keyResultInfo)
+        
         DLSection { [unowned self] in
             editingHeader
             
@@ -115,8 +117,19 @@ extension TaskEditorViewController {
                 .tag("repeat end \(self.event?.recurrenceEndDate?.description ?? "")")
             }
         }
-        .tag("repeating")
+        .tag("repeating \(errorMessage ?? "")")
         .firstCellAsHeader()
+        .listConfig { config in
+            var config = config
+            config.footerMode = .supplementary
+            return config
+        }
+        .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: {
+            if let errorMessage {
+                PromptFooter(text: errorMessage,
+                             isError: true)
+            }
+        }))
     }
     
     @ListBuilder
@@ -158,5 +171,25 @@ extension TaskRecurrenceRule {
         case .yearly: return "每年"
         case .custom: return "自定义"
         }
+    }
+}
+
+extension EKEvent {
+    func recurrencePrompt(withKRinfo krInfo: KeyResultInfo?) -> String? {
+        guard let recurrenceEndDate else {
+            return nil
+        }
+        
+        if let krInfo {
+            if recurrenceEndDate > krInfo.goalDateInterval.end {
+                return "结束重复日期不能大于所关联目标的结束日期"
+            }
+        }
+        
+        if recurrenceEndDate.days(to: Date(), includingLastDay: true) > 365 {
+            return "结束重复日期不能超过365天"
+        }
+        
+        return nil
     }
 }

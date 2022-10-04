@@ -29,15 +29,17 @@ public enum FetchTasksType: Hashable {
 }
 
 public struct KeyResultInfo: Hashable {
-    public init(id: String, title: String, emojiImage: UIImage, goalTitle: String) {
+    public init(id: String, title: String, emojiImage: UIImage, goalTitle: String, goalDateInterval: DateInterval) {
         self.id = id
         self.title = title
         self.emojiImage = emojiImage
         self.goalTitle = goalTitle
+        self.goalDateInterval = goalDateInterval
     }
     
     public let id: String
     public let title: String
     public let emojiImage: UIImage
     public let goalTitle: String
+    public let goalDateInterval: DateInterval
 }
