@@ -132,7 +132,7 @@ public class EventSettingsViewController: DiffableListViewController {
                         self.view.makeToastActivity(.center)
                         
                         enumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event, completion in
-                            try? self?.em.eventStore.remove(event, span: .futureEvents, commit: false)
+                            try? self?.em.eventStore.remove(event, span: .thisEvent, commit: false)
                         }
                         
                         try! self.em.eventStore.commit()

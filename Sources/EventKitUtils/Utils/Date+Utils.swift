@@ -74,13 +74,41 @@ public extension Date {
         return days
     }
     
-    func formattedRelatively(includingTime: Bool = true) -> String {
+    var weekDayString: String {
         let formatter = DateFormatter()
-        formatter.timeStyle = includingTime ? .short : .none
-        formatter.dateStyle = .short
-        formatter.doesRelativeDateFormatting = true
+        formatter.dateFormat = "E"
         
         return formatter.string(from: self)
+    }
+    
+    func formattedRelatively(includingTime: Bool = true, includingDate: Bool = true) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = includingTime ? .short : .none
+        formatter.dateStyle = includingDate ? .short : .none
+        formatter.doesRelativeDateFormatting = true
+        let dateString = formatter.string(from: self)
+        
+        if includingDate {
+            return "\(weekDayString), \(dateString)"
+        }
+        
+        return dateString
+    }
+}
+
+public extension Range where Bound == Date {
+    func formattedRelatively(includingTime: Bool = true, endDateOnly: Bool = false) -> String {
+        let start = lowerBound.formattedRelatively(includingTime: includingTime)
+        
+        if lowerBound == upperBound || endDateOnly {
+            return start
+        }
+        
+        let isSameDate = lowerBound.isSameDay(with: upperBound)
+        let end = upperBound.formattedRelatively(includingTime: includingTime,
+                                                 includingDate: !isSameDate)
+        
+        return "\(start) - \(end)"
     }
 }
 

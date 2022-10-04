@@ -105,7 +105,12 @@ public class TaskEditorViewController: DiffableListViewController {
         isModalInPresentation = true
         setupNavigationBar()
         
-        if task.kindIdentifier == .event {
+        if em.isDefaultSyncingToCalendarEnabled {
+            Task {
+                await convertToEvent(showingToastActivity: false)
+                reload(animating: false)
+            }
+        } else if task.kindIdentifier == .event {
             Task {
                 guard let event = await em.taskObject(task) as? EKEvent else {
                     return
@@ -128,9 +133,7 @@ public class TaskEditorViewController: DiffableListViewController {
             reload(animating: false)
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            self?.becomeFirstResponder(at: [0, 0])
-        }
+        titleTextFieldBecomeFirstResponder()
         
         setupKeyboardSubscribers(scrollView: listView,
                                  storeIn: &cancellables) { [weak self] view in
@@ -168,6 +171,12 @@ public class TaskEditorViewController: DiffableListViewController {
 }
 
 extension TaskEditorViewController: TaskHandling {
+    func titleTextFieldBecomeFirstResponder() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            self?.becomeFirstResponder(at: [0, 0])
+        }
+    }
+    
     func setupNavigationBar() {
         title = "task_editor_title".loc
         

@@ -8,7 +8,7 @@
 import EventKit
 
 public enum TaskRecurrenceRule: CaseIterable {
-    case never, daily, weekly, everyTwoWeek, monthly, yearly, custom
+    case never, daily, everyBusinessDay, weekly, everyTwoWeek, monthly, yearly, custom
     
     public init(ekRecurrenceRule rule: EKRecurrenceRule) {
         guard rule.daysOfTheWeek == nil &&
@@ -50,6 +50,22 @@ public enum TaskRecurrenceRule: CaseIterable {
             return nil
         case .daily:
             frequency = .daily
+        case .everyBusinessDay:
+            return .init(recurrenceWith: .daily,
+                         interval: 1,
+                         daysOfTheWeek: [
+                            .init(.monday),
+                            .init(.tuesday),
+                            .init(.wednesday),
+                            .init(.thursday),
+                            .init(.friday)
+                         ],
+                         daysOfTheMonth: nil,
+                         monthsOfTheYear: nil,
+                         weeksOfTheYear: nil,
+                         daysOfTheYear: nil,
+                         setPositions: nil,
+                         end: end)
         case .weekly:
             frequency = .weekly
         case .everyTwoWeek:

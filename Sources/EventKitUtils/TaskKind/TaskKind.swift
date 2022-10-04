@@ -198,14 +198,7 @@ public extension TaskKind {
             return nil
         }
         
-        let startString = range.lowerBound.formattedRelatively(includingTime: !normalizedIsAllDay)
-        let endString = range.upperBound.formattedRelatively(includingTime: !normalizedIsAllDay)
-        
-        if endDateOnly || startString == endString {
-            return endString
-        }
-        
-        return "\(startString) - \(endString)"
+        return range.formattedRelatively(includingTime: !normalizedIsAllDay, endDateOnly: endDateOnly)
     }
     
     var value: TaskValue {

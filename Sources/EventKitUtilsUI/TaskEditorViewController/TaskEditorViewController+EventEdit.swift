@@ -22,7 +22,7 @@ extension TaskEditorViewController {
         ])
     }
     
-    func convertToEvent() async {
+    func convertToEvent(showingToastActivity: Bool = true) async {
         _ = view.endEditing(true)
         
         try! await Task.sleep(nanoseconds: 50_000_000)
@@ -50,7 +50,9 @@ extension TaskEditorViewController {
             return
         }
         
-        view.makeToastActivity(.center)
+        if showingToastActivity {
+            view.makeToastActivity(.center)
+        }
         
         var event = EKEvent(baseURL: config.eventBaseURL, eventStore: eventStore)
         event.calendar = calendar
@@ -61,9 +63,10 @@ extension TaskEditorViewController {
         
         self.task = event
         
-        try! await Task.sleep(nanoseconds: 200_000_000)
-        
-        view.hideToastActivity()
+        if showingToastActivity {
+            try! await Task.sleep(nanoseconds: 200_000_000)
+            view.hideToastActivity()
+        }
     }
     
     func presentEventEditor(completion: ((UIViewController) -> Void)? = nil) {
