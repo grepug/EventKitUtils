@@ -116,7 +116,8 @@ extension TaskRecurrenceRule {
         switch self {
         case .never: return "永不"
         case .daily: return "每天"
-        case .everyBusinessDay: return "每个工作日"
+        case .everyWorkDay: return "每个工作日"
+        case .everyWeekendDay: return "每个周末"
         case .weekly: return "每周"
         case .everyTwoWeek: return "每两周"
         case .monthly: return "每月"

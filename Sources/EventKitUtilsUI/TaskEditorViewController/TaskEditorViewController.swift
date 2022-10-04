@@ -105,7 +105,7 @@ public class TaskEditorViewController: DiffableListViewController {
         isModalInPresentation = true
         setupNavigationBar()
         
-        if em.isDefaultSyncingToCalendarEnabled {
+        if isCreating && em.isDefaultSyncingToCalendarEnabled {
             Task {
                 await convertToEvent(showingToastActivity: false)
                 reload(animating: false)

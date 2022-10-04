@@ -8,15 +8,37 @@
 import EventKit
 
 public enum TaskRecurrenceRule: CaseIterable {
-    case never, daily, everyBusinessDay, weekly, everyTwoWeek, monthly, yearly, custom
+    case never,
+         daily,
+         everyWorkDay,
+         everyWeekendDay,
+         weekly,
+         everyTwoWeek,
+         monthly,
+         yearly,
+         custom
     
     public init(ekRecurrenceRule rule: EKRecurrenceRule) {
-        guard rule.daysOfTheWeek == nil &&
-                rule.daysOfTheYear == nil &&
+        guard rule.daysOfTheYear == nil &&
                 rule.daysOfTheMonth == nil &&
                 rule.monthsOfTheYear == nil &&
                 rule.weeksOfTheYear == nil else {
             self = .custom
+            return
+        }
+        
+        if let daysOfTheWeek = rule.daysOfTheWeek {
+            let days = Set(daysOfTheWeek.map(\.dayOfTheWeek))
+            
+            switch days {
+            case EKWeekday.weekendDays:
+                self = .everyWeekendDay
+            case EKWeekday.workDays:
+                self = .everyWorkDay
+            default:
+                self = .custom
+            }
+            
             return
         }
         
@@ -50,22 +72,6 @@ public enum TaskRecurrenceRule: CaseIterable {
             return nil
         case .daily:
             frequency = .daily
-        case .everyBusinessDay:
-            return .init(recurrenceWith: .daily,
-                         interval: 1,
-                         daysOfTheWeek: [
-                            .init(.monday),
-                            .init(.tuesday),
-                            .init(.wednesday),
-                            .init(.thursday),
-                            .init(.friday)
-                         ],
-                         daysOfTheMonth: nil,
-                         monthsOfTheYear: nil,
-                         weeksOfTheYear: nil,
-                         daysOfTheYear: nil,
-                         setPositions: nil,
-                         end: end)
         case .weekly:
             frequency = .weekly
         case .everyTwoWeek:
@@ -75,9 +81,41 @@ public enum TaskRecurrenceRule: CaseIterable {
             frequency = .monthly
         case .yearly:
             frequency = .yearly
+        case .everyWeekendDay:
+            return .daysOfTheWeek(EKWeekday.weekendDays, end: end)
+        case .everyWorkDay:
+            return .daysOfTheWeek(EKWeekday.workDays, end: end)
         }
         
         return .init(recurrenceWith: frequency, interval: interval, end: end)
+    }
+}
+
+extension EKRecurrenceRule {
+    static func daysOfTheWeek(_ daysOfTheWeek: Set<EKWeekday>, end: EKRecurrenceEnd?) -> EKRecurrenceRule {
+        .init(recurrenceWith: .daily,
+              interval: 1,
+              daysOfTheWeek: daysOfTheWeek.map { .init($0) },
+              daysOfTheMonth: nil,
+              monthsOfTheYear: nil,
+              weeksOfTheYear: nil,
+              daysOfTheYear: nil,
+              setPositions: nil,
+              end: end)
+    }
+}
+
+extension EKWeekday {
+    static var allCases: Set<EKWeekday> {
+        [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+    }
+    
+    static var weekendDays: Set<EKWeekday> {
+        [.saturday, .sunday]
+    }
+    
+    static var workDays: Set<EKWeekday> {
+        allCases.subtracting(weekendDays)
     }
 }
 
