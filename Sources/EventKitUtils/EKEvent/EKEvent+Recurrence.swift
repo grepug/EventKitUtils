@@ -42,23 +42,20 @@ public enum TaskRecurrenceRule: CaseIterable {
             return
         }
         
+        let interval = rule.interval
+        
         switch rule.frequency {
-        case .daily:
+        case .daily where interval == 1:
             self = .daily
-        case .yearly:
+        case .yearly where interval == 1:
             self = .yearly
-        case .monthly:
+        case .monthly where interval == 1:
             self = .monthly
-        case .weekly:
-            switch rule.interval {
-            case 1:
-                self = .weekly
-            case 2:
-                self = .everyTwoWeek
-            default:
-                self = .custom
-            }
-        @unknown default:
+        case .weekly where interval == 1:
+            self = .weekly
+        case .weekly where interval == 2:
+            self = .everyTwoWeek
+        default:
             self = .custom
         }
     }
@@ -160,5 +157,20 @@ public extension EKEvent {
         if let rule = rule.ekRecurrenceRule(end: end) {
             addRecurrenceRule(rule)
         }
+    }
+}
+
+public extension EKEvent {
+    func setDefaultRecurrenceEndIfAbsents() {
+        if let rule = firstRecurrenceRule, recurrenceEndDate == nil {
+            removeAllRecurrenceRules()
+            addRecurrenceRule(rule.copied(end: .init(end: Date().nextWeek)))
+        }
+    }
+}
+
+public extension EKRecurrenceRule {
+    func copied(end: EKRecurrenceEnd) -> EKRecurrenceRule {
+        .init(recurrenceWith: frequency, interval: interval, daysOfTheWeek: daysOfTheWeek, daysOfTheMonth: daysOfTheMonth, monthsOfTheYear: monthsOfTheYear, weeksOfTheYear: weeksOfTheYear, daysOfTheYear: daysOfTheYear, setPositions: setPositions, end: end)
     }
 }

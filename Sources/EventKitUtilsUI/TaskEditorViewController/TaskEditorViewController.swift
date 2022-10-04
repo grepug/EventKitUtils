@@ -113,6 +113,8 @@ public class TaskEditorViewController: DiffableListViewController {
                     return
                 }
                 
+                // in case user changed recurrence end in Calendar app
+                event.setDefaultRecurrenceEndIfAbsents()
                 self.task = event
                 self.originalTaskValue = event.value
                 

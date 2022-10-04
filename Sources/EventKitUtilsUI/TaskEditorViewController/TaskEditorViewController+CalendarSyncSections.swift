@@ -103,9 +103,9 @@ extension TaskEditorViewController {
             .accessories(.popUpMenu(menu: .makeMenu(self.repeatingMenu),
                                     value: event.taskRecurrenceRule.title))
             
-            if event.taskRecurrenceRule != .never {
+            if event.taskRecurrenceRule != .never, let endDate = event.recurrenceEndDate {
                 DLCell(using: .datePicker(labelText: "结束重复",
-                                          date: event.recurrenceEndDate!,
+                                          date: endDate,
                                           valueDidChange: { [weak self] date in
                     guard let self, let event = self.event else { return }
                     
