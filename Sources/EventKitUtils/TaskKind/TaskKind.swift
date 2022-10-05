@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import EventKit
 
 public enum TaskKindIdentifier {
     case event, managedObject
@@ -125,6 +126,16 @@ public extension TaskKind {
         }
         
         return start..<end
+    }
+    
+    var dateRangeExtendedToTheEdgesOfBothStartAndEndDate: Range<Date>? {
+        guard let dateRange else {
+            return nil
+        }
+        
+        let end = dateRange.upperBound.endOfDay
+        
+        return dateRange.lowerBound..<end
     }
     
     var durationInSeconds: TimeInterval? {
@@ -249,6 +260,14 @@ public extension TaskKind {
         return startDate.testIsDateSame(from: startDate2) && endDate.testIsDateSame(from: endDate2)
     }
     
+    /// Assign the properties the task to the assignee
+    ///
+    /// For tasks that are not an EKEvent, make sure that
+    ///  - their time components of ``normalizedStartDate`` and ``normalizedEndDate`` are the same.
+    ///  - their task alarm types are the same if both assigner and assignee are EKEvents
+    ///
+    /// That's what repeating tasks should be.
+    /// - Parameter task: the task kind assigner
     mutating func assignAsRepeatingTask(from task: TaskKind) {
         normalizedTitle = task.normalizedTitle
         normalizedIsAllDay = task.normalizedIsAllDay
@@ -264,6 +283,13 @@ public extension TaskKind {
         if let endDate = normalizedEndDate, let endDate2 = task.normalizedEndDate {
             let date = endDate.timeAssigned(from: endDate2)
             normalizedEndDate = date
+        }
+        
+        // assign the task alarm type if both assigner and assignee are EKEvents
+        if let event1 = self as? EKEvent,
+           let event2 = task as? EKEvent,
+           let taskAlarmType = event2.taskAlarmType  {
+            event1.setTaskAlarm(taskAlarmType)
         }
     }
     
@@ -338,13 +364,13 @@ public extension TaskKind {
         
         guard isDateEnabled,
               let endDate = normalizedEndDate,
-              let range = dateRange else {
+              let range = dateRangeExtendedToTheEdgesOfBothStartAndEndDate else {
             return .unscheduled
         }
         
         let current = Date()
         
-        /// 包含今天，则为今天
+        // if the date range contains current date, it is today
         if range.contains(current) {
             return .today
         }
@@ -377,6 +403,9 @@ public extension TaskKind {
 }
 
 extension Date {
+    /// Assign the time components (hour, minute, second, nanosecond) to the assignee
+    /// - Parameter date: the date assigner
+    /// - Returns: a new date with the same time components as the assignee
     func timeAssigned(from date: Date) -> Date {
         let components = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond], from: date)
         var selfComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .nanosecond], from: self)

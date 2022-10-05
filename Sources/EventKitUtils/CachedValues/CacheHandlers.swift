@@ -26,6 +26,7 @@ extension CacheHandlers {
         
         let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
         var predicates = [runIDPredicate]
+        let sortDescriptors: [NSSortDescriptor] = [.init(key: "startDate", ascending: true)]
         
         switch type {
         case .segment(let segment):
@@ -33,7 +34,7 @@ extension CacheHandlers {
             
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
-            let tasks = try! await cachedTaskKind.fetch(where: predicate) { objects in
+            let tasks = try! await cachedTaskKind.fetch(where: predicate, sortedBy: sortDescriptors) { objects in
                 objects.map(\.value)
             }
             
@@ -46,7 +47,7 @@ extension CacheHandlers {
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
             let tasks = try! await cachedTaskKind.fetch(where: predicate,
-                                                        sortedBy: [.init(key: "startDate", ascending: true)]) { objects in
+                                                        sortedBy: sortDescriptors) { objects in
                 objects.map(\.value)
             }
             

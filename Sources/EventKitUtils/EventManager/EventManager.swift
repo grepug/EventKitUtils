@@ -325,7 +325,7 @@ public extension EventManager {
 extension EventManager {
     /// Fetch EKEvent instance by ``TaskValue``
     ///
-    /// Narrowed down the date range of events, improving the performance
+    /// Narrow down the date range of events, improving the performance
     /// - Parameter task: the ``TaskValue``
     /// - Returns: an Optional ``EKEvent``
     func fetchEvent(withTaskValue task: TaskValue, firstRecurrence: Bool) -> EKEvent? {
