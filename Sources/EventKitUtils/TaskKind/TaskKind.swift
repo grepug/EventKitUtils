@@ -259,19 +259,19 @@ public extension TaskKind {
     
     /// Postpone the task
     ///
-    /// 
+    /// Set the date (retaining time components) of the start and end dates to the current date
     mutating func postpone() {
-        guard isDateEnabled,
-              let durationInSeconds = dateInterval?.duration else {
+        guard let normalizedStartDate,
+              let normalizedEndDate else {
             return
         }
         
-        let duration = Int(durationInSeconds)
-        let current = normalizedIsAllDay ? Date().startOfDay : Date()
-        let endDate = Calendar.current.date(byAdding: .second, value: duration, to: current)?.endOfDay
+        let current = Date()
+        let start = current.dateAssigned(from: normalizedStartDate)
+        let end = current.dateAssigned(from: normalizedEndDate)
         
-        normalizedStartDate = current
-        normalizedEndDate = endDate
+        self.normalizedStartDate = start
+        self.normalizedEndDate = end
     }
     
     mutating func toggleAbortion() {

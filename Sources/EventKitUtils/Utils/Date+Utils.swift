@@ -81,6 +81,20 @@ public extension Date {
         return formatter.string(from: self)
     }
     
+    func dateAssigned(from date: Date) -> Date {
+        let components = Calendar.current.dateComponents([.year, .month, .day], from: self)
+        let year = components.year!
+        let month = components.month!
+        let day = components.day!
+        var newDate = date
+        
+        newDate = Calendar.current.date(bySetting: .year, value: year, of: newDate)!
+        newDate = Calendar.current.date(bySetting: .month, value: month, of: newDate)!
+        newDate = Calendar.current.date(bySetting: .day, value: day, of: newDate)!
+        
+        return newDate
+    }
+    
     func formattedRelatively(includingTime: Bool = true, includingDate: Bool = true) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = includingTime ? .short : .none
@@ -122,7 +136,7 @@ public extension DateInterval {
         
         let isSameDate = start.isSameDay(with: end)
         let endString = end.formattedRelatively(includingTime: includingTime,
-                                                 includingDate: !isSameDate)
+                                                includingDate: !isSameDate)
         
         return "\(startString) - \(endString)"
     }

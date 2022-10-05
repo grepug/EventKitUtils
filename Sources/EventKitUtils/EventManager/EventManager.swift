@@ -247,11 +247,15 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func saveTasks(_ tasks: [TaskKind]) async throws {
-        let tasks = tasks.uniquedById
+    func saveTasks(_ tasks: [TaskKind], savingRecurrences: Bool = true) async throws {
+        var tasks = tasks
+        
+        if savingRecurrences {
+            tasks = tasks.uniquedById
+        }
         
         for task in tasks {
-            try await saveTask(task, savingRecurrences: true, commit: false)
+            try await saveTask(task, savingRecurrences: savingRecurrences, commit: false)
         }
         
         try eventStore.commit()
@@ -303,22 +307,26 @@ public extension EventManager {
         return taskObject
     }
     
-    func postpondTasks(_ tasks: [TaskValue], fetchingMore: Bool = true) async {
+    /// Postpond tasks
+    ///
+    /// Fetch more overdued tasks with each task's repeating info to postpone
+    /// - Parameters:
+    ///   - tasks: tasks to postpond
+    func postponeTasks(_ tasks: [TaskValue]) async {
         var afterTasks: [TaskKind] = []
         
         for task in tasks {
-            var taskObject = await taskObject(task)!
-            taskObject.postpone()
-            afterTasks.append(taskObject)
+            let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
+                .filter { $0.state == .overdued }
             
-            if fetchingMore {
-                let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
-                    .filter { $0.state == .overdued }
-                await postpondTasks(moreOverduedTasks, fetchingMore: false)
+            for task in moreOverduedTasks {
+                var taskObject = await taskObject(task)!
+                taskObject.postpone()
+                afterTasks.append(taskObject)
             }
         }
         
-        try! await saveTasks(afterTasks)
+        try! await saveTasks(afterTasks, savingRecurrences: false)
     }
 }
 

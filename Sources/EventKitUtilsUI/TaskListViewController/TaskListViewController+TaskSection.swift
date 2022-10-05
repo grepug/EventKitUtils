@@ -118,7 +118,7 @@ extension TaskListViewController {
             return
         }
         
-        await em.postpondTasks(taskValues)
+        await em.postponeTasks(taskValues)
         reloadList()
     }
 }
