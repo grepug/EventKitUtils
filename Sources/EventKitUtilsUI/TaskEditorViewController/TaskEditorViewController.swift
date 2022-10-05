@@ -19,6 +19,7 @@ public class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind
     var keyResultInfo: KeyResultInfo?
     var originalTaskValue: TaskValue
+    var originalTaskAlarmType: TaskAlarmType?
     unowned public let em: EventManager
     var cancellables = Set<AnyCancellable>()
     
@@ -70,7 +71,8 @@ public class TaskEditorViewController: DiffableListViewController {
     
     var hasChanges: Bool {
         if let event {
-            return event.value != originalTaskValue
+            return event.value != originalTaskValue ||
+            event.taskAlarmType != originalTaskAlarmType
         }
         
         return task.value != originalTaskValue
@@ -91,6 +93,7 @@ public class TaskEditorViewController: DiffableListViewController {
             self.keyResultLinkingSection
             self.plannedDateSection
             self.calendarLinkingSection
+            self.alarmSection
             self.remarkSection
             self.deleteButton
         }
@@ -101,37 +104,7 @@ public class TaskEditorViewController: DiffableListViewController {
         
         isModalInPresentation = true
         setupNavigationBar()
-        
-        if isCreating && em.isDefaultSyncingToCalendarEnabled {
-            Task {
-                await convertToEvent(showingToastActivity: false)
-                reload(animating: false)
-            }
-        } else if task.kindIdentifier == .event {
-            Task {
-                guard let event = await em.taskObject(task) as? EKEvent else {
-                    return
-                }
-                
-                // in case user changed recurrence end in Calendar app
-                event.setDefaultRecurrenceEndIfAbsents(savingWithEventStore: eventStore)
-                self.task = event
-                self.originalTaskValue = event.value
-                
-                // set a default end date for recurrence if it absents
-                if event.hasRecurrenceRules {
-                    if event.recurrenceEndDate == nil,
-                       let startDate = event.normalizedStartDate {
-                        event.setTaskRecurrenceRule(event.taskRecurrenceRule, end: .init(end: startDate.nextWeek))
-                    }
-                }
-                
-                reload(animating: false)
-            }
-        } else {
-            reload(animating: false)
-        }
-        
+        initialReload()
         titleTextFieldBecomeFirstResponder()
         
         setupKeyboardSubscribers(scrollView: listView,
@@ -147,6 +120,39 @@ public class TaskEditorViewController: DiffableListViewController {
             return [indexPath.section, 0]
         } onPopup: { [weak self] indexPath in
             self?.listView.scrollToItem(at: indexPath, at: .top, animated: true)
+        }
+    }
+    
+    func initialReload() {
+        if isCreating && em.isDefaultSyncingToCalendarEnabled {
+            Task {
+                await convertToEvent(showingToastActivity: false)
+                reload(animating: false)
+            }
+        } else if task.kindIdentifier == .event {
+            Task {
+                guard let event = await em.taskObject(task) as? EKEvent else {
+                    return
+                }
+                
+                // in case user changed recurrence end in Calendar app
+                event.setDefaultRecurrenceEndIfAbsents(savingWithEventStore: eventStore)
+                self.task = event
+                self.originalTaskValue = event.value
+                self.originalTaskAlarmType = event.taskAlarmType
+                
+                // set a default end date for recurrence if it absents
+                if event.hasRecurrenceRules {
+                    if event.recurrenceEndDate == nil,
+                       let startDate = event.normalizedStartDate {
+                        event.setTaskRecurrenceRule(event.taskRecurrenceRule, end: .init(end: startDate.nextWeek))
+                    }
+                }
+                
+                reload(animating: false)
+            }
+        } else {
+            reload(animating: false)
         }
     }
     

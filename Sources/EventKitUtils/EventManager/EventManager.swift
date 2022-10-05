@@ -108,7 +108,18 @@ public extension EventManager {
 }
 
 public extension EventManager {
+    /// Get the instance of ``EKEvent``, or ``NSManagedObject``from local task of the ``TaskKind``
+    /// - Parameters:
+    ///   - task: the other instance of ``TaskKind``
+    ///   - firstRecurrence: a boolean indicates whether get the first recurrence of the task
+    ///   - creating: is creating a new object
+    /// - Returns: a reference type of ``TaskKind``
     func taskObject(_ task: TaskKind, firstRecurrence: Bool = false, creating: Bool = false) async -> TaskKind? {
+        // return itself if it is an EKEvent
+        if let task = task as? EKEvent {
+            return task
+        }
+        
         if let task = await configuration.fetchTask(byID: task.normalizedID, creating: creating) {
             return task
         }
