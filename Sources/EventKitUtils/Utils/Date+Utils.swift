@@ -101,6 +101,18 @@ public extension DateInterval {
         .init(start: start.startOfDay, end: end.endOfDay)
     }
     
+    func durationInDays(includingLastDay: Bool = true) -> Int {
+        start.days(to: end, includingLastDay: includingLastDay)
+    }
+    
+    var formattedDurationString: String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour, .minute]
+        formatter.unitsStyle = .short
+        
+        return formatter.string(from: duration)!
+    }
+    
     func formattedRelatively(includingTime: Bool = true, endDateOnly: Bool = false) -> String {
         let startString = start.formattedRelatively(includingTime: includingTime)
         

@@ -82,7 +82,7 @@ extension TaskEditorViewController {
             }))
             .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode) \(task.normalizedIsInterval)")
         }
-        .tag("2 \(self.task.durationString ?? "") \(self.task.isDateEnabled)")
+        .tag("2 \(self.task.dateInterval?.formattedDurationString ?? "") \(self.task.isDateEnabled)")
         .listConfig { [unowned self] config in
             var config = config
             config.footerMode = self.task.isDateEnabled ? .supplementary : .none
@@ -91,7 +91,7 @@ extension TaskEditorViewController {
         .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: { [unowned self] in
             if let errorMessage = task.dateErrorMessage {
                 PromptFooter(text: errorMessage, isError: true)
-            } else if let text = task.durationString {
+            } else if let text = task.dateInterval?.formattedDurationString {
                 PromptFooter(text: text)
             }
         }))

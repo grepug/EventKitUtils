@@ -130,26 +130,6 @@ public extension TaskKind {
         return interval
     }
     
-    var durationInDays: Int? {
-        guard let dateInterval else {
-            return nil
-        }
-        
-        return dateInterval.start.days(to: dateInterval.end)
-    }
-    
-    var durationString: String? {
-        guard let interval = dateInterval?.duration else {
-            return nil
-        }
-        
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.day, .hour, .minute]
-        formatter.unitsStyle = .short
-
-        return formatter.string(from: interval)!
-    }
-    
     var linkedValueString: String? {
         get {
             guard let value = linkedValue else {
