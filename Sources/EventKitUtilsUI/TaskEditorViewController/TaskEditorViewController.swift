@@ -416,7 +416,7 @@ public extension EventManager {
 extension TaskKind {
     var dateErrorMessage: String? {
         if isDateEnabled {
-            guard dateRange != nil else {
+            guard dateInterval != nil else {
                 return "task_editor_date_range_error_end_cannot_earlier_than_start".loc
             }
         }

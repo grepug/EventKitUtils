@@ -107,7 +107,7 @@ public extension TaskKind {
         }
     }
     
-    var dateRange: Range<Date>? {
+    var dateInterval: DateInterval? {
         guard isDateEnabled else {
             return nil
         }
@@ -121,42 +121,25 @@ public extension TaskKind {
             return nil
         }
         
+        let interval = DateInterval(start: start, end: end)
+        
         if normalizedIsAllDay {
-            return start.startOfDay..<end.endOfDay
+            return interval.extendedToEdgesOfBothDates
         }
         
-        return start..<end
-    }
-    
-    var dateRangeExtendedToTheEdgesOfBothStartAndEndDate: Range<Date>? {
-        guard let dateRange else {
-            return nil
-        }
-        
-        let start = dateRange.lowerBound.startOfDay
-        let end = dateRange.upperBound.endOfDay
-        
-        return start..<end
-    }
-    
-    var durationInSeconds: TimeInterval? {
-        guard let dateRange = dateRange else {
-            return nil
-        }
-        
-        return dateRange.upperBound.timeIntervalSince1970 - dateRange.lowerBound.timeIntervalSince1970
+        return interval
     }
     
     var durationInDays: Int? {
-        guard let dateRange = dateRange else {
+        guard let dateInterval else {
             return nil
         }
         
-        return abs(dateRange.upperBound.days(to: dateRange.lowerBound))
+        return dateInterval.start.days(to: dateInterval.end)
     }
     
     var durationString: String? {
-        guard let interval = durationInSeconds else {
+        guard let interval = dateInterval?.duration else {
             return nil
         }
         
@@ -206,11 +189,11 @@ public extension TaskKind {
     }
     
     func dateFormatted(endDateOnly: Bool = false) -> String? {
-        guard let range = dateRange else {
+        guard let dateInterval else {
             return nil
         }
         
-        return range.formattedRelatively(includingTime: !normalizedIsAllDay, endDateOnly: endDateOnly)
+        return dateInterval.formattedRelatively(includingTime: !normalizedIsAllDay, endDateOnly: endDateOnly)
     }
     
     var value: TaskValue {
@@ -299,8 +282,7 @@ public extension TaskKind {
     /// 
     mutating func postpone() {
         guard isDateEnabled,
-              dateRange != nil,
-              let durationInSeconds = durationInSeconds else {
+              let durationInSeconds = dateInterval?.duration else {
             return
         }
         
@@ -368,7 +350,7 @@ public extension TaskKind {
         
         guard isDateEnabled,
               let endDate = normalizedEndDate,
-              let range = dateRangeExtendedToTheEdgesOfBothStartAndEndDate else {
+              let range = dateInterval?.extendedToEdgesOfBothDates else {
             return .unscheduled
         }
         

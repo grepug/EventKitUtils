@@ -96,19 +96,23 @@ public extension Date {
     }
 }
 
-public extension Range where Bound == Date {
+public extension DateInterval {
+    var extendedToEdgesOfBothDates: DateInterval {
+        .init(start: start.startOfDay, end: end.endOfDay)
+    }
+    
     func formattedRelatively(includingTime: Bool = true, endDateOnly: Bool = false) -> String {
-        let start = lowerBound.formattedRelatively(includingTime: includingTime)
+        let startString = start.formattedRelatively(includingTime: includingTime)
         
-        if lowerBound == upperBound || endDateOnly {
-            return start
+        if start == end || endDateOnly {
+            return startString
         }
         
-        let isSameDate = lowerBound.isSameDay(with: upperBound)
-        let end = upperBound.formattedRelatively(includingTime: includingTime,
+        let isSameDate = start.isSameDay(with: end)
+        let endString = end.formattedRelatively(includingTime: includingTime,
                                                  includingDate: !isSameDate)
         
-        return "\(start) - \(end)"
+        return "\(startString) - \(endString)"
     }
 }
 
