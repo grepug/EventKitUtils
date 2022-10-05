@@ -133,16 +133,17 @@ public extension TaskKind {
             return nil
         }
         
+        let start = dateRange.lowerBound.startOfDay
         let end = dateRange.upperBound.endOfDay
         
-        return dateRange.lowerBound..<end
+        return start..<end
     }
     
     var durationInSeconds: TimeInterval? {
         guard let dateRange = dateRange else {
             return nil
         }
-
+        
         return dateRange.upperBound.timeIntervalSince1970 - dateRange.lowerBound.timeIntervalSince1970
     }
     
@@ -293,6 +294,9 @@ public extension TaskKind {
         }
     }
     
+    /// Postpone the task
+    ///
+    /// 
     mutating func postpone() {
         guard isDateEnabled,
               dateRange != nil,
@@ -372,10 +376,6 @@ public extension TaskKind {
         
         // if the date range contains current date, it is today
         if range.contains(current) {
-            return .today
-        }
-        
-        if range.lowerBound.startOfDay == current.startOfDay {
             return .today
         }
         
