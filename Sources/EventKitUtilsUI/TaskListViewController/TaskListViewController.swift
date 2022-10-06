@@ -85,9 +85,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         let image = UIImage(systemName: "plus")?.withConfiguration(symbolConfiguration)
         button.setImage(image, for: .normal)
         button.addAction(.init { [unowned self] _ in
-            Task {
-                await self.presentTaskEditor()
-            }
+            self.presentTaskEditor()
         }, for: .touchUpInside)
         
         return button
@@ -190,8 +188,8 @@ extension TaskListViewController {
         }
     }
     
-    func presentTaskEditor(task: TaskValue? = nil) async {
-        let vc = await em.makeTaskEditorViewController(task: task) { [weak self] _ in
+    func presentTaskEditor(task: TaskValue? = nil) {
+        let vc = em.makeTaskEditorViewController(task: task) { [weak self] _ in
             self?.reloadList()
         }
         

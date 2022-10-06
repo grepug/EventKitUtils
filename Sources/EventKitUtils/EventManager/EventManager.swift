@@ -133,7 +133,7 @@ public extension EventManager {
     ///
     /// Suggestion: use it in the background queue.
     /// - Parameter task: the task kind to toggle completion
-    func toggleCompletion(_ task: TaskKind) async {
+    func toggleCompletion(_ task: TaskKind) async throws {
         guard let taskObject = await taskObject(task) else {
             assertionFailure()
             return
@@ -145,7 +145,7 @@ public extension EventManager {
             await generator.notificationOccurred(.success)
         }
         
-        try! await saveTask(taskObject)
+        try await saveTask(taskObject)
     }
     
     func toggleAbortion(_ task: TaskKind) async {

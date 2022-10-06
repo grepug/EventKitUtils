@@ -46,14 +46,15 @@ extension TaskListViewController {
             for task in tasks {
                 DLCell(using: .swiftUI(movingTo: self, content: { [unowned self] in
                     TaskListCell(task: task, hidingRepeatingCount: isRepeatingList) { [weak self] in
-                        guard let self = self else { return }
+                        guard let self else { return }
                         
-                        await self.em.toggleCompletion(task)
+                        guard await self.toggleCompletionOrPresentError(task) else {
+                            return
+                        }
+                        
                         self.reloadList()
                     } onTap: { [weak self] in
-                        Task {
-                            await self?.handleTaskCellTap(task: task)
-                        }
+                        self?.handleTaskCellTap(task: task)
                     }
                 }))
                 .tag(task.cellTag)
@@ -99,11 +100,11 @@ extension TaskListViewController {
         return nil
     }
     
-    func handleTaskCellTap(task: TaskValue) async {
+    func handleTaskCellTap(task: TaskValue) {
         if task.state.isEnded {
             presentRepeatTaskListViewController(task: task)
         } else {
-            await presentTaskEditor(task: task)
+            presentTaskEditor(task: task)
         }
     }
     
@@ -123,11 +124,15 @@ extension TaskListViewController {
     }
 }
 
+extension TaskListViewController: TaskHandling {
+    public func taskHandling(presentErrorAlertControllerOn withError: Error) -> UIViewController {
+        self
+    }
+}
+
 extension TaskListViewController: TaskActionMenuHandling {
     public func taskActionMenu(presentTaskEditorWith task: TaskValue) {
-        Task {
-            await presentTaskEditor(task: task)
-        }
+        presentTaskEditor(task: task)
     }
     
     public func taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith task: TaskValue) {

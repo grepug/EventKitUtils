@@ -28,7 +28,7 @@ public protocol EventConfiguration {
     ///
     /// Generally, it should return the earliest start date and the latest end date among all the goals the user created
     /// - Returns: a optional date interval (returns nil when there is no goal at all)
-    func eventRequestDateInterval() -> DateInterval?
+    func eventRequestDateInterval() async -> DateInterval?
     
     /// Get the task count for local tasks with the ``TaskRepeatingInfo``.
     /// - Parameter repeatingInfo: see in ``TaskRepeatingInfo``
@@ -74,7 +74,7 @@ public extension EventConfiguration {
 /// The required information in terms of UIs for an instance of ``EventManager``.
 public protocol EventUIConfiguration {
     /// Present an alert to inform the user that the feature requires Pro version.
-    func presentNonProErrorAlert()
+    func presentNonProErrorAlert(on vc: UIViewController)
     
     /// The view controller which should be presented to select a linked key result.
     /// - Parameter completion: the completion handler to return the id of selected key result

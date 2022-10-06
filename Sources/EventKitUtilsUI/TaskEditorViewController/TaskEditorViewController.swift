@@ -176,6 +176,10 @@ public class TaskEditorViewController: DiffableListViewController {
 }
 
 extension TaskEditorViewController: TaskHandling {
+    public func taskHandling(presentErrorAlertControllerOn withError: Error) -> UIViewController {
+        self
+    }
+    
     func titleTextFieldBecomeFirstResponder() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             self?.becomeFirstResponder(at: [0, 0])
@@ -388,8 +392,7 @@ private extension TaskEditorViewController {
 }
 
 public extension EventManager {
-    @MainActor
-    func makeTaskEditorViewController(task _task: TaskValue? = nil, onDismiss: ((Bool) -> Void)? = nil) async -> UIViewController {
+    func makeTaskEditorViewController(task _task: TaskValue? = nil, onDismiss: ((Bool) -> Void)? = nil) -> UIViewController {
         let task: TaskValue
         
         if let _task {
@@ -398,6 +401,7 @@ public extension EventManager {
             let startDate = Date().startOfHour
             let endDate = startDate.nextHour
             
+            /// Just create an empty ``TaskValue``, saving it on editor done
             task = .init(normalizedTitle: "",
                          normalizedStartDate: startDate,
                          normalizedEndDate: endDate)

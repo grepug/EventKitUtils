@@ -10,8 +10,9 @@ import EventKitUtils
 import SwiftUI
 import Combine
 
+@MainActor
 public class TaskSummaryCardViewModel: ObservableObject {
-    unowned let em: EventManager
+    unowned public let em: EventManager
     unowned let parentVC: UIViewController
     
     @Published var tasks: [TaskValue] = []
@@ -51,7 +52,11 @@ public class TaskSummaryCardViewModel: ObservableObject {
     }
 }
 
-extension TaskSummaryCardViewModel {
+extension TaskSummaryCardViewModel: TaskHandling {
+    public func taskHandling(presentErrorAlertControllerOn withError: Error) -> UIViewController {
+        parentVC
+    }
+    
     func checkTask(_ task: TaskValue) async {
         checkedTaskIds.insert(task.normalizedID)
         
@@ -59,7 +64,9 @@ extension TaskSummaryCardViewModel {
         
         for taskID in checkedTaskIds {
             if let task = tasks.first(where: { $0.normalizedID == taskID }) {
-                await em.toggleCompletion(task)
+                guard await toggleCompletionOrPresentError(task) else {
+                    return
+                }
             }
         }
         
@@ -121,7 +128,7 @@ extension TaskSummaryCardViewModel {
     func presentTaskEditor(task: TaskValue? = nil) async {
         let task = await em.fetchOrCreateTaskObject(from: task)?.value
         
-        let vc = await em.makeTaskEditorViewController(task: task) { [weak self] shouldOpenTaskList in
+        let vc = em.makeTaskEditorViewController(task: task) { [weak self] shouldOpenTaskList in
             guard shouldOpenTaskList else {
                 return
             }
