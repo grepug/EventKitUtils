@@ -350,13 +350,13 @@ extension EventManager {
         }
         
         let eventEnumerator = EventEnumerator(eventManager: self)
-        let offsetStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)
-        let offsetEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)
-        let predicate = eventEnumerator.eventsPredicate(withStart: offsetStartDate, end: offsetEndDate)
+        let offsetStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)!
+        let offsetEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)!
+        let interval = DateInterval(start: offsetStartDate, end: offsetEndDate)
         
         var foundEvent: EKEvent?
         
-        eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: predicate) { event, completion in
+        eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval) { event, completion in
             if event.value.isSameTaskValueForRepeatTasks(with: task) {
                 foundEvent = event
                 completion()

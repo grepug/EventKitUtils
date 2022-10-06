@@ -25,33 +25,20 @@ public struct EventEnumerator {
         eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
     }
     
-    var defaultDateInterval: DateInterval {
-        let current = Date()
-        let defaultStart = Calendar.current.date(byAdding: .year, value: -1, to: current)!
-        let defaultEnd = Calendar.current.date(byAdding: .year, value: 1, to: current)!
-            
-        return .init(start: defaultStart, end: defaultEnd)
-    }
-    
-    public func eventsPredicate(withStart startDate: Date? = nil, end: Date? = nil) -> NSPredicate {
-        let eventStore = EKEventStore()
-        let interval = eventConfiguration.eventRequestDateInterval() ?? defaultDateInterval
+    @discardableResult
+    public func enumerateEventsAndReturnsIfExceedsNonProLimit(handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) async -> Bool {
+        let interval = await eventConfiguration.eventRequestDateInterval() ?? .defaultEventRequestDateInterval
         
-        let startDate = startDate ?? interval.start
-        let endDate = end ?? interval.end
-        let predicate = eventStore.predicateForEvents(withStart: startDate,
-                                                      end: endDate,
-                                                      calendars: calendars)
-        
-        return predicate
+        return enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval,
+                                                             handler: handler)
     }
     
     @discardableResult
-    public func enumerateEventsAndReturnsIfExceedsNonProLimit(matching precidate: NSPredicate? = nil, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
+    public func enumerateEventsAndReturnsIfExceedsNonProLimit(matching dateInterval: DateInterval = .defaultEventRequestDateInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
         var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
         var exceededNonProLimit = false
-        
-        let predicate = precidate ?? eventsPredicate()
+
+        let predicate = dateInterval.eventPredicate()
         let config = eventConfiguration
         
         eventStore.enumerateEvents(matching: predicate) { event, pointer in
@@ -75,5 +62,26 @@ public struct EventEnumerator {
         }
         
         return exceededNonProLimit
+    }
+}
+
+extension DateInterval {
+    func eventPredicate() -> NSPredicate {
+        let eventStore = EKEventStore()
+        let calendars = eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
+        
+        let predicate = eventStore.predicateForEvents(withStart: start,
+                                                      end: end,
+                                                      calendars: calendars)
+        
+        return predicate
+    }
+    
+    public static var defaultEventRequestDateInterval: Self {
+        let current = Date()
+        let defaultStart = Calendar.current.date(byAdding: .year, value: -1, to: current)!
+        let defaultEnd = Calendar.current.date(byAdding: .year, value: 1, to: current)!
+            
+        return .init(start: defaultStart, end: defaultEnd)
     }
 }
