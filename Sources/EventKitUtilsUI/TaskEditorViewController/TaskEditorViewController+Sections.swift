@@ -164,7 +164,7 @@ extension TaskEditorViewController {
     }
     
     func presentKeyResultSelector() {
-        guard let vc = em.uiConfiguration?.makeKeyResultSelector(completion: { [weak self] krID in
+        guard let vc = em.uiConfiguration?.makeKeyResultSelectorViewController(completion: { [weak self] krID in
             guard let self = self else { return }
             
             self.task.keyResultId = krID

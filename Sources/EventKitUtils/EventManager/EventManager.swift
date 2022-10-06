@@ -120,7 +120,7 @@ public extension EventManager {
             return task
         }
         
-        if let task = await configuration.fetchTask(byID: task.normalizedID, creating: creating) {
+        if let task = await configuration.fetchNonEventTask(byID: task.normalizedID, creating: creating) {
             return task
         }
         
@@ -187,7 +187,7 @@ public extension EventManager {
         } else if let event = task as? EKEvent {
             try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            await configuration.saveTask(task.value)
+            await configuration.saveNonEventTask(task.value)
         } else {
             assertionFailure("no such task")
         }
@@ -214,7 +214,7 @@ public extension EventManager {
                                    span: deletingRecurrences ? .futureEvents : .thisEvent,
                                    commit: commit)
         } else if task.kindIdentifier == .managedObject {
-            await configuration.deleteTask(byID: task.normalizedID)
+            await configuration.deleteNonEventTask(byID: task.normalizedID)
         } else {
             assertionFailure()
         }
@@ -288,7 +288,7 @@ public extension EventManager {
     }
     
     func testIsRepeating(_ taskValue: TaskValue) async -> Bool {
-        if let count = await configuration.fetchTaskCount(with: taskValue.repeatingInfo),
+        if let count = await configuration.fetchNonEventTaskCount(with: taskValue.repeatingInfo),
            count > 0{
             return true
         }

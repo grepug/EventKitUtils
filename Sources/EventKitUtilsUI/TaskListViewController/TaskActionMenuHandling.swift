@@ -41,7 +41,7 @@ public extension TaskActionMenuHandling {
                 MBButton("action_view_kr".loc) { [weak self] in
                     guard let self = self else { return }
                     
-                    guard let krDetail = self.em.uiConfiguration?.makeKeyResultDetail(byID: krId) else {
+                    guard let krDetail = self.em.uiConfiguration?.makeKeyResultDetailViewController(byID: krId) else {
                         return
                     }
                     

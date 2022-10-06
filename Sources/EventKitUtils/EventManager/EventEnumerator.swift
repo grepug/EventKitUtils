@@ -25,10 +25,20 @@ public struct EventEnumerator {
         eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
     }
     
+    var defaultDateInterval: DateInterval {
+        let current = Date()
+        let defaultStart = Calendar.current.date(byAdding: .year, value: -1, to: current)!
+        let defaultEnd = Calendar.current.date(byAdding: .year, value: 1, to: current)!
+            
+        return .init(start: defaultStart, end: defaultEnd)
+    }
+    
     public func eventsPredicate(withStart startDate: Date? = nil, end: Date? = nil) -> NSPredicate {
         let eventStore = EKEventStore()
-        let startDate = startDate ?? eventConfiguration.eventRequestRange.lowerBound
-        let endDate = end ?? eventConfiguration.eventRequestRange.upperBound
+        let interval = eventConfiguration.eventRequestDateInterval() ?? defaultDateInterval
+        
+        let startDate = startDate ?? interval.start
+        let endDate = end ?? interval.end
         let predicate = eventStore.predicateForEvents(withStart: startDate,
                                                       end: endDate,
                                                       calendars: calendars)
