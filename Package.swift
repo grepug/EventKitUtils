@@ -23,14 +23,18 @@ let package = Package(
            url: "https://github.com/apple/swift-collections.git",
            .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
          ),
-        .package(url: "https://github.com/scalessec/Toast-Swift.git", branch: "master")
+        .package(url: "https://github.com/scalessec/Toast-Swift.git", branch: "master"),
+        .package(url: "https://github.com/grepug/StorageProvider", branch: "dev_3.3.10")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "EventKitUtils",
-            dependencies: [.product(name: "Collections", package: "swift-collections")],
+            dependencies: [
+                .product(name: "Collections", package: "swift-collections"),
+                .product(name: "StorageProvider", package: "StorageProvider")
+            ],
             path: "Sources/EventKitUtils"),
         .target(name: "EventKitUtilsUI",
                 dependencies: ["EventKitUtils",

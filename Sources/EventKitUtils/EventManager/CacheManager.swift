@@ -34,7 +34,7 @@ extension CacheManager {
         
         let runID = UUID().uuidString
         
-        try? await handlers.clean(exceptRunID: runID)
+        try? await handlers.cleanup(exceptRunID: runID)
         await makeCacheImpl(runID: runID)
         
         isPending = false

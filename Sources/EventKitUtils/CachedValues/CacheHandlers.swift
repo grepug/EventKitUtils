@@ -74,7 +74,7 @@ extension CacheHandlers {
         }
     }
 
-    func clean(exceptRunID runID: String) async throws {
+    func cleanup(exceptRunID runID: String) async throws {
         try await withCheckedThrowingContinuation { continuation in
             persistentContainer.performBackgroundTask { context in
                 do {

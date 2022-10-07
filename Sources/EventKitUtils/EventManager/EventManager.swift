@@ -124,7 +124,7 @@ public extension EventManager {
             return task
         }
         
-        return fetchEvent(withTaskValue: task.value, firstRecurrence: firstRecurrence)
+        return await fetchEvent(withTaskValue: task.value, firstRecurrence: firstRecurrence)
     }
     
     /// Toggle the completion status of the task
@@ -279,12 +279,12 @@ public extension EventManager {
     
     /// Check the total number of EKEvents exceeds the limit for non Pro users
     /// - Returns: the boolean that indicates if events
-    func checkIfExceedsNonProLimit() -> Bool {
+    func checkIfExceedsNonProLimit() async -> Bool {
         guard !configuration.isPro else {
             return false
         }
             
-        return EventEnumerator(eventManager: self).enumerateEventsAndReturnsIfExceedsNonProLimit()
+        return await EventEnumerator(eventManager: self).enumerateEventsAndReturnsIfExceedsNonProLimit()
     }
     
     func testIsRepeating(_ taskValue: TaskValue) async -> Bool {
@@ -336,7 +336,7 @@ extension EventManager {
     /// Narrow down the date range of events, improving the performance
     /// - Parameter task: the ``TaskValue``
     /// - Returns: an Optional ``EKEvent``
-    func fetchEvent(withTaskValue task: TaskValue, firstRecurrence: Bool) -> EKEvent? {
+    func fetchEvent(withTaskValue task: TaskValue, firstRecurrence: Bool) async -> EKEvent? {
         // 若 event 不是重复事件，则可以直接用 id 拿到
         if let event = eventStore.event(withIdentifier: task.normalizedID) {
             if firstRecurrence || !event.hasRecurrenceRules {
@@ -356,7 +356,7 @@ extension EventManager {
         
         var foundEvent: EKEvent?
         
-        eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval) { event, completion in
+        await eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval) { event, completion in
             if event.value.isSameTaskValueForRepeatTasks(with: task) {
                 foundEvent = event
                 completion()

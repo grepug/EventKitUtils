@@ -27,7 +27,7 @@ extension TaskEditorViewController {
         
         try! await Task.sleep(nanoseconds: 50_000_000)
         
-        guard !em.checkIfExceedsNonProLimit() else {
+        guard await !em.checkIfExceedsNonProLimit() else {
             uiConfig.presentNonProErrorAlert(on: self)
             return
         }

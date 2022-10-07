@@ -21,20 +21,32 @@ public struct EventEnumerator {
     var eventStore: EKEventStore
     var eventConfiguration: EventConfiguration
     
-    var calendars: [EKCalendar] {
-        eventStore.calendars(for: .event).filter({ $0.allowsContentModifications && !$0.isSubscribed })
-    }
-    
+    /// The public call site for ``enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching:handler:)``
+    ///
+    /// Date interval that enumerates in defaults to the configuration, which is an async method. Therefore this method should be an async too.
+    /// - Parameters:
+    ///   - dateInterval: the date interval it should enumerate in
+    ///   - handler: returns an EKEvent to the function caller each enumeration, and offers a completion handler to stop the enumeration
+    /// - Returns: a boolean indicates if the count of events has exceeded the non Pro user's limit
     @discardableResult
-    public func enumerateEventsAndReturnsIfExceedsNonProLimit(handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) async -> Bool {
-        let interval = await eventConfiguration.eventRequestDateInterval() ?? .defaultEventRequestDateInterval
+    public func enumerateEventsAndReturnsIfExceedsNonProLimit(matching dateInterval: DateInterval? = nil, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) async -> Bool {
+        let interval: DateInterval
         
-        return enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval,
-                                                             handler: handler)
+        if let dateInterval {
+            interval = dateInterval
+        } else {
+            interval = await eventConfiguration.eventRequestDateInterval() ?? .defaultEventRequestDateInterval
+        }
+        
+        return enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching: interval, handler: handler)
     }
     
-    @discardableResult
-    public func enumerateEventsAndReturnsIfExceedsNonProLimit(matching dateInterval: DateInterval = .defaultEventRequestDateInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
+    /// The implementation of enumerating over events
+    /// - Parameters:
+    ///   - dateInterval: the date interval it should enumerate in
+    ///   - handler: returns an EKEvent to the function caller each enumeration, and offers a completion handler to stop the enumeration
+    /// - Returns: a boolean indicates if the count of events has exceeded the non Pro user's limit
+    private func enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching dateInterval: DateInterval = .defaultEventRequestDateInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
         var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
         var exceededNonProLimit = false
 
@@ -53,6 +65,7 @@ public struct EventEnumerator {
                 
                 if enumeratedRepeatingInfoSet.count == nonProLimit {
                     exceededNonProLimit = true
+                    pointer.pointee = true
                 }
             }
             

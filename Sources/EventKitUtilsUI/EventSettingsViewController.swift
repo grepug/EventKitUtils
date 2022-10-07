@@ -125,19 +125,9 @@ public class EventSettingsViewController: DiffableListViewController {
                     }))
                     .tag("deletion")
                     .onTapAndDeselect { [weak self] _ in
-                        guard let self = self else { return }
-                        
-                        let enumerator = EventEnumerator(eventManager: self.em)
-                        
-                        self.view.makeToastActivity(.center)
-                        
-                        enumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event, completion in
-                            try? self?.em.eventStore.remove(event, span: .thisEvent, commit: false)
+                        Task {
+                            await self?.handleDeleteAllEventTask()
                         }
-                        
-                        try! self.em.eventStore.commit()
-                        
-                        self.view.hideToastActivity()
                     }
                 }
                 .tag("reset")
@@ -181,6 +171,20 @@ public class EventSettingsViewController: DiffableListViewController {
         }
         
         await determineAuthorizationStatus()
+    }
+    
+    func handleDeleteAllEventTask() async {
+        let enumerator = EventEnumerator(eventManager: self.em)
+        
+        self.view.makeToastActivity(.center)
+        
+        await enumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { [weak self] event, completion in
+            try? self?.em.eventStore.remove(event, span: .thisEvent, commit: false)
+        }
+        
+        try! self.em.eventStore.commit()
+        
+        self.view.hideToastActivity()
     }
 }
 
