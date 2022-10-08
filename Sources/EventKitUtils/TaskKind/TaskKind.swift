@@ -191,13 +191,14 @@ public extension TaskKind {
     }
     
     mutating func assignFromTaskKind(_ task: TaskKind) {
+        // Should assign `completedAt` and `abortedAt` before `normalizedTitle`, for the title need its state to prefix emoji.
+        completedAt = task.completedAt
+        abortedAt = task.abortedAt
         normalizedID = task.normalizedID
         normalizedTitle = task.normalizedTitle
         normalizedStartDate = task.normalizedStartDate
         normalizedEndDate = task.normalizedEndDate
         originalIsAllDay = task.originalIsAllDay
-        completedAt = task.completedAt
-        abortedAt = task.abortedAt
         notes = task.notes
         keyResultId = task.keyResultId
         linkedValue = task.linkedValue

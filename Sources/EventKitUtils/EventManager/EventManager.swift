@@ -154,7 +154,8 @@ public extension EventManager {
     func saveTask(_ task: TaskValue, savingRecurrences: Bool = false, commit: Bool = true) async throws {
         if task.kindIdentifier == .managedObject {
             await configuration.saveNonEventTask(task.value)
-        } else if let event = await fetchEvent(withTaskValue: task, firstRecurrence: !savingRecurrences)  {
+        } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !savingRecurrences)  {
+            event.assignFromTaskKind(task)
             try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
         } else {
             assertionFailure("no such task")
