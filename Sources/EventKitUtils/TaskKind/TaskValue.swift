@@ -10,12 +10,11 @@ import Collections
 
 public struct TaskValue: TaskKind, Equatable {
     public static var newCreated: TaskValue {
-        let startDate = Date().startOfHour
-        let endDate = startDate.nextHour
+        let date = Date().nearestTime(in: .half)
         
         return .init(normalizedTitle: "",
-                     normalizedStartDate: startDate,
-                     normalizedEndDate: endDate,
+                     normalizedStartDate: date,
+                     normalizedEndDate: date,
                      kindIdentifier: .managedObject)
     }
     
