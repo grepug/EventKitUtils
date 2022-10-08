@@ -53,10 +53,6 @@ public struct TaskValue: TaskKind, Equatable {
     public var createdAt: Date?
     public var updatedAt: Date?
     
-    public func toggleCompletion() {
-        fatalError("cannot toggle a value' completion")
-    }
-    
     public func updateVersion() {
         fatalError("cannot update a value's version")
     }
@@ -96,7 +92,7 @@ public struct TaskValue: TaskKind, Equatable {
         }
     }
     
-    func isSameTaskValueForRepeatTasks(with lhs: TaskValue) -> Bool {
+    func isSameTaskValueForRepeatTasks(as lhs: TaskValue) -> Bool {
         let rhs = self
         
         return lhs.normalizedID == rhs.normalizedID && lhs.normalizedStartDate == rhs.normalizedStartDate && lhs.normalizedEndDate == rhs.normalizedEndDate

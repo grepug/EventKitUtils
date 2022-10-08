@@ -108,69 +108,39 @@ public extension EventManager {
 }
 
 public extension EventManager {
-    /// Get the instance of ``EKEvent``, or ``NSManagedObject``from local task of the ``TaskKind``
-    /// - Parameters:
-    ///   - task: the other instance of ``TaskKind``
-    ///   - firstRecurrence: a boolean indicates whether get the first recurrence of the task
-    ///   - creating: is creating a new object
-    /// - Returns: a reference type of ``TaskKind``
-    func taskObject(_ task: TaskKind, firstRecurrence: Bool = false, creating: Bool = false) async -> TaskKind? {
-        // return itself if it is an EKEvent
-        if let task = task as? EKEvent {
-            return task
-        }
-        
-        if let task = await configuration.fetchNonEventTask(byID: task.normalizedID, creating: creating) {
-            return task
-        }
-        
-        return await fetchEvent(withTaskValue: task.value, firstRecurrence: firstRecurrence)
-    }
-    
     /// Toggle the completion status of the task
     ///
     /// You should implement an Optimistic UI mechanism to use this method, due to this method requires a quick time interval to complete, while the toggling UI should be smooth for user.
     ///
     /// Suggestion: use it in the background queue.
     /// - Parameter task: the task kind to toggle completion
-    func toggleCompletion(_ task: TaskKind) async throws {
-        guard let taskObject = await taskObject(task) else {
-            assertionFailure()
-            return
-        }
-        
-        taskObject.toggleCompletion()
+    func toggleCompletion(_ task: TaskValue) async throws {
+        // for local tasks
+        var task = task
+        task.toggleCompletion()
         
         Task {
             await generator.notificationOccurred(.success)
         }
         
-        try await saveTask(taskObject)
+        try await saveTask(task)
     }
     
-    func toggleAbortion(_ task: TaskKind) async {
-        guard var taskObject = await taskObject(task) else {
-            assertionFailure()
-            return
-        }
+    func toggleAbortion(_ task: TaskValue) async {
+        var task = task
+        task.toggleAbortion()
         
-        taskObject.toggleAbortion()
-        
-        try! await saveTask(taskObject)
+        try! await saveTask(task)
     }
     
-    func abortTasks(_ tasks: [TaskKind]) async throws {
+    func abortTasks(_ tasks: [TaskValue]) async throws {
         let tasks = tasks.uniquedById
         
         for task in tasks {
-            guard var taskObject = await taskObject(task) else {
-                assertionFailure()
-                continue
-            }
+            var task = task
+            task.toggleAbortion()
             
-            taskObject.toggleAbortion()
-            
-            try await saveTask(taskObject, savingRecurrences: true, commit: false)
+            try await saveTask(task, savingRecurrences: true, commit: false)
         }
         
         try eventStore.commit()
@@ -178,16 +148,14 @@ public extension EventManager {
     
     /// Save the Task
     /// - Parameters:
-    ///   - task: the task kind to save
+    ///   - task: the ``TaskValue`` to save, which should be a task value
     ///   - savingRecurence: should save the recurrences
     ///   - commit: should commit to the EKEventStore
-    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, commit: Bool = true, creating: Bool = false) async throws {
-        if task.isValueType, let task = await taskObject(task, firstRecurrence: savingRecurrences, creating: creating) {
-            try await saveTask(task)
-        } else if let event = task as? EKEvent {
-            try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
-        } else if task.kindIdentifier == .managedObject {
+    func saveTask(_ task: TaskValue, savingRecurrences: Bool = false, commit: Bool = true) async throws {
+        if task.kindIdentifier == .managedObject {
             await configuration.saveNonEventTask(task.value)
+        } else if let event = await fetchEvent(withTaskValue: task, firstRecurrence: !savingRecurrences)  {
+            try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
         } else {
             assertionFailure("no such task")
         }
@@ -198,13 +166,13 @@ public extension EventManager {
     /// The task kind can be ``TaskValue``, ``EKEvent``. If delete a ``TaskValue``, you should firstly find the real object to this value, which should also be a ``TaskKind``.
     ///
     /// - Parameters:
-    ///   - task: the task kind to delete
+    ///   - task: the task value to delete
     ///   - deletingRecurence: should delete the recurrences
     ///   - commit: should commit to the EKEventStore
-    func deleteTask(_ task: TaskKind, deletingRecurrences: Bool = false, commit: Bool = true) async {
-        if task.isValueType, let task = await taskObject(task, firstRecurrence: deletingRecurrences) {
-            await deleteTask(task, deletingRecurrences: deletingRecurrences)
-        } else if var event = task as? EKEvent {
+    func deleteTask(_ task: TaskValue, deletingRecurrences: Bool = false, commit: Bool = true) async {
+        if task.kindIdentifier == .managedObject {
+            await configuration.deleteNonEventTask(byID: task.normalizedID)
+        } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !deletingRecurrences) {
             if deletingRecurrences {
                 // delete the first recurrence and its future events
                 event = eventStore.event(withIdentifier: event.normalizedID)!
@@ -213,8 +181,6 @@ public extension EventManager {
             try! eventStore.remove(event,
                                    span: deletingRecurrences ? .futureEvents : .thisEvent,
                                    commit: commit)
-        } else if task.kindIdentifier == .managedObject {
-            await configuration.deleteNonEventTask(byID: task.normalizedID)
         } else {
             assertionFailure()
         }
@@ -235,7 +201,7 @@ public extension EventManager {
     ///
     ///  In the implementation, we unique tasks by their IDs. Because a set of repeating events share a **same** ID, we can find the first recurrence by calling ``EventStore.event(withIdentifier:)``, and delete the first recurrence and its future events.
     /// - Parameter tasks: task kinds to delete
-    func deleteTasks(_ tasks: [TaskKind]) async {
+    func deleteTasks(_ tasks: [TaskValue]) async {
         let tasks = tasks.uniquedByIdIgnoringRecurrenceID
         
         print("taskscount", tasks.count, tasks.map(\.normalizedID))
@@ -247,7 +213,7 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func saveTasks(_ tasks: [TaskKind], savingRecurrences: Bool = true) async throws {
+    func saveTasks(_ tasks: [TaskValue], savingRecurrences: Bool = true) async throws {
         var tasks = tasks
         
         if savingRecurrences {
@@ -296,45 +262,33 @@ public extension EventManager {
         return await cacheManager.handlers.fetchTaskValues(by: .repeatingInfo(taskValue.repeatingInfo)).count > 0
     }
     
-    func fetchOrCreateTaskObject(from taskValue: TaskValue? = nil) async -> TaskKind? {
-        if let task = taskValue {
-            return await self.taskObject(task)
-        }
-        
-        var taskObject = await configuration.createNonEventTask()
-        taskObject.isDateEnabled = true
-        
-        return taskObject
-    }
-    
     /// Postpond tasks
     ///
     /// Fetch more overdued tasks with each task's repeating info to postpone
     /// - Parameters:
     ///   - tasks: tasks to postpond
     func postponeTasks(_ tasks: [TaskValue]) async {
-        var afterTasks: [TaskKind] = []
+        var afterTasks: [TaskValue] = []
         
         for task in tasks {
             let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
                 .filter { $0.state == .overdued }
             
             for task in moreOverduedTasks {
-                var taskObject = await taskObject(task)!
-                taskObject.postpone()
-                afterTasks.append(taskObject)
+                var task = task
+                task.postpone()
+                afterTasks.append(task)
             }
         }
         
         try! await saveTasks(afterTasks, savingRecurrences: false)
     }
-}
-
-extension EventManager {
+    
     /// Fetch EKEvent instance by ``TaskValue``
     ///
     /// Narrow down the date range of events, improving the performance
     /// - Parameter task: the ``TaskValue``
+    /// - Parameter firstRecurrence: is fetching the first recurrence of the events if it has recurrences
     /// - Returns: an Optional ``EKEvent``
     func fetchEvent(withTaskValue task: TaskValue, firstRecurrence: Bool) async -> EKEvent? {
         // 若 event 不是重复事件，则可以直接用 id 拿到
@@ -350,6 +304,7 @@ extension EventManager {
         }
         
         let eventEnumerator = EventEnumerator(eventManager: self)
+        #warning("the interval may be large")
         let offsetStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)!
         let offsetEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)!
         let interval = DateInterval(start: offsetStartDate, end: offsetEndDate)
@@ -357,11 +312,12 @@ extension EventManager {
         var foundEvent: EKEvent?
         
         await eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval) { event, completion in
-            if event.value.isSameTaskValueForRepeatTasks(with: task) {
-                foundEvent = event
-                completion()
+            guard event.value.isSameTaskValueForRepeatTasks(as: task) else {
                 return
             }
+
+            foundEvent = event
+            completion()
         }
         
         return foundEvent
@@ -371,7 +327,7 @@ extension EventManager {
 fileprivate extension EventConfiguration {
     var userDefaults: UserDefaults {
         if let appGroup = appGroupIdentifier,
-        let userDefaults = UserDefaults(suiteName: appGroup) {
+           let userDefaults = UserDefaults(suiteName: appGroup) {
             return userDefaults
         }
         

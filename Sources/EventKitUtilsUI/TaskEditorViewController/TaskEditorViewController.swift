@@ -131,7 +131,7 @@ public class TaskEditorViewController: DiffableListViewController {
             }
         } else if task.kindIdentifier == .event {
             Task {
-                guard let event = await em.taskObject(task) as? EKEvent else {
+                guard let event = await em.fetchEvent(withTaskValue: task.value, firstRecurrence: false) else {
                     return
                 }
                 
@@ -204,8 +204,10 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
+        let taskValue = task.value
+        
         guard !task.isEmpty else {
-            await em.deleteTask(task)
+            await em.deleteTask(taskValue)
             dismissEditor()
             return
         }
@@ -219,7 +221,7 @@ extension TaskEditorViewController: TaskHandling {
                 self.task.normalizedID = newTask.normalizedID
             }
             
-            guard await self.saveTaskAndPresentErrorAlert(self.task) else {
+            guard await self.saveTaskAndPresentErrorAlert(taskValue) else {
                 return
             }
             
@@ -249,22 +251,22 @@ extension TaskEditorViewController: TaskHandling {
         }
         
         if savingFutureTasks {
-            let currentTask = self.task
-            var savingTaskObjects: [TaskKind] = []
-            let uniquedTasks = ([currentTask] + tasks).uniquedById
+            let currentTask = taskValue
+            var savingTasks: [TaskValue] = []
+            let uniquedTasks = ([taskValue] + tasks).uniquedById
             
             for task in uniquedTasks {
-                var taskObject = await em.taskObject(task)!
+                var task = task
                 
-                taskObject.assignAsRepeatingTask(from: currentTask)
-                savingTaskObjects.append(taskObject)
+                task.assignAsRepeatingTask(from: currentTask)
+                savingTasks.append(task)
             }
             
-            guard await saveTasksAndPresentErrorAlert(savingTaskObjects) else {
+            guard await saveTasksAndPresentErrorAlert(savingTasks) else {
                 return
             }
         } else {
-            guard await saveTaskAndPresentErrorAlert(task) else {
+            guard await saveTaskAndPresentErrorAlert(taskValue) else {
                 return
             }
         }
@@ -290,9 +292,11 @@ extension TaskEditorViewController: TaskHandling {
     }
     
     func handleCancelEditor() async {
+        // If task is empty and is an EKEvent, then delete it when user cancel the modal.
+        // It is not necessary to delete an empty TaskValue, for it hasn't been saved.
         guard !task.isEmpty else {
             if task.kindIdentifier == .event {
-                await em.deleteTask(task)
+                await em.deleteTask(task.value)
             }
             
             dismissEditor()

@@ -265,7 +265,8 @@ public extension TaskKind {
     }
     
     mutating func toggleCompletion() {
-        
+        completedAt = isCompleted ? nil : Date()
+        normalizedTitle = normalizedTitle
     }
     
     mutating func toggleAbortion() {
@@ -388,7 +389,7 @@ public extension String {
     }
 }
 
-public extension Array where Element == TaskKind {
+public extension Array where Element == TaskValue {
     /// Filter out duplicated IDs, ignoring recurrence suffix, e.g. /RID=xxxxxxxx
     var uniquedByIdIgnoringRecurrenceID: [Element] {
         uniqued { el in
