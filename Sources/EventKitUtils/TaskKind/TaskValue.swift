@@ -9,6 +9,16 @@ import Foundation
 import Collections
 
 public struct TaskValue: TaskKind, Equatable {
+    public static var newCreated: TaskValue {
+        let startDate = Date().startOfHour
+        let endDate = startDate.nextHour
+        
+        return .init(normalizedTitle: "",
+                     normalizedStartDate: startDate,
+                     normalizedEndDate: endDate,
+                     kindIdentifier: .managedObject)
+    }
+    
     public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, originalIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, abortedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
@@ -77,7 +87,13 @@ public struct TaskValue: TaskKind, Equatable {
     }
     
     public var isCompleted: Bool {
-        completedAt != nil
+        get {
+            completedAt != nil
+        }
+        
+        set {
+            completedAt = newValue ? Date() : nil
+        }
     }
     
     func isSameTaskValueForRepeatTasks(with lhs: TaskValue) -> Bool {

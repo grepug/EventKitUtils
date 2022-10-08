@@ -45,7 +45,7 @@ public protocol EventConfiguration {
     ///   - id: the id string of the task
     ///   - creating: a boolean indicates whether is creating a new task
     /// - Returns: an optional ``TaskValue``
-    func fetchNonEventTask(byID id: String, creating: Bool) async -> TaskValue?
+    func fetchNonEventTask(byID id: String) async -> TaskValue?
     
     /// Save a non event task with the ``TaskValue``.
     /// - Parameter taskValue: the representation of the task, see ``TaskValue``

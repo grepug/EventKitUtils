@@ -14,9 +14,9 @@ public protocol TaskHandling {
 }
 
 public extension TaskHandling {
-    func saveTaskAndPresentErrorAlert(_ task: TaskKind, commit: Bool = true, creating: Bool = false) async -> Bool {
+    func saveTaskAndPresentErrorAlert(_ task: TaskKind, commit: Bool = true) async -> Bool {
         do {
-            try await em.saveTask(task, commit: commit, creating: creating)
+            try await em.saveTask(task, commit: commit)
             
             return true
         } catch {

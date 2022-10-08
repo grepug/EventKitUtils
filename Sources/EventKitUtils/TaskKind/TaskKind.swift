@@ -19,7 +19,6 @@ public protocol TaskKind {
     var normalizedStartDate: Date? { get set }
     var normalizedEndDate: Date? { get set }
     var originalIsAllDay: Bool { get set }
-    var premisedIsDateEnabled: Bool? { get }
     var completedAt: Date? { get set }
     var abortedAt: Date? { get set }
     var notes: String? { get set }
@@ -32,7 +31,6 @@ public protocol TaskKind {
     var kindIdentifier: TaskKindIdentifier? { get }
     var isValueType: Bool { get }
     
-    func toggleCompletion()
     func updateVersion()
 }
 
@@ -47,12 +45,7 @@ public extension TaskKind {
     
     var isDateEnabled: Bool {
         get {
-            /// 优先判断的，兼容老数据
-            if let premised = premisedIsDateEnabled {
-                return premised
-            }
-            
-            return normalizedStartDate != nil && normalizedEndDate != nil
+            normalizedStartDate != nil && normalizedEndDate != nil
         }
         
         set {
@@ -60,9 +53,7 @@ public extension TaskKind {
                 let date = Date()
                 
                 if normalizedStartDate == nil ||
-                    normalizedEndDate == nil ||
-                    /// 兼容老数据
-                    premisedIsDateEnabled == false {
+                    normalizedEndDate == nil {
                     normalizedStartDate = date
                     normalizedEndDate = date.oneHourLater
                 }
@@ -182,7 +173,6 @@ public extension TaskKind {
                             normalizedStartDate: normalizedStartDate,
                             normalizedEndDate: normalizedEndDate,
                             originalIsAllDay: normalizedIsAllDay,
-                            premisedIsDateEnabled: premisedIsDateEnabled,
                             completedAt: completedAt,
                             abortedAt: abortedAt,
                             notes: notes,
@@ -272,6 +262,10 @@ public extension TaskKind {
         
         self.normalizedStartDate = start
         self.normalizedEndDate = end
+    }
+    
+    mutating func toggleCompletion() {
+        
     }
     
     mutating func toggleAbortion() {

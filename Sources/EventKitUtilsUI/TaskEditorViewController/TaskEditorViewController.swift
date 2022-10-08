@@ -213,7 +213,13 @@ extension TaskEditorViewController: TaskHandling {
         let finalAction: () async -> Void = { [weak self] in
             guard let self = self else { return }
             
-            guard await self.saveTaskAndPresentErrorAlert(self.task, creating: self.isCreating) else {
+            // creating a non event task for the first time
+            if self.isCreating && !self.isEvent {
+                let newTask = await self.em.configuration.createNonEventTask()
+                self.task.normalizedID = newTask.normalizedID
+            }
+            
+            guard await self.saveTaskAndPresentErrorAlert(self.task) else {
                 return
             }
             
@@ -238,7 +244,7 @@ extension TaskEditorViewController: TaskHandling {
         }
         
         guard let savingFutureTasks = await presentSaveRepeatingTaskAlert() else {
-            /// user canceled
+            // user canceled
             return
         }
         
@@ -398,13 +404,8 @@ public extension EventManager {
         if let _task {
             task = _task
         } else {
-            let startDate = Date().startOfHour
-            let endDate = startDate.nextHour
-            
             /// Just create an empty ``TaskValue``, saving it on editor done
-            task = .init(normalizedTitle: "",
-                         normalizedStartDate: startDate,
-                         normalizedEndDate: endDate)
+            task = .newCreated
         }
         
         let vc = TaskEditorViewController(task: task, eventManager: self)
