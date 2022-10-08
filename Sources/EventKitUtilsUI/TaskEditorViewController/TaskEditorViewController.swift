@@ -206,6 +206,8 @@ extension TaskEditorViewController: TaskHandling {
         
         var taskValue = task.value
         
+        assert(!taskValue.value.normalizedTitle.isEmpty, "task's title is empty, may not saved.")
+        
         guard !task.isEmpty else {
             await em.deleteTask(taskValue)
             dismissEditor()

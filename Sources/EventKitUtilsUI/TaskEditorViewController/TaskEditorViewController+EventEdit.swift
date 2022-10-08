@@ -23,9 +23,11 @@ extension TaskEditorViewController {
     }
     
     func convertToEvent(showingToastActivity: Bool = true) async {
-        _ = view.endEditing(true)
-        
-        try! await Task.sleep(nanoseconds: 50_000_000)
+        if showingToastActivity {
+            _ = view.endEditing(true)
+            
+            try! await Task.sleep(nanoseconds: 50_000_000)
+        }
         
         guard await !em.checkIfExceedsNonProLimit() else {
             uiConfig.presentNonProErrorAlert(on: self)

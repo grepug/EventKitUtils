@@ -21,7 +21,7 @@ public class EventManager {
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
     
-    let generator: UINotificationFeedbackGenerator
+    lazy var generator = UINotificationFeedbackGenerator()
     
     /// the singleton of ``EventStore``
     ///
@@ -40,7 +40,6 @@ public class EventManager {
         self.cacheManager = .init(eventStore: eventStore,
                                   eventConfiguration: configuration,
                                   handlers: cacheHandlers)
-        self.generator = .init()
         
         setupEventStore()
         generator.prepare()
