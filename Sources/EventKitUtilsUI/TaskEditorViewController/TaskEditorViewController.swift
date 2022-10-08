@@ -204,7 +204,7 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        let taskValue = task.value
+        var taskValue = task.value
         
         guard !task.isEmpty else {
             await em.deleteTask(taskValue)
@@ -218,7 +218,7 @@ extension TaskEditorViewController: TaskHandling {
             // creating a non event task for the first time
             if self.isCreating && !self.isEvent {
                 let newTask = await self.em.configuration.createNonEventTask()
-                self.task.normalizedID = newTask.normalizedID
+                taskValue.normalizedID = newTask.normalizedID
             }
             
             guard await self.saveTaskAndPresentErrorAlert(taskValue) else {
@@ -228,19 +228,21 @@ extension TaskEditorViewController: TaskHandling {
             self.dismissEditor(shouldOpenTaskList: self.isCreating)
         }
         
-        guard !isCreating, !task.isCompleted, hasChanges else {
+        if !isCreating, !task.isCompleted, hasChanges {
             await finalAction()
             return
         }
         
-        guard task.testAreDatesSame(from: originalTaskValue) else {
+        if task.testAreDatesSame(from: originalTaskValue) {
             await finalAction()
             return
         }
         
         let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo))
         
-        guard tasks.count > 1 else {
+        assert(!tasks.isEmpty, "tasks should not be empty")
+        
+        if tasks.count > 1 {
             await finalAction()
             return
         }
