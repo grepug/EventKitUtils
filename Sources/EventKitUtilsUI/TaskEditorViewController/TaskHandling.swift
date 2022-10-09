@@ -15,7 +15,7 @@ public protocol TaskHandling {
 }
 
 public extension TaskHandling {
-    func saveTaskAndPresentErrorAlert(_ task: TaskValue, commit: Bool = true) async -> Bool {
+    func saveTaskAndPresentErrorAlert(_ task: TaskKind, commit: Bool = true) async -> Bool {
         do {
             try await em.saveTask(task, commit: commit)
             
@@ -27,19 +27,7 @@ public extension TaskHandling {
         }
     }
     
-    func saveEventAndPresentErrorAlert(_ event: EKEvent, commit: Bool = true) async -> Bool {
-        do {
-            try em.eventStore.save(event, span: .thisEvent, commit: commit)
-            
-            return true
-        } catch {
-            await handleError(error: error)
-            
-            return false
-        }
-    }
-    
-    func saveTasksAndPresentErrorAlert(_ tasks: [TaskValue]) async -> Bool {
+    func saveTasksAndPresentErrorAlert(_ tasks: [TaskKind]) async -> Bool {
         do {
             try await em.saveTasks(tasks)
             

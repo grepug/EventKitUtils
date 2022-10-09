@@ -390,7 +390,7 @@ public extension String {
     }
 }
 
-public extension Array where Element == TaskValue {
+public extension Array where Element == TaskKind {
     /// Filter out duplicated IDs, ignoring recurrence suffix, e.g. /RID=xxxxxxxx
     var uniquedByIdIgnoringRecurrenceID: [Element] {
         uniqued { el in

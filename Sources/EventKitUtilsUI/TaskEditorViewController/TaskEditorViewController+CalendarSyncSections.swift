@@ -17,37 +17,42 @@ extension TaskEditorViewController {
     var calendarLinkingSection: [DLSection] {
         if let event {
             if event.isDetached {
-                DLSection { [unowned self] in
-                    DLCell(using: .swiftUI(movingTo: self, content: {
-                        VStack(spacing: 8) {
-                            HStack {
-                                Text("无法编辑重复规则")
-                                    .foregroundColor(.secondary)
-                                
-                                Button {
-                                    
-                                } label: {
-                                    Image(systemName: "questionmark.circle")
-                                }
-                            }
-                            Button { [weak self] in
-                                self?.presentEventEditor()
-                            } label: {
-                                Text("编辑日历日程")
-                                    .font(.subheadline)
-                            }
-                        }
-                    }))
-                    .tag("detached")
-                    .backgroundConfiguration(.clear())
-                }
-                .tag("detached event")
+                detachedSection
             } else {
                 calendarSyncSettingsSection(event: event)
             }
         } else {
             calendarSyncEnablingSection
         }
+    }
+    
+    @ListBuilder
+    private var detachedSection: [DLSection] {
+        DLSection { [unowned self] in
+            DLCell(using: .swiftUI(movingTo: self, content: {
+                VStack(spacing: 8) {
+                    HStack {
+                        Text("无法编辑重复规则")
+                            .foregroundColor(.secondary)
+                        
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                        }
+                    }
+                    Button { [weak self] in
+                        self?.presentEventEditor()
+                    } label: {
+                        Text("编辑日历日程")
+                            .font(.subheadline)
+                    }
+                }
+            }))
+            .tag("detached")
+            .backgroundConfiguration(.clear())
+        }
+        .tag("detached event")
     }
     
     @MenuBuilder
@@ -57,6 +62,7 @@ extension TaskEditorViewController {
                 guard let self, let event = self.event else { return }
                 
                 guard let recurrenceEndDate = event.recurrenceEndDate ?? event.normalizedStartDate?.nextWeek else {
+                    assertionFailure("should has recurrence date")
                     return
                 }
                 

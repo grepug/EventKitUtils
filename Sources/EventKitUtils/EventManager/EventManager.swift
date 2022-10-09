@@ -132,7 +132,7 @@ public extension EventManager {
         try! await saveTask(task)
     }
     
-    func abortTasks(_ tasks: [TaskValue]) async throws {
+    func abortTasks(_ tasks: [TaskKind]) async throws {
         let tasks = tasks.uniquedById
         
         for task in tasks {
@@ -147,15 +147,27 @@ public extension EventManager {
     
     /// Save the Task
     /// - Parameters:
-    ///   - task: the ``TaskValue`` to save, which should be a task value
+    ///   - task: the ``TaskKind`` to save
     ///   - savingRecurence: should save the recurrences
     ///   - commit: should commit to the EKEventStore
-    func saveTask(_ task: TaskValue, savingRecurrences: Bool = false, commit: Bool = true) async throws {
-        if task.kindIdentifier == .managedObject {
-            await configuration.saveNonEventTask(task.value)
-        } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !savingRecurrences)  {
-            event.assignFromTaskKind(task)
+    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, commit: Bool = true) async throws {
+        if var event = task as? EKEvent {
+            if savingRecurrences {
+                // save the first recurrence and its future events
+                event = eventStore.event(withIdentifier: event.normalizedID)!
+                event.assignFromTaskKind(task)
+            }
+            
             try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
+        } else if let task = task as? TaskValue {
+            if task.kindIdentifier == .managedObject {
+                await configuration.saveNonEventTask(task.value)
+            } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !savingRecurrences)  {
+                event.assignFromTaskKind(task)
+                try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
+            } else {
+                assertionFailure("no such task")
+            }
         } else {
             assertionFailure("no such task")
         }
@@ -166,23 +178,27 @@ public extension EventManager {
     /// The task kind can be ``TaskValue``, ``EKEvent``. If delete a ``TaskValue``, you should firstly find the real object to this value, which should also be a ``TaskKind``.
     ///
     /// - Parameters:
-    ///   - task: the task value to delete
+    ///   - task: the task kind to delete
     ///   - deletingRecurence: should delete the recurrences
     ///   - commit: should commit to the EKEventStore
-    func deleteTask(_ task: TaskValue, deletingRecurrences: Bool = false, commit: Bool = true) async {
+    func deleteTask(_ task: TaskKind, deletingRecurrences: Bool = false, commit: Bool = true) async {
         if task.kindIdentifier == .managedObject {
             await configuration.deleteNonEventTask(byID: task.normalizedID)
-        } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !deletingRecurrences) {
-            if deletingRecurrences {
-                // delete the first recurrence and its future events
-                event = eventStore.event(withIdentifier: event.normalizedID)!
+        } else if let task = task as? TaskValue {
+            if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !deletingRecurrences) {
+                if deletingRecurrences {
+                    // delete the first recurrence and its future events
+                    event = eventStore.event(withIdentifier: event.normalizedID)!
+                }
+                
+                try! eventStore.remove(event,
+                                       span: deletingRecurrences ? .futureEvents : .thisEvent,
+                                       commit: commit)
+            } else {
+                assertionFailure()
             }
-            
-            try! eventStore.remove(event,
-                                   span: deletingRecurrences ? .futureEvents : .thisEvent,
-                                   commit: commit)
         } else {
-            assertionFailure()
+            assertionFailure("no such task")
         }
     }
     
@@ -201,7 +217,7 @@ public extension EventManager {
     ///
     ///  In the implementation, we unique tasks by their IDs. Because a set of repeating events share a **same** ID, we can find the first recurrence by calling ``EventStore.event(withIdentifier:)``, and delete the first recurrence and its future events.
     /// - Parameter tasks: task kinds to delete
-    func deleteTasks(_ tasks: [TaskValue]) async {
+    func deleteTasks(_ tasks: [TaskKind]) async {
         let tasks = tasks.uniquedByIdIgnoringRecurrenceID
         
         print("taskscount", tasks.count, tasks.map(\.normalizedID))
@@ -213,11 +229,11 @@ public extension EventManager {
         try! eventStore.commit()
     }
     
-    func saveTasks(_ tasks: [TaskValue], savingRecurrences: Bool = true) async throws {
+    func saveTasks(_ tasks: [TaskKind], savingRecurrences: Bool = true) async throws {
         var tasks = tasks
         
         if savingRecurrences {
-            tasks = tasks.uniquedById
+            tasks = tasks.uniquedByIdIgnoringRecurrenceID
         }
         
         for task in tasks {

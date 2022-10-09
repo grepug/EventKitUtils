@@ -201,12 +201,10 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        var taskValue = task.value
-        
-        assert(!taskValue.value.normalizedTitle.isEmpty, "task's title is empty, may not saved.")
+        assert(!task.normalizedTitle.isEmpty, "task's title is empty, may not saved.")
         
         guard !task.isEmpty else {
-            await em.deleteTask(taskValue)
+            await em.deleteTask(task)
             dismissEditor()
             return
         }
@@ -217,10 +215,10 @@ extension TaskEditorViewController: TaskHandling {
             // creating a non event task for the first time
             if self.isCreating && !self.isEvent {
                 let newTask = await self.em.configuration.createNonEventTask()
-                taskValue.normalizedID = newTask.normalizedID
+                self.task.normalizedID = newTask.normalizedID
             }
             
-            guard await self.saveTaskAndPresentErrorAlert(taskValue) else {
+            guard await self.saveTaskAndPresentErrorAlert(self.task) else {
                 return
             }
             
@@ -232,7 +230,8 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        if task.testAreDatesSame(from: originalTaskValue) {
+        // If user changed this task's one of the dates, it will no longer a repeating task, so just save this single task.
+        if !task.testAreDatesSame(from: originalTaskValue) {
             await finalAction()
             return
         }
@@ -252,14 +251,13 @@ extension TaskEditorViewController: TaskHandling {
         }
         
         if savingFutureTasks {
-            let currentTask = taskValue
-            var savingTasks: [TaskValue] = []
-            let uniquedTasks = ([taskValue] + tasks).uniquedById
+            var savingTasks: [TaskKind] = []
+            let uniquedTasks = ([task] + tasks).uniquedById
             
             for task in uniquedTasks {
                 var task = task
                 
-                task.assignAsRepeatingTask(from: currentTask)
+                task.assignAsRepeatingTask(from: self.task)
                 savingTasks.append(task)
             }
             
@@ -267,7 +265,7 @@ extension TaskEditorViewController: TaskHandling {
                 return
             }
         } else {
-            guard await saveTaskAndPresentErrorAlert(taskValue) else {
+            guard await saveTaskAndPresentErrorAlert(task) else {
                 return
             }
         }
