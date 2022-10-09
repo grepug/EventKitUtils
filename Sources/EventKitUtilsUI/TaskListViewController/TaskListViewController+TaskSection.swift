@@ -101,7 +101,11 @@ extension TaskListViewController {
     }
     
     func handleTaskCellTap(task: TaskValue) {
-        presentRepeatTaskListViewController(task: task)
+        if isRepeatingList || task.repeatingCount == nil {
+            presentTaskEditor(task: task)
+        } else {
+            presentRepeatTaskListViewController(task: task)
+        }
     }
     
     func handlePostpone() async {
