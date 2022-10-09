@@ -14,7 +14,7 @@ public protocol CacheHandlers {
     var persistentContainer: NSPersistentContainer { get }
     var completionDateNSExpression: NSExpression { get }
     var abortionDateNSExpression: NSExpression { get }
-    var prefixNSExpression: NSExpression { get }
+    var orderNSExpression: NSExpression { get }
     var stateNSExpression: NSExpression { get }
 }
 
@@ -30,13 +30,16 @@ extension CacheHandlers {
         
         switch type {
         case .segment(let segment):
-            predicates.append(statePredicates(segment.displayStates))
+            let statePredicate = statePredicates(segment.displayStates)
+            predicates.append(statePredicate)
             
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
             let tasks = try! await cachedTaskKind.fetch(where: predicate, sortedBy: sortDescriptors) { objects in
                 objects.map(\.value)
             }
+            
+            assert(tasks.allSatisfy { segment.displayStates.contains($0.state) })
             
             return tasks
         case .repeatingInfo(let info):

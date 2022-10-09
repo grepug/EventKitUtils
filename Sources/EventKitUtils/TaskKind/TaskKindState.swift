@@ -8,7 +8,12 @@
 import Foundation
 
 public enum TaskKindState: Int, CaseIterable {
-    case overdued, today, afterToday, unscheduled, completed, aborted
+    case overdued, // 0
+         today, // 1
+         afterToday, // 2
+         unscheduled, // 3
+         completed, // 4
+         aborted // 5
     
     public var title: String {
         switch self {
@@ -28,9 +33,9 @@ public enum TaskKindState: Int, CaseIterable {
     public func predicate(completionExp: NSExpression, abortionExp: NSExpression, stateExp: NSExpression) -> NSPredicate {
         switch self {
         case .completed:
-            return NSComparisonPredicate.created(completionExp, NSExpression(format: "nil"), type: .notEqualTo)
+            return NSComparisonPredicate.created(completionExp, NSExpression(format: "%@", NSNull()), type: .notEqualTo)
         case .aborted:
-            return NSComparisonPredicate.created(abortionExp, NSExpression(format: "nil"), type: .notEqualTo)
+            return NSComparisonPredicate.created(abortionExp, NSExpression(format: "%@", NSNull()), type: .notEqualTo)
         default:
             return NSComparisonPredicate.created(stateExp, NSExpression(format: "%@", rawValue as NSNumber), type: .equalTo)
         }

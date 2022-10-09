@@ -13,15 +13,18 @@ public struct TaskListCell: View {
     /// The initializer for ``TaskListCell``
     /// - Parameters:
     ///   - task: the task value
+    ///   - currentStateRepeatingCount: the count for current state of repeating task
     ///   - isSummaryCard: a boolean indicates whether is for the Summary View Card
     ///   - checked: a boolean indicates whether the task is checked, which may be used as a temporary value
-    ///   - showingNotes: a boolean indicates whether showing the notes of the task
-    ///   - hidingKRInfo: a boolean indicates whether hiding the info of the key result
-    ///   - hidingDate: a boolean indicates whether hiding the dates
+    ///   - showingNotes: a boolean indicates whether show the notes of the task
+    ///   - hidingKRInfo: a boolean indicates whether hide the info of the key result
+    ///   - hidingDate: a boolean indicates whether hide the dates
+    ///   - hidingRepeatingCount: a boolean indicates whether hide the repeating count
     ///   - check: a method to toggle completion the task
     ///   - onTap: a method triggers when the whole task cell is tapped
-    public init(task: TaskValue, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, hidingRepeatingCount: Bool = false, check: @escaping () async -> Void, onTap: (() -> Void)? = nil) {
+    public init(task: TaskValue, currentStateRepeatingCount: Int? = nil, isSummaryCard: Bool = false, checked: Bool? = nil, showingNotes: Bool = false, hidingKRInfo: Bool = false, hidingDate: Bool = false, hidingRepeatingCount: Bool = false, check: @escaping () async -> Void, onTap: (() -> Void)? = nil) {
         self.task = task
+        self.currentStateRepeatingCount = currentStateRepeatingCount
         self.isSummaryCard = isSummaryCard
         self.checked = checked
         self.showingNotes = showingNotes
@@ -33,14 +36,27 @@ public struct TaskListCell: View {
     }
     
     var task: TaskValue
+    var currentStateRepeatingCount: Int?
     var isSummaryCard: Bool = false
     var checked: Bool?
-    var showingNotes: Bool
+    var showingNotes: Bool = false
     var hidingKRInfo: Bool = false
     var hidingDate: Bool = false
     var hidingRepeatingCount: Bool = false
     var check: () async -> Void
     var onTap: (() -> Void)?
+    
+    var repeatingCountString: String? {
+        guard let count = task.repeatingCount, count > 1 else {
+            return nil
+        }
+        
+        if let currentStateRepeatingCount {
+            return "\(currentStateRepeatingCount)/\(count)"
+        }
+        
+        return "\(count)"
+    }
     
     public var body: some View {
         HStack(alignment: .top) {
@@ -103,7 +119,7 @@ public struct TaskListCell: View {
                             .foregroundColor(task.dateColor)
                     }
                     
-                    if !hidingRepeatingCount, let repeatingCount = task.repeatingCount, repeatingCount > 1 {
+                    if !hidingRepeatingCount, let repeatingCount = repeatingCountString {
                         Label("\(repeatingCount)", systemImage: "repeat")
                             .foregroundColor(.secondary)
                     }

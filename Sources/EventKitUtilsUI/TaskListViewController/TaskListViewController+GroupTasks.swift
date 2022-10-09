@@ -8,7 +8,6 @@
 import Foundation
 import EventKitUtils
 
-typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
 typealias TasksByState = [TaskKindState?: [TaskValue]]
 
 enum TaskListFilterState: Equatable, CaseIterable {
@@ -24,7 +23,7 @@ enum TaskListFilterState: Equatable, CaseIterable {
 }
 
 extension TaskListViewController {
-    func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) async -> TaskGroupsByState {
+    func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) async -> TasksByState {
         await withCheckedContinuation { [weak self] continuation in
             guard let self = self else {
                 continuation.resume(returning: [:])
@@ -36,10 +35,10 @@ extension TaskListViewController {
             let filterState = self.selectedFilterTaskState
             
             DispatchQueue.global(qos: .userInitiated).async {
-                let dict = tasks.groupTasks(in: segment,
+                let res = tasks.groupTasks(in: segment,
                                             isRepeatingList: isRepeatingList,
                                             filterState: filterState)
-                continuation.resume(returning: dict)
+                continuation.resume(returning: res)
             }
         }
     }
@@ -56,7 +55,7 @@ fileprivate extension TaskValue {
 }
 
 fileprivate extension Array where Element == TaskValue {
-    func groupTasks(in segment: FetchTasksSegmentType, isRepeatingList: Bool, filterState: TaskListFilterState?) -> TaskGroupsByState {
+    func groupTasks(in segment: FetchTasksSegmentType, isRepeatingList: Bool, filterState: TaskListFilterState?) -> TasksByState {
         var cache: TasksByState = [:]
         
         if isRepeatingList {
@@ -81,9 +80,11 @@ fileprivate extension Array where Element == TaskValue {
             }
         }
         
-        var dict: TaskGroupsByState = [:]
+        var dict: TasksByState = [:]
         
         for (state, tasks) in cache {
+            assert(tasks.allSatisfy { $0.state == state })
+            
             dict[state] = tasks
                 .sorted(in: state, of: segment)
                 .repeatingMerged()

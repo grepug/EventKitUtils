@@ -45,7 +45,10 @@ extension TaskListViewController {
             
             for task in tasks {
                 DLCell(using: .swiftUI(movingTo: self, content: { [unowned self] in
-                    TaskListCell(task: task, hidingRepeatingCount: isRepeatingList) { [weak self] in
+                    #warning("currentStateRepeatingCount not implemented")
+                    TaskListCell(task: task,
+                                 currentStateRepeatingCount: nil,
+                                 hidingRepeatingCount: isRepeatingList) { [weak self] in
                         guard let self else { return }
                         
                         guard await self.toggleCompletionOrPresentError(task) else {

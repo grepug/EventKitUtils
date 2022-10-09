@@ -87,11 +87,11 @@ extension CacheHandlers {
         let predicates = states.map { state in
             let statePredicate = state.predicate(completionExp: completionDateNSExpression,
                                                  abortionExp: abortionDateNSExpression,
-                                                 stateExp: prefixNSExpression)
+                                                 stateExp: stateNSExpression)
             
             return NSCompoundPredicate(andPredicateWithSubpredicates: [
                 statePredicate,
-                NSComparisonPredicate.created(prefixNSExpression, NSExpression(format: "0"), type: .equalTo),
+                NSComparisonPredicate.created(orderNSExpression, NSExpression(format: "0"), type: .equalTo),
             ])
         }
         

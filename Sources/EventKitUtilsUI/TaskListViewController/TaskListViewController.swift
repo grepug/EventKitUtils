@@ -14,7 +14,7 @@ import Toast
 import MenuBuilder
 
 public class TaskListViewController: DiffableListViewController, ObservableObject {
-    var groupedTasks: TaskGroupsByState = [:]
+    var groupedTasks: TasksByState = [:]
     var isListEmpty: Bool = false
     @Published var segment: FetchTasksSegmentType
     unowned public let em: EventManager
