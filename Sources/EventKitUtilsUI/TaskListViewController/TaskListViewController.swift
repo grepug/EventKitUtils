@@ -11,6 +11,7 @@ import EventKit
 import EventKitUtils
 import Combine
 import Toast
+import MenuBuilder
 
 public class TaskListViewController: DiffableListViewController, ObservableObject {
     var groupedTasks: TaskGroupsByState = [:]
@@ -18,6 +19,13 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     @Published var segment: FetchTasksSegmentType
     unowned public let em: EventManager
     var taskRepeatingInfo: TaskRepeatingInfo?
+    var selectedFilterTaskState: TaskListFilterState? {
+        didSet {
+            Task {
+                await handleReloadList()
+            }
+        }
+    }
     
     var cancellables = Set<AnyCancellable>()
     
@@ -84,8 +92,8 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         let symbolConfiguration = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 22))
         let image = UIImage(systemName: "plus")?.withConfiguration(symbolConfiguration)
         button.setImage(image, for: .normal)
-        button.addAction(.init { [unowned self] _ in
-            self.presentTaskEditor()
+        button.addAction(.init { [weak self] _ in
+            self?.presentTaskEditor()
         }, for: .touchUpInside)
         
         return button
@@ -142,7 +150,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             await em.untilNotPending()
             
             let tasks = await em.fetchTasks(with: fetchingType)
-            groupedTasks = await em.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
+            groupedTasks = await groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList)
             isListEmpty = tasks.isEmpty
         }.value
         
@@ -178,13 +186,40 @@ extension TaskListViewController {
     func setupNavigationBar() {
         if let title = fetchingTitle {
             self.title = title
-            navigationItem.rightBarButtonItem = makeDoneButton { [weak self] in
+            
+            let doneButton: UIBarButtonItem = makeDoneButton { [weak self] in
                 self?.presentingViewController?.dismiss(animated: true) {
                     Self.dismissedSubject.send()
                 }
             }
+            
+            let imageName = selectedFilterTaskState == nil ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill"
+            let filter = UIBarButtonItem(image: .init(systemName: imageName),
+                                         menu: .makeMenu(filterMenu) { [weak self] in
+                self?.setupNavigationBar()
+            })
+            
+            navigationItem.rightBarButtonItems = [
+                doneButton,
+                filter
+            ]
         } else {
             title = segment.text
+        }
+    }
+    
+    @MenuBuilder
+    var filterMenu: [MBMenu] {
+        MBGroup { [unowned self] in
+            MBButton("全部", checked: selectedFilterTaskState == nil) { [weak self] in
+                self?.selectedFilterTaskState = nil
+            }
+        }
+        
+        for item in TaskListFilterState.allCases {
+            MBButton(item.title, checked: selectedFilterTaskState == item) { [weak self] in
+                self?.selectedFilterTaskState = item
+            }
         }
     }
     

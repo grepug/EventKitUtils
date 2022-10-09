@@ -101,11 +101,7 @@ extension TaskListViewController {
     }
     
     func handleTaskCellTap(task: TaskValue) {
-        if task.state.isEnded {
-            presentRepeatTaskListViewController(task: task)
-        } else {
-            presentTaskEditor(task: task)
-        }
+        presentRepeatTaskListViewController(task: task)
     }
     
     func handlePostpone() async {

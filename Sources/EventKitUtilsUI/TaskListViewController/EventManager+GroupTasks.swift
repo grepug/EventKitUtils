@@ -11,7 +11,19 @@ import EventKitUtils
 typealias TaskGroupsByState = [TaskKindState?: [TaskValue]]
 typealias TasksByState = [TaskKindState?: [TaskValue]]
 
-extension EventManager {
+enum TaskListFilterState: Equatable, CaseIterable {
+    case incompleted, aborted, completed
+    
+    var title: String {
+        switch self {
+        case .incompleted: return "未完成"
+        case .completed: return "已完成"
+        case .aborted: return "已放弃"
+        }
+    }
+}
+
+extension TaskListViewController {
     func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) async -> TaskGroupsByState {
         await withCheckedContinuation { [weak self] continuation in
             guard let self = self else {
@@ -19,38 +31,53 @@ extension EventManager {
                 return
             }
             
-            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                guard let dict = self?.groupTasks(tasks, in: segment, isRepeatingList: isRepeatingList) else {
-                    continuation.resume(returning: [:])
-                    return
-                }
+            let segment = self.segment
+            let isRepeatingList = self.isRepeatingList
+            let filterState = self.selectedFilterTaskState
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                let dict = tasks.groupTasks(in: segment,
+                                            isRepeatingList: isRepeatingList,
+                                            filterState: filterState)
                 continuation.resume(returning: dict)
             }
         }
     }
-    
-    private func addToCache(_ task: TaskValue, in cache: inout TasksByState) {
-        let state = task.state
-        
-        if cache[state] == nil {
-            cache[state] = []
+}
+
+fileprivate extension TaskValue {
+    var filterState: TaskListFilterState {
+        switch state {
+        case .completed: return .completed
+        case .aborted: return .aborted
+        default: return .incompleted
         }
-        
-        cache[state]!.append(task)
     }
-    
-    private func groupTasks(_ tasks: [TaskValue], in segment: FetchTasksSegmentType, isRepeatingList: Bool) -> TaskGroupsByState {
+}
+
+fileprivate extension Array where Element == TaskValue {
+    func groupTasks(in segment: FetchTasksSegmentType, isRepeatingList: Bool, filterState: TaskListFilterState?) -> TaskGroupsByState {
         var cache: TasksByState = [:]
         
         if isRepeatingList {
-            cache[nil] = tasks.sorted()
+            if let filterState {
+                cache[nil] = filter { $0.filterState == filterState }.sorted()
+            } else {
+                cache[nil] = sorted()
+            }
             
             return cache
         }
         
-        for task in tasks {
+        for task in self {
             if task.displayInSegment(segment) {
-                addToCache(task, in: &cache)
+                let state = task.state
+                
+                if cache[state] == nil {
+                    cache[state] = []
+                }
+                
+                cache[state]!.append(task)
             }
         }
         
