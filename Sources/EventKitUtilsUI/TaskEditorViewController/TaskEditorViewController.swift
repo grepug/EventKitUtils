@@ -7,13 +7,10 @@
 
 import DiffableList
 import UIKit
-import SwiftUI
 import EventKit
 import EventKitUtils
 import TextEditorCellConfiguration
-import CoreData
 import Combine
-import UIKitUtils
 
 public class TaskEditorViewController: DiffableListViewController {
     var task: TaskKind
@@ -230,7 +227,7 @@ extension TaskEditorViewController: TaskHandling {
             self.dismissEditor(shouldOpenTaskList: self.isCreating)
         }
         
-        if !isCreating, !task.isCompleted, hasChanges {
+        if isCreating || task.isCompleted || !hasChanges {
             await finalAction()
             return
         }
@@ -244,7 +241,7 @@ extension TaskEditorViewController: TaskHandling {
         
         assert(!tasks.isEmpty, "tasks should not be empty")
         
-        if tasks.count > 1 {
+        if tasks.count <= 1 {
             await finalAction()
             return
         }
