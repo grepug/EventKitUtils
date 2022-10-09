@@ -162,7 +162,7 @@ public extension EventManager {
         } else if let task = task as? TaskValue {
             if task.kindIdentifier == .managedObject {
                 await configuration.saveNonEventTask(task.value)
-            } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !savingRecurrences)  {
+            } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: savingRecurrences)  {
                 event.assignFromTaskKind(task)
                 try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
             } else {
@@ -185,7 +185,7 @@ public extension EventManager {
         if task.kindIdentifier == .managedObject {
             await configuration.deleteNonEventTask(byID: task.normalizedID)
         } else if let task = task as? TaskValue {
-            if var event = await fetchEvent(withTaskValue: task, firstRecurrence: !deletingRecurrences) {
+            if var event = await fetchEvent(withTaskValue: task, firstRecurrence: deletingRecurrences) {
                 if deletingRecurrences {
                     // delete the first recurrence and its future events
                     event = eventStore.event(withIdentifier: event.normalizedID)!
