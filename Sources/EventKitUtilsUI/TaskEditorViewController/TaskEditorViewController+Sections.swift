@@ -16,9 +16,9 @@ extension TaskEditorViewController {
         DLSection { [unowned self] in
             DLCell(using: .textField(text: self.task.normalizedTitle,
                                      placeholder: "v3_task_editor_title_ph".loc,
-                                     editingDidEnd: { [unowned self] value in
-                task.normalizedTitle = value
-                reload(animating: false)
+                                     editingDidEnd: { [weak self] value in
+                self?.task.normalizedTitle = value
+                self?.reload(animating: false)
             }))
             .tag("title \(task.normalizedTitle)")
         }
@@ -88,7 +88,7 @@ extension TaskEditorViewController {
             config.footerMode = self.task.normalizedIsInterval ? .supplementary : .none
             return config
         }
-        .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: { [unowned self] in
+        .footer(using: .swiftUI(movingTo: { [unowned self] in self }, content: { [unowned self] in
             if let errorMessage = task.dateErrorMessage {
                 PromptFooter(text: errorMessage, isError: true)
             } else if let text = task.dateInterval?.formattedDurationString {
@@ -113,12 +113,14 @@ extension TaskEditorViewController {
                 }
                 .tag(krId)
                 .accessories([.imageButton(image: .init(systemName: "xmark.circle.fill")!.colored(.secondaryLabel),
-                                           action: { [unowned self] in
-                    task.keyResultId = nil
-                    reload()
+                                           action: { [weak self] in
+                    guard let self = self else { return }
+                    
+                    self.task.keyResultId = nil
+                    self.reload()
                 })])
-                .onTapAndDeselect { [unowned self] _ in
-                    presentKeyResultSelector()
+                .onTapAndDeselect { [weak self] _ in
+                    self?.presentKeyResultSelector()
                 }
             } else {
                 DLCell {
@@ -126,8 +128,8 @@ extension TaskEditorViewController {
                         .color(.accentColor)
                 }
                 .tag("link kr")
-                .onTapAndDeselect { [unowned self] _ in
-                    presentKeyResultSelector()
+                .onTapAndDeselect { [weak self] _ in
+                    self?.presentKeyResultSelector()
                 }
             }
                 
@@ -140,10 +142,12 @@ extension TaskEditorViewController {
                 }
                 .tag("isLinkedRecord \(self.task.linkedValue != nil)")
                 .accessories([.toggle(isOn: self.task.linkedValue != nil,
-                                      action: { [unowned self] isOn in
+                                      action: { [weak self] isOn in
+                    guard let self = self else { return }
+                    
                     Task {
-                        task.linkedValue = isOn ? 1 : nil
-                        reload()
+                        self.task.linkedValue = isOn ? 1 : nil
+                        self.reload()
                     }
                 })])
                 
@@ -151,9 +155,9 @@ extension TaskEditorViewController {
                     DLCell(using: .textField(text: linkedValueString,
                                              placeholder: "v3_task_editor_linked_record_ph".loc,
                                              keyboardType: .decimalPad,
-                                             editingDidEnd: { [unowned self] in
-                        task.linkedValueString = $0
-                        reload()
+                                             editingDidEnd: { [weak self] in
+                        self?.task.linkedValueString = $0
+                        self?.reload()
                     }))
                     .tag("linkedValue \(linkedValueString)")
                     .disableHighlight()
