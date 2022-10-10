@@ -52,9 +52,16 @@ extension CacheHandlers {
             }
             
             return .init(tasks: tasks, countsOfStateByRepeatingInfo: [:])
-        case .taskID:
-            #warning("not impleted")
-            return nil
+        case .taskID(let taskID):
+            predicates.append(NSPredicate(format: "eventIDString == %@", taskID as CVarArg))
+            let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+            
+            let tasks = try! await cachedTaskKind.fetch(where: predicate,
+                                                        sortedBy: sortDescriptors) { objects in
+                objects.map(\.value)
+            }
+            
+            return .init(tasks: tasks, countsOfStateByRepeatingInfo: [:])
         case .recordValue:
             #warning("not impleted")
             return nil
