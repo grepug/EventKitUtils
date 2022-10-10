@@ -107,7 +107,7 @@ extension TaskListViewController {
     }
     
     func handleTaskCellTap(task: TaskValue) {
-        if isRepeatingList || task.repeatingCount == nil {
+        if isRepeatingList || !task.isRepeating {
             presentTaskEditor(task: task)
         } else {
             presentRepeatTaskListViewController(task: task)

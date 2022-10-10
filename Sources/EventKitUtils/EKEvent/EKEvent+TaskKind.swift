@@ -8,8 +8,8 @@
 import EventKit
 
 extension EKEvent: TaskKind {
-    public var repeatingCount: Int? {
-        get { nil }
+    public var repeatingCount: Int {
+        get { 0 }
         set {}
     }
     

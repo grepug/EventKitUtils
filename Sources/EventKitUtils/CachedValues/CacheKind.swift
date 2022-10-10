@@ -12,5 +12,5 @@ public protocol CachedTaskKind: SimpleManagedObject, TaskKind {
     var normalizedRunID: String { get set }
     var state: TaskKindState { get set }
     var order: Int { get set }
-    var repeatingCount: Int? { get set }
+    var repeatingCount: Int { get set }
 }

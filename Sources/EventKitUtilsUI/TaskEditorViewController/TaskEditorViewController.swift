@@ -201,13 +201,13 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        assert(!task.normalizedTitle.isEmpty, "task's title is empty, may not saved.")
-        
         guard !task.isEmpty else {
             await em.deleteTask(task)
             dismissEditor()
             return
         }
+        
+        assert(!task.normalizedTitle.isEmpty, "task's title is empty, may not saved.")
         
         let finalAction: () async -> Void = { [weak self] in
             guard let self = self else { return }

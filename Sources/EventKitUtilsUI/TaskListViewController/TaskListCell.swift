@@ -47,12 +47,14 @@ public struct TaskListCell: View {
     var onTap: (() -> Void)?
     
     var repeatingCountString: String? {
-        guard let count = task.repeatingCount, count > 1 else {
+        guard task.isRepeating else {
             return nil
         }
         
+        let count = task.repeatingCount
+        
         if let currentStateRepeatingCount {
-            return "\(currentStateRepeatingCount)/\(count)"
+            return "\(currentStateRepeatingCount) /\(count)"
         }
         
         return "\(count)"
@@ -112,7 +114,7 @@ public struct TaskListCell: View {
                 Spacer()
             }
             
-            if task.isDateEnabled || (task.repeatingCount ?? 0) > 1 {
+            if task.isDateEnabled || task.isRepeating {
                 HStack {
                     if !hidingDate && task.isDateEnabled, let dateString = task.dateFormatted() {
                         Text(dateString)

@@ -60,6 +60,11 @@ extension TaskEditorViewController {
         event.calendar = calendar
         event.assignFromTaskKind(task)
         
+        if !isCreating {
+            // delete the local task before being converted to event task
+            await em.deleteTask(task)
+        }
+        
         guard await saveTaskAndPresentErrorAlert(event) else {
             return
         }

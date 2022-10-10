@@ -61,7 +61,7 @@ extension TaskEditorViewController {
             MBButton(rule.title, checked: event?.taskRecurrenceRule == rule) { [weak self] in
                 guard let self, let event = self.event else { return }
                 
-                guard let recurrenceEndDate = event.recurrenceEndDate ?? event.normalizedStartDate?.nextWeek else {
+                guard let recurrenceEndDate = event.recurrenceEndDate ?? event.normalizedEndDate?.nextWeek else {
                     assertionFailure("should has recurrence date")
                     return
                 }

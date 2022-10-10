@@ -18,7 +18,7 @@ public struct TaskValue: TaskKind, Equatable {
                      kindIdentifier: .managedObject)
     }
     
-    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, originalIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, abortedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int? = nil, keyResultInfo: KeyResultInfo? = nil) {
+    public init(normalizedID: String = UUID().uuidString, normalizedTitle: String, normalizedStartDate: Date? = nil, normalizedEndDate: Date? = nil, originalIsAllDay: Bool = false, premisedIsDateEnabled: Bool? = nil, completedAt: Date? = nil, abortedAt: Date? = nil, notes: String? = nil, keyResultId: String? = nil, linkedValue: Double? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, kindIdentifier: TaskKindIdentifier? = nil, isFirstRecurrence: Bool = false, repeatingCount: Int = 0, keyResultInfo: KeyResultInfo? = nil) {
         self.normalizedID = normalizedID
         self.normalizedTitle = normalizedTitle
         self.normalizedStartDate = normalizedStartDate
@@ -58,7 +58,7 @@ public struct TaskValue: TaskKind, Equatable {
     
     public var kindIdentifier: TaskKindIdentifier?
     public var isFirstRecurrence: Bool = false
-    public var repeatingCount: Int?
+    public var repeatingCount: Int
     public var keyResultInfo: KeyResultInfo?
     
     public var cellTag: String {
@@ -70,15 +70,15 @@ public struct TaskValue: TaskKind, Equatable {
         (notes ?? "notes") +
         (keyResultId ?? "") +
         (linkedValueString ?? "") +
-        ("\(repeatingCount ?? -1)")
+        ("\(repeatingCount)")
     }
     
     public var isValueType: Bool {
         true
     }
     
-    public var isRpeating: Bool {
-        (repeatingCount ?? 0) > 1
+    public var isRepeating: Bool {
+        repeatingCount > 1
     }
     
     public var isCompleted: Bool {
@@ -101,7 +101,7 @@ public struct TaskValue: TaskKind, Equatable {
     /// - Parameter task: the task value to merge with
     /// - Returns: a new merged ``TaskValue``
     func merge(with task: TaskValue) -> TaskValue {
-        let totalRepeatingCount = (task.repeatingCount ?? 0) + (repeatingCount ?? 0)
+        let totalRepeatingCount = task.repeatingCount + repeatingCount
         var mergedTask = normalizedStartDate! > task.normalizedStartDate! ? self : task
         mergedTask.repeatingCount = totalRepeatingCount
         

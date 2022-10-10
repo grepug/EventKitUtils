@@ -50,7 +50,7 @@ public extension TaskActionMenuHandling {
             }
         }
         
-        if !task.state.isEnded && !hidingShowingRepeatTasks && isContextMenu && task.isRpeating {
+        if !task.state.isEnded && !hidingShowingRepeatTasks && isContextMenu && task.isRepeating {
             MBGroup {
                 MBButton("view_repeat_tasks".loc, image: .init(systemName: "repeat")) { [weak self] in
                     self?.presentRepeatTaskListViewController(task: task)

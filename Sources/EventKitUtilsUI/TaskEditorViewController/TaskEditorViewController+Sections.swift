@@ -85,7 +85,7 @@ extension TaskEditorViewController {
         .tag("2 \(self.task.dateInterval?.formattedDurationString ?? "") \(self.task.isDateEnabled)")
         .listConfig { [unowned self] config in
             var config = config
-            config.footerMode = self.task.isDateEnabled ? .supplementary : .none
+            config.footerMode = self.task.normalizedIsInterval ? .supplementary : .none
             return config
         }
         .footer(using: .swiftUI(movingTo: { [unowned self] in self}, content: { [unowned self] in

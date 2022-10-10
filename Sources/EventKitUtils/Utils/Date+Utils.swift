@@ -122,9 +122,9 @@ public extension DateInterval {
     var formattedDurationString: String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.day, .hour, .minute]
-        formatter.unitsStyle = .short
+        formatter.unitsStyle = .full
         
-        return formatter.string(from: duration)!
+        return formatter.string(from: duration + 1)!
     }
     
     func formattedRelatively(includingTime: Bool = true, endDateOnly: Bool = false) -> String {
