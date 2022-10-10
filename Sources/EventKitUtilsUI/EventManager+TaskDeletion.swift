@@ -22,6 +22,7 @@ extension EventManager {
     /// - Parameters:
     ///   - task: the task value to delete
     ///   - vc: the ``UIViewController`` it is preseted on
+    ///   - onlyDeleteThis: boolean that whether only delete current selected task, not prompt your to choose
     ///   - removeTask: the handler to manually remove this task in the current view model
     /// - Returns: a boolean that indicates if deleted successfully
     @discardableResult

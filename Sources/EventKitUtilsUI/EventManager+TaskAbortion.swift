@@ -13,6 +13,7 @@ extension EventManager {
     /// - Parameters:
     ///   - task: the task to abort
     ///   - vc: the ``UIViewController`` it is preseted on
+    ///   - onlyAbortThis: boolean that whether only abort current selected task, not prompt your to choose
     ///   - removeTask: the handler to manually remove this task in the current view model
     /// - Returns: a boolean that indicates if aborted successfully
     @discardableResult

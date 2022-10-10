@@ -67,6 +67,7 @@ public struct TaskValue: TaskKind, Equatable {
         (normalizedStartDate?.description ?? "startDate") +
         (normalizedEndDate?.description ?? "endDate") +
         isCompleted.description +
+        isAborted.description +
         (notes ?? "notes") +
         (keyResultId ?? "") +
         (linkedValueString ?? "") +

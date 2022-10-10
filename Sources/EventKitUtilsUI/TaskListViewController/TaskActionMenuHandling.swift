@@ -64,24 +64,27 @@ public extension TaskActionMenuHandling {
             }
         }
         
-        let abortTitle = task.isAborted ? "取消放弃" : "放弃"
-        let abortImageName = task.isAborted ? "arrowshape.turn.up.backward.fill" : "xmark"
-        
-        MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow, destructive: true) { [weak self] completion in
-            guard let self = self else {
-                completion(false)
-                return
-            }
+        // abortion button, shows when it is not completed
+        if task.state != .completed {
+            let abortTitle = task.isAborted ? "取消放弃" : "放弃"
+            let abortImageName = task.isAborted ? "arrowshape.turn.up.backward.fill" : "xmark"
             
-            Task {
-                let res = await self.em.handleToggleAbortingTask(task: task, on: self, onlyAbortThis: isRepeatingList) { [weak self] in
-                    self?.taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith: task)
+            MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow, destructive: true) { [weak self] completion in
+                guard let self = self else {
+                    completion(false)
+                    return
                 }
                 
-                self.taskActionMenu(reloadListWith: task)
-                
-                DispatchQueue.main.async {
-                    completion(res)
+                Task {
+                    let res = await self.em.handleToggleAbortingTask(task: task, on: self, onlyAbortThis: isRepeatingList) { [weak self] in
+                        self?.taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith: task)
+                    }
+                    
+                    self.taskActionMenu(reloadListWith: task)
+                    
+                    DispatchQueue.main.async {
+                        completion(res)
+                    }
                 }
             }
         }
