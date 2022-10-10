@@ -250,22 +250,22 @@ public extension EventManager {
     /// - Returns: a ``FetchedTaskResult``
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> FetchedTaskResult {
         let includingCounts = type.shouldIncludingCounts
-        var tasksInfo = await configuration.fetchNonEventTasks(type: type, includingCounts: includingCounts) ?? .init()
         
-        if let eventTasksInfo = await cacheManager.handlers.fetchTaskValues(by: type, includingCounts: includingCounts) {
-            tasksInfo = tasksInfo.merged(with: eventTasksInfo, deduplicatingWithRepeatingInfo: type.shouldDeduplicatingTasks)
+        var fetchedTaskResult = await configuration.fetchNonEventTasks(type: type, includingCounts: includingCounts) ?? .init()
+        if let fetchedEventTaskResult = await cacheManager.handlers.fetchTaskValues(by: type, includingCounts: includingCounts) {
+            fetchedTaskResult = fetchedTaskResult.merged(with: fetchedEventTaskResult, deduplicatingWithRepeatingInfo: type.shouldDeduplicatingTasks)
         }
         
         if fetchingKRInfo {
-            for (index, task) in tasksInfo.tasks.enumerated() {
+            for (index, task) in fetchedTaskResult.tasks.enumerated() {
                 if let krId = task.keyResultId {
                     let krInfo = await configuration.fetchKeyResultInfo(byID: krId)
-                    tasksInfo.tasks[index].keyResultInfo = krInfo
+                    fetchedTaskResult.tasks[index].keyResultInfo = krInfo
                 }
             }
         }
         
-        return tasksInfo
+        return fetchedTaskResult
     }
     
     /// Check the total number of EKEvents exceeds the limit for non Pro users

@@ -16,7 +16,6 @@ import MenuBuilder
 public class TaskListViewController: DiffableListViewController, ObservableObject {
     var groupedTasks: TasksByState = [:]
     var countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo = [:]
-    var isListEmpty: Bool = false
     @Published var segment: FetchTasksSegmentType
     unowned public let em: EventManager
     var taskRepeatingInfo: TaskRepeatingInfo?
@@ -42,6 +41,10 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         }
         
         return nil
+    }
+    
+    var isListEmpty: Bool {
+        groupedTasks.isEmpty
     }
     
     public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, repeatingInfo: TaskRepeatingInfo? = nil) {
@@ -156,8 +159,9 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             let tasksInfo = await em.fetchTasks(with: fetchingType)
             
             self.groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
-            self.isListEmpty = tasksInfo.tasks.isEmpty
             self.countsOfStateByRepeatingInfo = tasksInfo.countsOfStateByRepeatingInfo
+            
+            assert(self.groupedTasks.isEmpty ? tasksInfo.tasks.isEmpty : true)
         }.value
         
         reload()
