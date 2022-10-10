@@ -62,11 +62,14 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
-        guard Thread.current == Thread.main else {
-            fatalError()
-        }
-        
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating, options: options)
+        
+        // dismiss the repeating list if it's empty
+        if isListEmpty, isRepeatingList, let presentingViewController {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                presentingViewController.dismiss(animated: true)
+            }
+        }
     }
     
     public override func log(message: String) {

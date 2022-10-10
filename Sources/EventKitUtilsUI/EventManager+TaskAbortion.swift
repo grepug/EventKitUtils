@@ -16,11 +16,11 @@ extension EventManager {
     ///   - removeTask: the handler to manually remove this task in the current view model
     /// - Returns: a boolean that indicates if aborted successfully
     @discardableResult
-    func handleToggleAbortingTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
+    func handleToggleAbortingTask(task: TaskValue, on vc: UIViewController, onlyAbortThis: Bool, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
         let isAbortion = !task.isAborted
         let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo)).tasks.filter { isAbortion ? !$0.isAborted : $0.isAborted }
         
-        if repeatingTasks.count > 1 {
+        if !onlyAbortThis && repeatingTasks.count > 1 {
             let option = await presentAbortingTaskAlert(on: vc)
             
             switch option {

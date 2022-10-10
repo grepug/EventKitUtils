@@ -25,7 +25,7 @@ extension EventManager {
     ///   - removeTask: the handler to manually remove this task in the current view model
     /// - Returns: a boolean that indicates if deleted successfully
     @discardableResult
-    func handleDeleteTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
+    func handleDeleteTask(task: TaskValue, on vc: UIViewController, onlyDeleteThis: Bool = false, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
         if task.isCompleted {
             removeTask?()
             await self.deleteTask(task)
@@ -35,7 +35,7 @@ extension EventManager {
         
         let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo)).tasks
         
-        if repeatingTasks.count > 1 {
+        if !onlyDeleteThis && repeatingTasks.count > 1 {
             let deletionOptions = await presentDeletingTasksAlert(parentVC: vc)
             
             switch deletionOptions {

@@ -35,7 +35,7 @@ public extension TaskActionMenuHandling {
     }
     
     @MenuBuilder
-    func taskMenu(task: TaskValue, isContextMenu: Bool = false) -> [MBMenu] {
+    func taskMenu(task: TaskValue, isRepeatingList: Bool = false, isContextMenu: Bool = false) -> [MBMenu] {
         if !hidingOpenKR && isContextMenu, let krId = task.keyResultId {
             MBGroup {
                 MBButton("action_view_kr".loc) { [weak self] in
@@ -68,10 +68,13 @@ public extension TaskActionMenuHandling {
         let abortImageName = task.isAborted ? "arrowshape.turn.up.backward.fill" : "xmark"
         
         MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow, destructive: true) { [weak self] completion in
-            guard let self = self else { return }
+            guard let self = self else {
+                completion(false)
+                return
+            }
             
             Task {
-                let res = await self.em.handleToggleAbortingTask(task: task, on: self) { [weak self] in
+                let res = await self.em.handleToggleAbortingTask(task: task, on: self, onlyAbortThis: isRepeatingList) { [weak self] in
                     self?.taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith: task)
                 }
                 
@@ -86,7 +89,7 @@ public extension TaskActionMenuHandling {
         MBButton.delete { [weak self] in
             guard let self = self else { return false }
             
-            let res = await self.em.handleDeleteTask(task: task, on: self) { [weak self] in
+            let res = await self.em.handleDeleteTask(task: task, on: self, onlyDeleteThis: isRepeatingList) { [weak self] in
                 self?.taskActionMenu(manuallyRemoveThisTaskSinceItIsTheLastOneWith: task)
             }
             

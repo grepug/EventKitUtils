@@ -62,8 +62,8 @@ extension TaskListViewController {
                 .tag(task.cellTag)
                 .child(of: headerTag)
                 .backgroundConfiguration(.listGroupedCell())
-                .contextMenu(.makeMenu(self.taskMenu(task: task, isContextMenu: true)).children)
-                .swipeTrailingActions(.makeActions(taskMenu(task: task)).reversed())
+                .contextMenu(.makeMenu(self.taskMenu(task: task, isRepeatingList: self.isRepeatingList, isContextMenu: true)).children)
+                .swipeTrailingActions(.makeActions(taskMenu(task: task, isRepeatingList: isRepeatingList)).reversed())
             }
         }
         .tag(groupedState?.title ?? "tasks")
