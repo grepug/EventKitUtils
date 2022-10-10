@@ -12,8 +12,6 @@ import CoreData
 public protocol CacheHandlers {
     var cachedTaskKind: CachedTaskKind.Type { get }
     var persistentContainer: NSPersistentContainer { get }
-    var completionDateNSExpression: NSExpression { get }
-    var abortionDateNSExpression: NSExpression { get }
     var orderNSExpression: NSExpression { get }
     var stateNSExpression: NSExpression { get }
 }
@@ -38,10 +36,10 @@ extension CacheHandlers {
             let tasks = try! await cachedTaskKind.fetch(where: predicate, sortedBy: sortDescriptors) { objects in
                 objects.map(\.value)
             }
+
+            assert(tasks.allSatisfy { $0.state.isInSegment(segment) })
             
             let counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
-            
-            assert(tasks.allSatisfy { segment.displayStates.contains($0.state) })
             
             return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
         case .repeatingInfo(let info):
@@ -54,7 +52,11 @@ extension CacheHandlers {
             }
             
             return .init(tasks: tasks, countsOfStateByRepeatingInfo: [:])
-        default:
+        case .taskID:
+            #warning("not impleted")
+            return nil
+        case .recordValue:
+            #warning("not impleted")
             return nil
         }
     }

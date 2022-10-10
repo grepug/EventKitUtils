@@ -45,9 +45,8 @@ extension TaskListViewController {
             
             for task in tasks {
                 DLCell(using: .swiftUI(movingTo: self, content: { [unowned self] in
-                    #warning("currentStateRepeatingCount not implemented")
                     TaskListCell(task: task,
-                                 currentStateRepeatingCount: nil,
+                                 currentStateRepeatingCount: currentStateRepeatingCount(task),
                                  hidingRepeatingCount: isRepeatingList) { [weak self] in
                         guard let self else { return }
                         
@@ -93,6 +92,10 @@ extension TaskListViewController {
             }
             .padding()
         }))
+    }
+    
+    func currentStateRepeatingCount(_ task: TaskValue) -> Int? {
+        countsOfStateByRepeatingInfo[task.repeatingInfoWithState]
     }
     
     func taskHeaderTag(state: TaskKindState?, count: Int) -> String? {

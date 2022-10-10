@@ -26,6 +26,20 @@ public enum FetchTasksType: Hashable {
          repeatingInfo(TaskRepeatingInfo),
          taskID(String),
          recordValue(RecordValue)
+    
+    var shouldDeduplicatingTasks: Bool {
+        switch self {
+        case .segment: return true
+        default: return false
+        }
+    }
+    
+    var shouldIncludingCounts: Bool {
+        switch self {
+        case .segment: return true
+        default: return false
+        }
+    }
 }
 
 public typealias CountsOfStateByRepeatingInfo = [TaskRepeatingInfo: Int]
@@ -45,7 +59,7 @@ public struct FetchedTaskResult {
     public let countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo
     
     var repeatingInfoSet: Set<TaskRepeatingInfo> {
-        Set(tasks.map(\.repeatingInfo))
+        Set(tasks.map(\.repeatingInfoWithState))
     }
     
     var taskByRepeatingInfo: [TaskRepeatingInfo: TaskValue] {
@@ -56,9 +70,15 @@ public struct FetchedTaskResult {
     }
     
     /// Use for merge non event tasks with event tasks.
-    /// - Parameter tasksInfo: ``FetchTasksInfo``
-    /// - Returns: the merged ``FetchTasksInfo``
-    func merged(with fetchedResult: FetchedTaskResult) -> FetchedTaskResult {
+    /// - Parameter fetchedResult: the ``FetchedTaskResult`` to merge with
+    /// - Parameter deduplicatingWithRepeatingInfo: if should duplicating with repeating info, which only happens in fetching tasks for TaskListViewController
+    /// - Returns: the merged ``FetchedTaskResult``
+    func merged(with fetchedResult: FetchedTaskResult, deduplicatingWithRepeatingInfo: Bool) -> FetchedTaskResult {
+        if !deduplicatingWithRepeatingInfo {
+            return .init(tasks: tasks + fetchedResult.tasks,
+                         countsOfStateByRepeatingInfo: [:])
+        }
+        
         // Merge counts by adding the counts of the same repeatingInfo.
         let counts = fetchedResult.countsOfStateByRepeatingInfo.merging(countsOfStateByRepeatingInfo) { $0 + $1 }
         

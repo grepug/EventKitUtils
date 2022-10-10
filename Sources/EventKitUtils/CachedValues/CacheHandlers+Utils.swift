@@ -85,12 +85,8 @@ extension CacheHandlers {
     
     func statePredicates(_ states: [TaskKindState]) -> NSPredicate {
         let predicates = states.map { state in
-            let statePredicate = state.predicate(completionExp: completionDateNSExpression,
-                                                 abortionExp: abortionDateNSExpression,
-                                                 stateExp: stateNSExpression)
-            
-            return NSCompoundPredicate(andPredicateWithSubpredicates: [
-                statePredicate,
+            NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSComparisonPredicate.created(stateNSExpression, NSExpression(format: "\(state.rawValue)"), type: .equalTo),
                 NSComparisonPredicate.created(orderNSExpression, NSExpression(format: "0"), type: .equalTo),
             ])
         }
@@ -100,7 +96,7 @@ extension CacheHandlers {
     
     func fetchTaskCount(_ task: TaskValue) async -> Int {
         let predicate1 = NSComparisonPredicate.created(stateNSExpression,
-                                                       NSExpression(format: "%@", task.state.rawValue as CVarArg),
+                                                       NSExpression(format: "\(task.state.rawValue)"),
                                                        type: .equalTo)
         let predicate2 = task.repeatingInfo.predicate()
         let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1, predicate2])

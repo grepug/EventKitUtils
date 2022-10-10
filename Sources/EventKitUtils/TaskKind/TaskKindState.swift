@@ -29,17 +29,6 @@ public enum TaskKindState: Int, CaseIterable {
     public func isInSegment(_ segment: FetchTasksSegmentType) -> Bool {
         segment.displayStates.contains(self)
     }
-    
-    public func predicate(completionExp: NSExpression, abortionExp: NSExpression, stateExp: NSExpression) -> NSPredicate {
-        switch self {
-        case .completed:
-            return NSComparisonPredicate.created(completionExp, NSExpression(format: "%@", NSNull()), type: .notEqualTo)
-        case .aborted:
-            return NSComparisonPredicate.created(abortionExp, NSExpression(format: "%@", NSNull()), type: .notEqualTo)
-        default:
-            return NSComparisonPredicate.created(stateExp, NSExpression(format: "%@", rawValue as NSNumber), type: .equalTo)
-        }
-    }
 }
 
 public extension TaskKindState {

@@ -150,7 +150,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         await Task {
             await em.untilNotPending()
             
-            let tasksInfo = await em.fetchTasks(with: fetchingType, includingCounts: true)
+            let tasksInfo = await em.fetchTasks(with: fetchingType)
             
             self.groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
             self.isListEmpty = tasksInfo.tasks.isEmpty

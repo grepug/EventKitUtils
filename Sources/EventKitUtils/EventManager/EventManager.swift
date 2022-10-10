@@ -242,12 +242,18 @@ public extension EventManager {
         
         try eventStore.commit()
     }
-        
-    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, includingCounts: Bool = false) async -> FetchedTaskResult {
+    
+    /// The public API for fetching tasks
+    /// - Parameters:
+    ///   - type: the ``FetchTasksType`` to fetch
+    ///   - fetchingKRInfo: if fetches ``KeyResultInfo``
+    /// - Returns: a ``FetchedTaskResult``
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> FetchedTaskResult {
+        let includingCounts = type.shouldIncludingCounts
         var tasksInfo = await configuration.fetchNonEventTasks(type: type, includingCounts: includingCounts) ?? .init()
         
         if let eventTasksInfo = await cacheManager.handlers.fetchTaskValues(by: type, includingCounts: includingCounts) {
-            tasksInfo = tasksInfo.merged(with: eventTasksInfo)
+            tasksInfo = tasksInfo.merged(with: eventTasksInfo, deduplicatingWithRepeatingInfo: type.shouldDeduplicatingTasks)
         }
         
         if fetchingKRInfo {
