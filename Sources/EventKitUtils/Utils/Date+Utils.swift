@@ -140,6 +140,10 @@ public extension DateInterval {
         
         return "\(startString) - \(endString)"
     }
+    
+    func formattedDate() -> String {
+        "\(start.formatted(in: .medium, timeStyle: .none)) - \(end.formatted(in: .medium, timeStyle: .none))"
+    }
 }
 
 public extension Date {

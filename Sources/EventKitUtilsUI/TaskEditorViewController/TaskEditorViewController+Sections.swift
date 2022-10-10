@@ -107,7 +107,7 @@ extension TaskEditorViewController {
                 DLCell {
                     DLImage(krInfo.emojiImage)
                     DLText(krInfo.title)
-                    DLText(krInfo.goalTitle)
+                    DLText(attributedString: krInfo.secondaryText)
                         .secondary()
                         .color(.secondaryLabel)
                 }
@@ -217,5 +217,14 @@ extension TaskEditorViewController {
             }
         }
         .tag("deletion")
+    }
+}
+
+extension KeyResultInfo {
+    var secondaryText: NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: goalTitle + "\n")
+        attributedString.append(.init(string: goalDateInterval.formattedDate()))
+        
+        return attributedString
     }
 }
