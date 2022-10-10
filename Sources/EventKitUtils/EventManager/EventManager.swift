@@ -250,11 +250,11 @@ public extension EventManager {
     ///   - fetchingKRInfo: if fetches ``KeyResultInfo``
     /// - Returns: a ``FetchedTaskResult``
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> FetchedTaskResult {
-        let includingCounts = type.shouldIncludingCounts
+        let includingCounts = type.shouldIncludeCounts
         
         var fetchedTaskResult = await configuration.fetchNonEventTasks(type: type, includingCounts: includingCounts) ?? .init()
         if let fetchedEventTaskResult = await cacheManager.handlers.fetchTaskValues(by: type, includingCounts: includingCounts) {
-            fetchedTaskResult = fetchedTaskResult.merged(with: fetchedEventTaskResult, deduplicatingWithRepeatingInfo: type.shouldDeduplicatingTasks)
+            fetchedTaskResult = fetchedTaskResult.merged(with: fetchedEventTaskResult, mergingByRepeatingInfoWithState: type.shouldMergeTasks)
         }
         
         if fetchingKRInfo {

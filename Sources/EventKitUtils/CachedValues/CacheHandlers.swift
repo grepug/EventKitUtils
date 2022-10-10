@@ -25,47 +25,40 @@ extension CacheHandlers {
         let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
         var predicates = [runIDPredicate]
         let sortDescriptors: [NSSortDescriptor] = [.init(key: "startDate", ascending: true)]
+        var counts: CountsOfStateByRepeatingInfo = [:]
         
         switch type {
         case .segment(let segment):
-            let statePredicate = statePredicates(segment.displayStates)
-            predicates.append(statePredicate)
-            
-            let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-            
-            let tasks = try! await cachedTaskKind.fetch(where: predicate, sortedBy: sortDescriptors) { objects in
-                objects.map(\.value)
-            }
-
-            assert(tasks.allSatisfy { $0.state.isInSegment(segment) })
-            
-            let counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
-            
-            return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
+            predicates.append(statePredicates(segment.displayStates))
         case .repeatingInfo(let info):
             predicates.append(info.predicate())
-            let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-            
-            let tasks = try! await cachedTaskKind.fetch(where: predicate,
-                                                        sortedBy: sortDescriptors) { objects in
-                objects.map(\.value)
-            }
-            
-            return .init(tasks: tasks, countsOfStateByRepeatingInfo: [:])
+        case .keyResultID(let keyResultID):
+            predicates.append(
+                [
+                    NSPredicate(format: "keyResultID == %@", keyResultID as CVarArg),
+                    firstOrderPredicate
+                ].allSatisfied
+            )
         case .taskID(let taskID):
             predicates.append(NSPredicate(format: "eventIDString == %@", taskID as CVarArg))
-            let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-            
-            let tasks = try! await cachedTaskKind.fetch(where: predicate,
-                                                        sortedBy: sortDescriptors) { objects in
-                objects.map(\.value)
-            }
-            
-            return .init(tasks: tasks, countsOfStateByRepeatingInfo: [:])
         case .recordValue:
             #warning("not impleted")
             return nil
         }
+        
+        let predicate = predicates.allSatisfied
+        var tasks = try! await cachedTaskKind.fetch(where: predicate, sortedBy: sortDescriptors) { objects in
+            objects.map(\.value)
+        }
+        
+        if case .segment(let segment) = type {
+            assert(tasks.allSatisfy { $0.state.isInSegment(segment) })
+            counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
+        } else if case .keyResultID = type {
+            tasks = tasks.mergedByRepeatingInfo()
+        }
+        
+        return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
     }
 }
 

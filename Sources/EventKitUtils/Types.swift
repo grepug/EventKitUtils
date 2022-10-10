@@ -25,16 +25,17 @@ public enum FetchTasksType: Hashable {
     case segment(FetchTasksSegmentType),
          repeatingInfo(TaskRepeatingInfo),
          taskID(String),
-         recordValue(RecordValue)
+         recordValue(RecordValue),
+         keyResultID(String)
     
-    var shouldDeduplicatingTasks: Bool {
+    var shouldMergeTasks: Bool {
         switch self {
-        case .segment: return true
+        case .segment, .keyResultID: return true
         default: return false
         }
     }
     
-    var shouldIncludingCounts: Bool {
+    var shouldIncludeCounts: Bool {
         switch self {
         case .segment: return true
         default: return false
@@ -43,73 +44,6 @@ public enum FetchTasksType: Hashable {
 }
 
 public typealias CountsOfStateByRepeatingInfo = [TaskRepeatingInfo: Int]
-
-public struct FetchedTaskResult {
-    public init(tasks: [TaskValue], countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo) {
-        self.tasks = tasks
-        self.countsOfStateByRepeatingInfo = countsOfStateByRepeatingInfo
-    }
-    
-    init() {
-        self.tasks = []
-        self.countsOfStateByRepeatingInfo = [:]
-    }
-    
-    public var tasks: [TaskValue]
-    public let countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo
-    
-    var repeatingInfoSet: Set<TaskRepeatingInfo> {
-        Set(tasks.map(\.repeatingInfoWithState))
-    }
-    
-    var taskByRepeatingInfo: [TaskRepeatingInfo: TaskValue] {
-        tasks.reduce(into: [:]) { partialResult, task in
-            assert(partialResult[task.repeatingInfoWithState] == nil)
-            partialResult[task.repeatingInfoWithState] = task
-        }
-    }
-    
-    /// Use for merge non event tasks with event tasks.
-    /// - Parameter fetchedResult: the ``FetchedTaskResult`` to merge with
-    /// - Parameter deduplicatingWithRepeatingInfo: if should duplicating with repeating info, which only happens in fetching tasks for TaskListViewController
-    /// - Returns: the merged ``FetchedTaskResult``
-    func merged(with fetchedResult: FetchedTaskResult, deduplicatingWithRepeatingInfo: Bool) -> FetchedTaskResult {
-        if !deduplicatingWithRepeatingInfo {
-            return .init(tasks: tasks + fetchedResult.tasks,
-                         countsOfStateByRepeatingInfo: [:])
-        }
-        
-        // Merge counts by adding the counts of the same repeatingInfo.
-        let counts = fetchedResult.countsOfStateByRepeatingInfo.merging(countsOfStateByRepeatingInfo) { $0 + $1 }
-        
-        // Union of both repeatingInfo set
-        let repeatingInfoSet = repeatingInfoSet.union(fetchedResult.repeatingInfoSet)
-        
-        let taskByRepeatingInfo = taskByRepeatingInfo
-        let taskByRepeatingInfo2 = fetchedResult.taskByRepeatingInfo
-        
-        let tasks = repeatingInfoSet.map { info in
-            let task1 = taskByRepeatingInfo[info]
-            let task2 = taskByRepeatingInfo2[info]
-            
-            if let task1, let task2 {
-                return task1.merge(with: task2)
-            }
-            
-            if let task1 {
-                return task1
-            }
-            
-            if let task2 {
-                return task2
-            }
-            
-            fatalError("not possible")
-        }
-
-        return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
-    }
-}
 
 public struct KeyResultInfo: Hashable {
     public init(id: String, title: String, emojiImage: UIImage, goalTitle: String, goalDateInterval: DateInterval) {
