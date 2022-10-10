@@ -97,6 +97,35 @@ extension CacheHandlers {
         
         return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
     }
+    
+    func fetchTaskCount(_ task: TaskValue) async -> Int {
+        let predicate1 = NSComparisonPredicate.created(stateNSExpression,
+                                                       NSExpression(format: "%@", task.state.rawValue as CVarArg),
+                                                       type: .equalTo)
+        let predicate2 = task.repeatingInfo.predicate()
+        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1, predicate2])
+        
+        return try! await cachedTaskKind.fetchCount(where: predicate)!
+    }
+    
+    func fetchTasksCounts(_ tasks: [TaskValue]) async -> CountsOfStateByRepeatingInfo {
+        await withTaskGroup(of: (TaskValue, Int).self) { group in
+            for task in tasks {
+                group.addTask {
+                    (task, await fetchTaskCount(task))
+                }
+            }
+                
+            var counts: CountsOfStateByRepeatingInfo = [:]
+            
+            for await (task, count) in group {
+                assert(counts[task.repeatingInfoWithState] == nil)
+                counts[task.repeatingInfoWithState] = count
+            }
+            
+            return counts
+        }
+    }
 }
 
 extension NSComparisonPredicate {

@@ -236,7 +236,7 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(originalTaskValue.repeatingInfo)).tasks
         
         assert(!tasks.isEmpty, "tasks should not be empty")
         

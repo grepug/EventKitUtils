@@ -96,6 +96,17 @@ public struct TaskValue: TaskKind, Equatable {
         
         return lhs.normalizedID == rhs.normalizedID && lhs.normalizedStartDate == rhs.normalizedStartDate && lhs.normalizedEndDate == rhs.normalizedEndDate
     }
+    
+    /// Use for merging non event tasks with event tasks that are with same ``TaskRepeatingInfo``
+    /// - Parameter task: the task value to merge with
+    /// - Returns: a new merged ``TaskValue``
+    func merge(with task: TaskValue) -> TaskValue {
+        let totalRepeatingCount = (task.repeatingCount ?? 0) + (repeatingCount ?? 0)
+        var mergedTask = normalizedStartDate! > task.normalizedStartDate! ? self : task
+        mergedTask.repeatingCount = totalRepeatingCount
+        
+        return mergedTask
+    }
 }
 
 public extension Array where Element == TaskValue {

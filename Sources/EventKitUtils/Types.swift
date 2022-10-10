@@ -28,6 +28,69 @@ public enum FetchTasksType: Hashable {
          recordValue(RecordValue)
 }
 
+public typealias CountsOfStateByRepeatingInfo = [TaskRepeatingInfo: Int]
+
+public struct FetchedTaskResult {
+    public init(tasks: [TaskValue], countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo) {
+        self.tasks = tasks
+        self.countsOfStateByRepeatingInfo = countsOfStateByRepeatingInfo
+    }
+    
+    init() {
+        self.tasks = []
+        self.countsOfStateByRepeatingInfo = [:]
+    }
+    
+    public var tasks: [TaskValue]
+    public let countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo
+    
+    var repeatingInfoSet: Set<TaskRepeatingInfo> {
+        Set(tasks.map(\.repeatingInfo))
+    }
+    
+    var taskByRepeatingInfo: [TaskRepeatingInfo: TaskValue] {
+        tasks.reduce(into: [:]) { partialResult, task in
+            assert(partialResult[task.repeatingInfoWithState] == nil)
+            partialResult[task.repeatingInfoWithState] = task
+        }
+    }
+    
+    /// Use for merge non event tasks with event tasks.
+    /// - Parameter tasksInfo: ``FetchTasksInfo``
+    /// - Returns: the merged ``FetchTasksInfo``
+    func merged(with fetchedResult: FetchedTaskResult) -> FetchedTaskResult {
+        // Merge counts by adding the counts of the same repeatingInfo.
+        let counts = fetchedResult.countsOfStateByRepeatingInfo.merging(countsOfStateByRepeatingInfo) { $0 + $1 }
+        
+        // Union of both repeatingInfo set
+        let repeatingInfoSet = repeatingInfoSet.union(fetchedResult.repeatingInfoSet)
+        
+        let taskByRepeatingInfo = taskByRepeatingInfo
+        let taskByRepeatingInfo2 = fetchedResult.taskByRepeatingInfo
+        
+        let tasks = repeatingInfoSet.map { info in
+            let task1 = taskByRepeatingInfo[info]
+            let task2 = taskByRepeatingInfo2[info]
+            
+            if let task1, let task2 {
+                return task1.merge(with: task2)
+            }
+            
+            if let task1 {
+                return task1
+            }
+            
+            if let task2 {
+                return task2
+            }
+            
+            fatalError("not possible")
+        }
+
+        return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
+    }
+}
+
 public struct KeyResultInfo: Hashable {
     public init(id: String, title: String, emojiImage: UIImage, goalTitle: String, goalDateInterval: DateInterval) {
         self.id = id

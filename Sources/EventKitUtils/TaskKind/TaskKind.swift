@@ -190,6 +190,10 @@ public extension TaskKind {
         .init(title: normalizedTitle, keyResultID: keyResultId)
     }
     
+    var repeatingInfoWithState: TaskRepeatingInfo {
+        .init(title: normalizedTitle, keyResultID: keyResultId, state: state)
+    }
+    
     mutating func assignFromTaskKind(_ task: TaskKind) {
         // Should assign `completedAt` and `abortedAt` before `normalizedTitle`, for the title need its state to prefix emoji.
         completedAt = task.completedAt

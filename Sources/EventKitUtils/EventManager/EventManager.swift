@@ -243,20 +243,23 @@ public extension EventManager {
         try eventStore.commit()
     }
         
-    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> [TaskValue] {
-        var tasks = await configuration.fetchNonEventTasks(type: type)
-        tasks += await cacheManager.handlers.fetchTaskValues(by: type)
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true, includingCounts: Bool = false) async -> FetchedTaskResult {
+        var tasksInfo = await configuration.fetchNonEventTasks(type: type, includingCounts: includingCounts) ?? .init()
+        
+        if let eventTasksInfo = await cacheManager.handlers.fetchTaskValues(by: type, includingCounts: includingCounts) {
+            tasksInfo = tasksInfo.merged(with: eventTasksInfo)
+        }
         
         if fetchingKRInfo {
-            for (index, task) in tasks.enumerated() {
+            for (index, task) in tasksInfo.tasks.enumerated() {
                 if let krId = task.keyResultId {
                     let krInfo = await configuration.fetchKeyResultInfo(byID: krId)
-                    tasks[index].keyResultInfo = krInfo
+                    tasksInfo.tasks[index].keyResultInfo = krInfo
                 }
             }
         }
         
-        return tasks
+        return tasksInfo
     }
     
     /// Check the total number of EKEvents exceeds the limit for non Pro users
@@ -271,11 +274,15 @@ public extension EventManager {
     
     func testIsRepeating(_ taskValue: TaskValue) async -> Bool {
         if let count = await configuration.fetchNonEventTaskCount(with: taskValue.repeatingInfo),
-           count > 0{
+           count > 0 {
             return true
         }
         
-        return await cacheManager.handlers.fetchTaskValues(by: .repeatingInfo(taskValue.repeatingInfo)).count > 0
+        guard let tasks = await cacheManager.handlers.fetchTaskValues(by: .repeatingInfo(taskValue.repeatingInfo))?.tasks else {
+            return false
+        }
+        
+        return tasks.count > 0
     }
     
     /// Postpond tasks
@@ -288,6 +295,7 @@ public extension EventManager {
         
         for task in tasks {
             let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
+                .tasks
                 .filter { $0.state == .overdued }
             
             for task in moreOverduedTasks {

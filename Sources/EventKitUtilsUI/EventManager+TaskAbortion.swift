@@ -18,7 +18,7 @@ extension EventManager {
     @discardableResult
     func handleToggleAbortingTask(task: TaskValue, on vc: UIViewController, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
         let isAbortion = !task.isAborted
-        let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo)).filter { isAbortion ? !$0.isAborted : $0.isAborted }
+        let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo)).tasks.filter { isAbortion ? !$0.isAborted : $0.isAborted }
         
         if repeatingTasks.count > 1 {
             let option = await presentAbortingTaskAlert(on: vc)

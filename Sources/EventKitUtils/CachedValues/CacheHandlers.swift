@@ -19,9 +19,9 @@ public protocol CacheHandlers {
 }
 
 extension CacheHandlers {
-    func fetchTaskValues(by type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
+    func fetchTaskValues(by type: EventKitUtils.FetchTasksType, includingCounts: Bool = false) async -> FetchedTaskResult? {
         guard let runID = await currentRunID else {
-            return []
+            return nil
         }
         
         let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
@@ -39,14 +39,13 @@ extension CacheHandlers {
                 objects.map(\.value)
             }
             
+            let counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
+            
             assert(tasks.allSatisfy { segment.displayStates.contains($0.state) })
             
-            return tasks
+            return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
         case .repeatingInfo(let info):
-            let predicate1 = NSPredicate(format: "title == %@ && keyResultID == %@",
-                                         info.title as CVarArg,
-                                         info.keyResultID.map { $0 as CVarArg } ?? NSNull())
-            predicates.append(predicate1)
+            predicates.append(info.predicate())
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
             
             let tasks = try! await cachedTaskKind.fetch(where: predicate,
@@ -54,9 +53,9 @@ extension CacheHandlers {
                 objects.map(\.value)
             }
             
-            return tasks
+            return .init(tasks: tasks, countsOfStateByRepeatingInfo: [:])
         default:
-            return []
+            return nil
         }
     }
 }

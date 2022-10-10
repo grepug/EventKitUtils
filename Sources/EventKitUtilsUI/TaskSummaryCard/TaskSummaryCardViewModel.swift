@@ -109,6 +109,7 @@ extension TaskSummaryCardViewModel {
         let segment: FetchTasksSegmentType = showingTodayTasks ? .today : .incompleted
         
         tasks = await em.fetchTasks(with: .segment(segment))
+            .tasks
             .filter { $0.displayInSegment(segment) }
             .sorted(of: segment)
             .repeatingMerged()

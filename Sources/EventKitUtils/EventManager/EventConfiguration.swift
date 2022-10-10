@@ -38,7 +38,7 @@ public protocol EventConfiguration {
     /// Fetch non event tasks by ``FetchTasksType``.
     /// - Parameter type: see ``FetchTasksType``
     /// - Returns: an array of ``TaskValue``
-    func fetchNonEventTasks(type: FetchTasksType) async -> [TaskValue]
+    func fetchNonEventTasks(type: FetchTasksType, includingCounts: Bool) async -> FetchedTaskResult?
     
     /// Fetch a single non event task by its ID.
     /// - Parameters:

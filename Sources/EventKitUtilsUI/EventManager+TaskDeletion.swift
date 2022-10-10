@@ -33,7 +33,7 @@ extension EventManager {
             return true
         }
         
-        let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
+        let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo)).tasks
         
         if repeatingTasks.count > 1 {
             let deletionOptions = await presentDeletingTasksAlert(parentVC: vc)
