@@ -66,6 +66,7 @@ public class EventManager {
             .store(in: &cancellables)
     }
     
+    #warning("problematic")
     public func untilNotPending() async {
         if await cacheManager.isPending {
             return await withCheckedContinuation { continuation in
