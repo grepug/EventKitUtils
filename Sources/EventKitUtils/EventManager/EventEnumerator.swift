@@ -35,7 +35,7 @@ public struct EventEnumerator {
         if let dateInterval {
             interval = dateInterval
         } else {
-            interval = await eventConfiguration.eventRequestDateInterval() ?? .defaultEventRequestDateInterval
+            interval = await eventConfiguration.eventRequestDateInterval() ?? .twoYearsInterval
         }
         
         return enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching: interval, handler: handler)
@@ -46,7 +46,7 @@ public struct EventEnumerator {
     ///   - dateInterval: the date interval it should enumerate in
     ///   - handler: returns an EKEvent to the function caller each enumeration, and offers a completion handler to stop the enumeration
     /// - Returns: a boolean indicates if the count of events has exceeded the non Pro user's limit
-    private func enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching dateInterval: DateInterval = .defaultEventRequestDateInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
+    private func enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching dateInterval: DateInterval = .twoYearsInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
         var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
         var exceededNonProLimit = false
 
@@ -88,13 +88,5 @@ extension DateInterval {
                                                       calendars: calendars)
         
         return predicate
-    }
-    
-    public static var defaultEventRequestDateInterval: Self {
-        let current = Date()
-        let defaultStart = Calendar.current.date(byAdding: .year, value: -1, to: current)!
-        let defaultEnd = Calendar.current.date(byAdding: .year, value: 1, to: current)!
-            
-        return .init(start: defaultStart, end: defaultEnd)
     }
 }

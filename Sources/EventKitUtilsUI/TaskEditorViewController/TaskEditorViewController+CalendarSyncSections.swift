@@ -97,7 +97,7 @@ extension TaskEditorViewController {
     
     @ListBuilder
     private func calendarSyncSettingsSection(event: EKEvent) -> [DLSection] {
-        let errorMessage = event.recurrencePrompt(withKRinfo: self.keyResultInfo)
+        let errorMessage = recurrenceEndErrorPrompt
         
         DLSection { [unowned self] in
             editingHeader
@@ -112,6 +112,7 @@ extension TaskEditorViewController {
             if event.taskRecurrenceRule != .never, let endDate = event.recurrenceEndDate {
                 DLCell(using: .datePicker(labelText: "结束重复",
                                           date: endDate,
+                                          interval: recurrenceEndDatePickerInterval,
                                           valueDidChange: { [weak self] date in
                     guard let self, let event = self.event else { return }
                     
@@ -121,7 +122,7 @@ extension TaskEditorViewController {
                     self.reload(animating: false)
                     #endif
                 }))
-                .tag("repeat end \(self.event?.recurrenceEndDate?.description ?? "")")
+                .tag("repeat end \(self.event?.recurrenceEndDate?.description ?? "") \(self.recurrenceEndDatePickerInterval)")
             }
         }
         .tag("repeating \(errorMessage ?? "")")
@@ -165,6 +166,14 @@ extension TaskEditorViewController {
         }
         .tag("4")
     }
+    
+    private var recurrenceEndDatePickerInterval: DateInterval {
+        guard let keyResultInfo, let start = task.normalizedEndDate else {
+            return .twoYearsInterval
+        }
+        
+        return .init(start: start, end: keyResultInfo.goalDateInterval.end.endOfDay)
+    }
 }
 
 extension TaskRecurrenceRule {
@@ -183,16 +192,29 @@ extension TaskRecurrenceRule {
     }
 }
 
-extension EKEvent {
-    func recurrencePrompt(withKRinfo krInfo: KeyResultInfo?) -> String? {
-        guard let recurrenceEndDate else {
+extension TaskEditorViewController {
+    var recurrenceEndErrorPrompt: String? {
+        guard let recurrenceEndDate = event?.recurrenceEndDate else {
             return nil
         }
         
-        if let krInfo {
-            if recurrenceEndDate > krInfo.goalDateInterval.end {
-                return "结束重复日期不能大于所关联目标的结束日期"
+        let start = recurrenceEndDatePickerInterval.start
+        let end = recurrenceEndDatePickerInterval.end
+        
+        if recurrenceEndDate > end {
+            if keyResultInfo == nil {
+                return "结束重复日期不能晚于1年"
             }
+            
+            return "结束重复日期不能大于所关联目标的结束日期"
+        }
+        
+        if recurrenceEndDate < start  {
+            if keyResultInfo == nil {
+                return "结束重复日期不能早于1年"
+            }
+            
+            return "结束重复日期不能早于任务结束日期"
         }
         
         if recurrenceEndDate.days(to: Date(), includingLastDay: true) > 365 {

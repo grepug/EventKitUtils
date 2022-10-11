@@ -78,7 +78,7 @@ public class TaskEditorViewController: DiffableListViewController {
     var hasNoError: Bool {
         if let event {
             return event.dateErrorMessage == nil &&
-            event.recurrencePrompt(withKRinfo: keyResultInfo) == nil
+            recurrenceEndErrorPrompt == nil
         }
         
         return task.dateErrorMessage == nil
@@ -196,7 +196,7 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        if let errorMessage = event?.recurrencePrompt(withKRinfo: keyResultInfo) {
+        if let errorMessage = recurrenceEndErrorPrompt {
             presentErrorAlert(title: errorMessage)
             return
         }

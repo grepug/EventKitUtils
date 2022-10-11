@@ -144,6 +144,14 @@ public extension DateInterval {
     func formattedDate() -> String {
         "\(start.formatted(in: .medium, timeStyle: .none)) - \(end.formatted(in: .medium, timeStyle: .none))"
     }
+    
+    static var twoYearsInterval: DateInterval {
+        let current = Date()
+        let start = Calendar.current.date(byAdding: .year, value: -1, to: current)!
+        let end = Calendar.current.date(byAdding: .year, value: 1, to: current)!
+        
+        return .init(start: start, end: end)
+    }
 }
 
 public extension Date {
