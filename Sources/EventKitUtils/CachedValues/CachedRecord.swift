@@ -66,3 +66,23 @@ public extension Collection where Element: RecordKind {
         map(\.recordValue)
     }
 }
+
+public extension Array where Element == RecordValue {
+    func sorted() -> [Element] {
+        return sorted { a, b in
+            if let date1 = a.date, let date2 = b.date {
+                return date1 < date2
+            }
+            
+            if a.date != nil {
+                return true
+            }
+            
+            if b.date != nil {
+                return false
+            }
+            
+            return true
+        }
+    }
+}
