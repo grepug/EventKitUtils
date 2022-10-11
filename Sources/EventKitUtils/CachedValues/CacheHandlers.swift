@@ -51,7 +51,6 @@ extension CacheHandlers {
         case .taskID(let taskID):
             predicates.append(NSPredicate(format: "eventIDString == %@", taskID as CVarArg))
         case .recordValue:
-            #warning("not impleted")
             return nil
         case .recordList(keyResultID: let krID):
             predicates.append(

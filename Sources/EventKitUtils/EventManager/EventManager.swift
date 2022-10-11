@@ -250,6 +250,14 @@ public extension EventManager {
     ///   - fetchingKRInfo: if fetches ``KeyResultInfo``
     /// - Returns: a ``FetchedTaskResult``
     func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> FetchedTaskResult {
+        if case .recordValue(let recordValue) = type {
+            guard let event = eventStore.event(withIdentifier: recordValue.normalizedID) else {
+                return .init()
+            }
+            
+            return .init(tasks: [event.value], countsOfStateByRepeatingInfo: [:])
+        }
+        
         let includingCounts = type.shouldIncludeCounts
         
         var fetchedTaskResult = await configuration.fetchNonEventTasks(type: type, includingCounts: includingCounts) ?? .init()
