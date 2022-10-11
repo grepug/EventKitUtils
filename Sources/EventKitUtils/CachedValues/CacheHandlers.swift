@@ -66,6 +66,7 @@ extension CacheHandlers {
             counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
         } else if case .keyResultDetailVC = type {
             tasks = tasks.mergedByRepeatingInfo()
+            counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
         }
         
         return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)

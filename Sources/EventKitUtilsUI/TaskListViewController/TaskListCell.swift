@@ -54,7 +54,7 @@ public struct TaskListCell: View {
         let count = task.repeatingCount
         
         if let currentStateRepeatingCount {
-            return "\(currentStateRepeatingCount) /\(count)"
+            return "\(currentStateRepeatingCount)/\(count)"
         }
         
         return "\(count)"

@@ -26,4 +26,10 @@ public struct TaskRepeatingInfo: Hashable {
                     title as CVarArg,
                     keyResultID.map { $0 as CVarArg } ?? NSNull())
     }
+    
+    var stateRemoved: Self {
+        var me = self
+        me.state = nil
+        return me
+    }
 }
