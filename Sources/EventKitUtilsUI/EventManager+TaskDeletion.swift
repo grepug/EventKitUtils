@@ -12,11 +12,9 @@ extension EventManager {
     /// Delete the task, present the "deleting future tasks" alert if it is a repeating task
     ///
     /// Deletion flow:
-    /// - if the task is completed, delete it
-    /// - if the task is not completed
-    ///     - if it is repeating, presenting the alert to user to choose whether delete only this one
-    ///     - or all future tasks
-    ///     - otherwise, delete this task
+    ///   - if it is repeating, presenting the alert to user to choose whether delete only this one
+    ///   - or all future tasks
+    ///   - otherwise, delete this task
     ///
     ///
     /// - Parameters:
@@ -27,13 +25,6 @@ extension EventManager {
     /// - Returns: a boolean that indicates if deleted successfully
     @discardableResult
     func handleDeleteTask(task: TaskValue, on vc: UIViewController, onlyDeleteThis: Bool = false, manuallyRemoveThisTaskSinceItIsTheLastOne removeTask: (() -> Void)? = nil) async -> Bool {
-        if task.isCompleted {
-            removeTask?()
-            await self.deleteTask(task)
-
-            return true
-        }
-        
         let repeatingTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo)).tasks
         
         if !onlyDeleteThis && repeatingTasks.count > 1 {
