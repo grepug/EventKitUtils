@@ -22,15 +22,15 @@ public enum FetchTasksSegmentType: Int, CaseIterable {
 }
 
 public enum FetchTasksType: Hashable {
-    case segment(FetchTasksSegmentType),
+    case segment(FetchTasksSegmentType, keyResultID: String?),
          repeatingInfo(TaskRepeatingInfo),
          taskID(String),
          recordValue(RecordValue),
-         keyResultID(String)
+         keyResultDetailVC(String)
     
     var shouldMergeTasks: Bool {
         switch self {
-        case .segment, .keyResultID: return true
+        case .segment, .keyResultDetailVC: return true
         default: return false
         }
     }

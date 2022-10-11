@@ -28,14 +28,23 @@ extension CacheHandlers {
         var counts: CountsOfStateByRepeatingInfo = [:]
         
         switch type {
-        case .segment(let segment):
+        case .segment(let segment, let krID):
             predicates.append(statePredicates(segment.displayStates))
+            
+            if let krID {
+                predicates.append(NSPredicate(format: "keyResultID == %@", krID as CVarArg))
+            }
         case .repeatingInfo(let info):
             predicates.append(info.predicate())
-        case .keyResultID(let keyResultID):
+        case .keyResultDetailVC(let keyResultID):
             predicates.append(
                 [
                     NSPredicate(format: "keyResultID == %@", keyResultID as CVarArg),
+                    [
+                        statePredicate(.overdued),
+                        statePredicate(.today),
+                        statePredicate(.afterToday),
+                    ].partialSatisfied,
                     firstOrderPredicate
                 ].allSatisfied
             )
@@ -51,10 +60,11 @@ extension CacheHandlers {
             objects.map(\.value)
         }
         
-        if case .segment(let segment) = type {
+        // process tasks after fetching
+        if case .segment(let segment, _) = type {
             assert(tasks.allSatisfy { $0.state.isInSegment(segment) })
             counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
-        } else if case .keyResultID = type {
+        } else if case .keyResultDetailVC = type {
             tasks = tasks.mergedByRepeatingInfo()
         }
         

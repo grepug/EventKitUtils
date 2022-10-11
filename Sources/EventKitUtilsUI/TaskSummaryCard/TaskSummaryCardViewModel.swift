@@ -98,7 +98,7 @@ extension TaskSummaryCardViewModel: TaskHandling {
     
     func presentRepeatTasks(for task: TaskValue) {
         let vc = TaskListViewController(eventManager: em,
-                                        repeatingInfo: task.repeatingInfo)
+                                        mode: .repeatingList(task.repeatingInfo))
         parentVC.present(vc, animated: true)
     }
 }
@@ -108,7 +108,7 @@ extension TaskSummaryCardViewModel {
     func reload() async {
         let segment: FetchTasksSegmentType = showingTodayTasks ? .today : .incompleted
         
-        tasks = await em.fetchTasks(with: .segment(segment))
+        tasks = await em.fetchTasks(with: .segment(segment, keyResultID: nil))
             .tasks
             .filter { $0.displayInSegment(segment) }
             .sorted(of: segment)
@@ -120,7 +120,7 @@ extension TaskSummaryCardViewModel {
 extension TaskSummaryCardViewModel {
     func pushToTaskListViewController() {
         let vc = TaskListViewController(eventManager: em,
-                                        initialSegment: showingTodayTasks ? .today : .incompleted)
+                                        mode: .list(showingTodayTasks ? .today : .incompleted))
         
         parentVC.navigationController?.pushViewController(vc, animated: true)
     }

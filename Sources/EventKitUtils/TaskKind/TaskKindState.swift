@@ -29,6 +29,13 @@ public enum TaskKindState: Int, CaseIterable {
     public func isInSegment(_ segment: FetchTasksSegmentType) -> Bool {
         segment.displayStates.contains(self)
     }
+    
+    public var isIncompleted: Bool {
+        switch self {
+        case .overdued, .afterToday, .today: return true
+        case .completed, .aborted, .unscheduled: return false
+        }
+    }
 }
 
 public extension TaskKindState {

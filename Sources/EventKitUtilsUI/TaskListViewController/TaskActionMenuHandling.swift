@@ -23,7 +23,7 @@ public protocol TaskActionMenuHandling: DiffableListViewController {
 public extension TaskActionMenuHandling {
     func presentRepeatTaskListViewController(task: TaskValue) {
         let taskList = TaskListViewController(eventManager: em,
-                                              repeatingInfo: task.repeatingInfo)
+                                              mode: .repeatingList(task.repeatingInfo))
         let nav = taskList.navigationControllerWrapped()
         
         nav.modalPresentationStyle = .popover

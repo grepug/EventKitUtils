@@ -16,9 +16,32 @@ import MenuBuilder
 public class TaskListViewController: DiffableListViewController, ObservableObject {
     var groupedTasks: TasksByState = [:]
     var countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo = [:]
+    
+    public enum Mode {
+        case list(FetchTasksSegmentType),
+             repeatingList(TaskRepeatingInfo),
+             keyResultList(KeyResultInfo)
+        
+        func fetchingType(in segment: FetchTasksSegmentType) -> FetchTasksType {
+            switch self {
+            case .list: return .segment(segment, keyResultID: nil)
+            case .keyResultList(let krInfo): return .segment(segment, keyResultID: krInfo.id)
+            case .repeatingList(let info): return .repeatingInfo(info)
+            }
+        }
+        
+        var initialSegment: FetchTasksSegmentType {
+            switch self {
+            case .list(let segment): return segment
+            default: return .today
+            }
+        }
+    }
+    
+    var mode: Mode
+    
     @Published var segment: FetchTasksSegmentType
     unowned public let em: EventManager
-    var taskRepeatingInfo: TaskRepeatingInfo?
     var selectedFilterTaskState: TaskListFilterState? {
         didSet {
             Task {
@@ -32,25 +55,21 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     private let reloadingSubject = PassthroughSubject<FetchTasksSegmentType, Never>()
     
     var isRepeatingList: Bool {
-        taskRepeatingInfo != nil
-    }
-    
-    var fetchingTitle: String? {
-        if let info = taskRepeatingInfo {
-            return info.title
+        switch mode {
+        case .repeatingList: return true
+        default: return false
         }
-        
-        return nil
     }
     
     var isListEmpty: Bool {
         groupedTasks.isEmpty
     }
     
-    public init(eventManager: EventManager, initialSegment: FetchTasksSegmentType = .today, repeatingInfo: TaskRepeatingInfo? = nil) {
+    public init(eventManager: EventManager, mode: Mode = .list(.today)) {
         self.em = eventManager
-        self.taskRepeatingInfo = repeatingInfo
-        self.segment = initialSegment
+        self.mode = mode
+        self.segment = mode.initialSegment
+        
         super.init(nibName: nil, bundle: nil)
         
         hidesBottomBarWhenPushed = true
@@ -156,7 +175,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         await Task {
             await em.untilNotPending()
             
-            let tasksInfo = await em.fetchTasks(with: fetchingType)
+            let tasksInfo = await em.fetchTasks(with: mode.fetchingType(in: segment))
             
             self.groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
             self.countsOfStateByRepeatingInfo = tasksInfo.countsOfStateByRepeatingInfo
@@ -174,14 +193,6 @@ extension TaskListViewController {
         reloadingSubject.send(segment ?? self.segment)
     }
     
-    var fetchingType: FetchTasksType {
-        if let info = taskRepeatingInfo {
-            return .repeatingInfo(info)
-        }
-        
-        return .segment(segment)
-    }
-    
     var eventsChangedPublisher: AnyPublisher<FetchTasksSegmentType, Never> {
         em.cachesReloaded
             .throttle(for: 1, scheduler: RunLoop.current, latest: false)
@@ -194,14 +205,23 @@ extension TaskListViewController {
     static let dismissedSubject = PassthroughSubject<Void, Never>()
     
     func setupNavigationBar() {
-        if let title = fetchingTitle {
-            self.title = title
-            
+        navigationItem.rightBarButtonItems = []
+        
+        if presentingViewController != nil {
             let doneButton: UIBarButtonItem = makeDoneButton { [weak self] in
                 self?.presentingViewController?.dismiss(animated: true) {
                     Self.dismissedSubject.send()
                 }
             }
+            
+            navigationItem.rightBarButtonItems?.append(doneButton)
+        }
+        
+        switch mode {
+        case .keyResultList(let krInfo):
+            self.title = krInfo.title
+        case .repeatingList(let info):
+            self.title = info.title
             
             let imageName = selectedFilterTaskState == nil ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill"
             let filter = UIBarButtonItem(image: .init(systemName: imageName),
@@ -209,12 +229,9 @@ extension TaskListViewController {
                 self?.setupNavigationBar()
             })
             
-            navigationItem.rightBarButtonItems = [
-                doneButton,
-                filter
-            ]
-        } else {
-            title = segment.text
+            navigationItem.rightBarButtonItems?.append(filter)
+        case .list:
+            self.title = segment.text
         }
     }
     
