@@ -124,9 +124,11 @@ public class TaskEditorViewController: DiffableListViewController {
     
     func initialReload() {
         if isCreating && em.isDefaultSyncingToCalendarEnabled {
-            Task {
-                await convertToEvent(showingToastActivity: false)
-                reload(animating: false)
+            if em.isEventStoreAuthorized {
+                Task {
+                    await convertToEvent(showingToastActivity: false)
+                    reload(animating: false)
+                }
             }
         } else if task.kindIdentifier == .event {
             Task {
