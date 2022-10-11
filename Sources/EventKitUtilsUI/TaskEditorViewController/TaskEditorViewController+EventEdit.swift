@@ -26,7 +26,7 @@ extension TaskEditorViewController {
         if showingToastActivity {
             _ = view.endEditing(true)
             
-            try! await Task.sleep(nanoseconds: 50_000_000)
+            try! await Task.sleep(nanoseconds: 5_000_000)
         }
         
         guard await !em.checkIfExceedsNonProLimit() else {
@@ -74,7 +74,7 @@ extension TaskEditorViewController {
         self.task = event
         
         if showingToastActivity {
-            try! await Task.sleep(nanoseconds: 200_000_000)
+            try! await Task.sleep(nanoseconds: 50_000_000)
             view.hideToastActivity()
         }
     }

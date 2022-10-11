@@ -78,7 +78,8 @@ public class TaskEditorViewController: DiffableListViewController {
     var hasNoError: Bool {
         if let event {
             return event.dateErrorMessage == nil &&
-            recurrenceEndErrorPrompt == nil
+            recurrenceEndErrorPrompt == nil &&
+            !task.normalizedTitle.isEmpty
         }
         
         return task.dateErrorMessage == nil
@@ -99,6 +100,7 @@ public class TaskEditorViewController: DiffableListViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
+        reload(animating: false)
         isModalInPresentation = true
         setupNavigationBar()
         initialReload()
@@ -178,7 +180,7 @@ extension TaskEditorViewController: TaskHandling {
     }
     
     func titleTextFieldBecomeFirstResponder() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.becomeFirstResponder(at: [0, 0])
         }
     }
