@@ -53,6 +53,13 @@ extension CacheHandlers {
         case .recordValue:
             #warning("not impleted")
             return nil
+        case .recordList(keyResultID: let krID):
+            predicates.append(
+                [
+                    NSPredicate(format: "keyResultID == %@", krID as CVarArg),
+                    statePredicate(.completed)
+                ].allSatisfied
+            )
         }
         
         let predicate = predicates.allSatisfied

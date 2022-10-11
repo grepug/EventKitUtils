@@ -26,7 +26,8 @@ public enum FetchTasksType: Hashable {
          repeatingInfo(TaskRepeatingInfo),
          taskID(String),
          recordValue(RecordValue),
-         keyResultDetailVC(String)
+         keyResultDetailVC(String),
+         recordList(keyResultID: String)
     
     var shouldMergeTasks: Bool {
         switch self {

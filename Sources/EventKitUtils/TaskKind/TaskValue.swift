@@ -92,6 +92,23 @@ public struct TaskValue: TaskKind, Equatable {
         }
     }
     
+    public var recordValue: RecordValue? {
+        guard let linkedValue, let completedAt else {
+            return nil
+        }
+        
+        let current = Date()
+        
+        return .init(normalizedID: UUID().uuidString,
+                     value: linkedValue,
+                     date: completedAt,
+                     notes: notes,
+                     createdAt: current,
+                     updatedAt: current,
+                     linkedTaskID: normalizedID,
+                     kindIdentifier: .event)
+    }
+    
     func isSameTaskValueForRepeatTasks(as lhs: TaskValue) -> Bool {
         let rhs = self
         
