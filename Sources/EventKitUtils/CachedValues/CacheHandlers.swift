@@ -52,13 +52,14 @@ extension CacheHandlers {
             predicates.append(NSPredicate(format: "eventIDString == %@", taskID as CVarArg))
         case .recordValue:
             return nil
-        case .recordList(keyResultID: let krID):
+        case .completedListByKeyResultID(let krID):
             predicates.append(
                 [
                     NSPredicate(format: "keyResultID == %@", krID as CVarArg),
                     statePredicate(.completed)
                 ].allSatisfied
             )
+            
         }
         
         let predicate = predicates.allSatisfied

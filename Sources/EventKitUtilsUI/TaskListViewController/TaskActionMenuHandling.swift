@@ -58,7 +58,7 @@ public extension TaskActionMenuHandling {
             }
         }
         
-        if !task.state.isEnded {
+        if !task.isRepeating || isRepeatingList {
             MBButton.edit { [weak self] in
                 self?.taskActionMenu(presentTaskEditorWith: task)
             }
