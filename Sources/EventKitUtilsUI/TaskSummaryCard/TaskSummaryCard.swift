@@ -89,26 +89,23 @@ public struct TaskSummaryCard: View {
     
     func taskItem(_ task: TaskValue) -> some View {
         TaskListCell(task: task,
+                     currentStateRepeatingCount: vm.counts[task.repeatingInfo],
                      isSummaryCard: true,
                      checked: vm.checkedTaskIds.contains(task.normalizedID),
                      hidingKRInfo: true) {
             await vm.checkTask(task)
         } onTap: {
-            Task {
-                await vm.presentTaskEditor(task: task)
+            if !task.isRepeating {
+                Task {
+                    await vm.presentTaskEditor(task: task)
+                }
+            } else {
+                vm.presentRepeatTaskListViewController(task: task)
             }
         }
         .padding(.top, 12)
         .background(Color(UIColor { $0.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground }))
         .contextMenu {
-//            if vm.em.testHasRepeatingTasks(with: task.repeatingInfo) {
-//                Button("view_repeat_tasks".loc) {
-//                    vm.presentRepeatTasks(for: task)
-//                }
-//                
-//                Divider()
-//            }
-            
             Button {
                 Task {
                     await vm.presentTaskEditor(task: task)

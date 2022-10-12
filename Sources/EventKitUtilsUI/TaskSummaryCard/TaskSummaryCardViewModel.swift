@@ -16,6 +16,7 @@ public class TaskSummaryCardViewModel: ObservableObject {
     unowned let parentVC: UIViewController
     
     @Published var tasks: [TaskValue] = []
+    @Published var counts: CountsOfCompletedTasksByRepeatingInfo = [:]
     @Published var checkedTaskIds: Set<String> = []
     @Published var showingTodayTasks: Bool = UserDefaults.standard.bool(forKey: "showingTodayTasks") {
         didSet {
@@ -104,16 +105,33 @@ extension TaskSummaryCardViewModel: TaskHandling {
 }
 
 extension TaskSummaryCardViewModel {
+    func presentRepeatTaskListViewController(task: TaskValue) {
+        let taskList = TaskListViewController(eventManager: em,
+                                              mode: .repeatingList(task.repeatingInfo))
+        let nav = taskList.navigationControllerWrapped()
+        
+        nav.modalPresentationStyle = .formSheet
+        
+        parentVC.present(nav, animated: true)
+    }
+}
+
+extension TaskSummaryCardViewModel {
     @MainActor
     func reload() async {
         let segment: FetchTasksSegmentType = showingTodayTasks ? .today : .incompleted
         
-        tasks = await em.fetchTasks(with: .segment(segment, keyResultID: nil))
+        let result = await em.fetchTasks(with: .segment(segment, keyResultID: nil))
+        let tasks = result
             .tasks
             .filter { $0.displayInSegment(segment) }
             .sorted(of: segment)
             .repeatingMerged()
             .prefix(3).map { $0 }
+        
+        
+        self.tasks = tasks
+        self.counts = result.completedTaskCounts
     }
 }
 
