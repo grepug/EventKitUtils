@@ -36,20 +36,20 @@ extension TaskEditorViewController {
     var plannedDateSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
-                DLText("task_editor_all_day".loc)
-            }
-            .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
-            .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
-                task.normalizedIsAllDay = isOn
-                reload()
-            })])
-            
-            DLCell {
                 DLText("时间段".loc)
             }
             .tag("is interval \(task.isDateEnabled) \(task.normalizedIsInterval)")
             .accessories([.toggle(isOn: task.normalizedIsInterval, action: { [unowned self] isOn in
                 task.normalizedIsInterval = isOn
+                reload()
+            })])
+            
+            DLCell {
+                DLText("task_editor_all_day".loc)
+            }
+            .tag("is all day \(task.isDateEnabled) \(task.normalizedIsAllDay)")
+            .accessories([.toggle(isOn: task.normalizedIsAllDay, action: { [unowned self] isOn in
+                task.normalizedIsAllDay = isOn
                 reload()
             })])
             
