@@ -59,7 +59,6 @@ extension CacheHandlers {
                     statePredicate(.completed)
                 ].allSatisfied
             )
-            
         }
         
         let predicate = predicates.allSatisfied
