@@ -249,29 +249,18 @@ extension TaskEditorViewController: TaskHandling {
             return
         }
         
-        guard let savingFutureTasks = await presentSaveRepeatingTaskAlert() else {
-            // user canceled
-            return
+        var savingTasks: [TaskKind] = []
+        let uniquedTasks = ([task] + tasks).uniquedById
+        
+        for task in uniquedTasks {
+            var task = task
+            
+            task.assignAsRepeatingTask(from: self.task)
+            savingTasks.append(task)
         }
         
-        if savingFutureTasks {
-            var savingTasks: [TaskKind] = []
-            let uniquedTasks = ([task] + tasks).uniquedById
-            
-            for task in uniquedTasks {
-                var task = task
-                
-                task.assignAsRepeatingTask(from: self.task)
-                savingTasks.append(task)
-            }
-            
-            guard await saveTasksAndPresentErrorAlert(savingTasks) else {
-                return
-            }
-        } else {
-            guard await saveTaskAndPresentErrorAlert(task) else {
-                return
-            }
+        guard await saveTasksAndPresentErrorAlert(savingTasks) else {
+            return
         }
         
         dismissEditor()
