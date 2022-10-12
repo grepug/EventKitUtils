@@ -24,7 +24,7 @@
 "v3_task_editor_select_linked_kr_title" = "选择关键结果";
 "v3_task_editor_linked_record" = "关联记录值";
 "v3_task_editor_linked_record_ph" = "记录值";
-"v3_task_editor_linked_record_footer" = "开启后完成该任务将自动在该关键结果下添加一条记录";
+"v3_task_editor_linked_record_footer" = "完成该任务后将自动添加一条记录";
 "v3_task_list_reord_value" = "记录值：";
 
 "view_repeat_tasks" = "查看全部重复任务";

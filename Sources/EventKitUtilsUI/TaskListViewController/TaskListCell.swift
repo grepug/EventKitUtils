@@ -103,6 +103,7 @@ public struct TaskListCell: View {
                     Text(task.normalizedTitle)
                         .bold()
                         .foregroundColor(task.state.isEnded ? .gray : Color(UIColor.label))
+                        .strikethrough(task.isAborted)
                         
                     if task.kindIdentifier == .event {
                         Image(systemName: "calendar")
