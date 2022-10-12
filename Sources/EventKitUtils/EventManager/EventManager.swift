@@ -14,10 +14,6 @@ public class EventManager {
     public let configuration: EventConfiguration
     public let uiConfiguration: EventUIConfiguration?
     public var cacheManager: CacheManager
-    
-    public let tasksOfKeyResult: Cache<String, [TaskValue]> = .init()
-    public var recordsOfKeyResult: Dictionary<String, [RecordValue]> = .init()
-    
     public let reloadCaches = PassthroughSubject<Void, Never>()
     public let cachesReloaded = PassthroughSubject<Void, Never>()
     
