@@ -15,7 +15,7 @@ import MenuBuilder
 
 public class TaskListViewController: DiffableListViewController, ObservableObject {
     var groupedTasks: TasksByState = [:]
-    var countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo = [:]
+    var countsOfStateByRepeatingInfo: CountsOfCompletedTasksByRepeatingInfo = [:]
     
     public enum Mode {
         case list(FetchTasksSegmentType),
@@ -179,7 +179,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
             let tasksInfo = await em.fetchTasks(with: mode.fetchingType(in: segment))
             
             let groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
-            let counts = tasksInfo.countsOfStateByRepeatingInfo
+            let counts = tasksInfo.completedTaskCounts
             
             assert(groupedTasks.isEmpty ? tasksInfo.tasks.isEmpty : true)
             

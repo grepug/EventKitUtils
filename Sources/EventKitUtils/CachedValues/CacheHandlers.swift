@@ -25,7 +25,7 @@ extension CacheHandlers {
         let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
         var predicates = [runIDPredicate]
         let sortDescriptors: [NSSortDescriptor] = [.init(key: "startDate", ascending: true)]
-        var counts: CountsOfStateByRepeatingInfo = [:]
+        var counts: CountsOfCompletedTasksByRepeatingInfo = [:]
         
         switch type {
         case .segment(let segment, let krID):
@@ -75,7 +75,7 @@ extension CacheHandlers {
             counts = includingCounts ? await fetchTasksCounts(tasks) : [:]
         }
         
-        return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
+        return .init(tasks: tasks, completedTaskCounts: counts)
     }
 }
 

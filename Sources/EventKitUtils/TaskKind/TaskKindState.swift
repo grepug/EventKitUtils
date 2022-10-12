@@ -36,6 +36,17 @@ public enum TaskKindState: Int, CaseIterable {
         case .completed, .aborted, .unscheduled: return false
         }
     }
+    
+    static func completedPredicate(stateNSExpression: NSExpression) -> NSPredicate {
+        TaskKindState.allCases
+            .filter { $0 == .completed }
+            .map { state in
+                NSComparisonPredicate.created(stateNSExpression,
+                                              NSExpression(format: "\(state.rawValue)"),
+                                              type: .equalTo)
+            }
+            .partialSatisfied
+    }
 }
 
 public extension TaskKindState {

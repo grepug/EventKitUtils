@@ -9,18 +9,18 @@ import Foundation
 import OrderedCollections
 
 public struct FetchedTaskResult {
-    public init(tasks: [TaskValue], countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo) {
+    public init(tasks: [TaskValue], completedTaskCounts: CountsOfCompletedTasksByRepeatingInfo) {
         self.tasks = tasks
-        self.countsOfStateByRepeatingInfo = countsOfStateByRepeatingInfo
+        self.completedTaskCounts = completedTaskCounts
     }
     
     init() {
         self.tasks = []
-        self.countsOfStateByRepeatingInfo = [:]
+        self.completedTaskCounts = [:]
     }
     
     public var tasks: [TaskValue]
-    public let countsOfStateByRepeatingInfo: CountsOfStateByRepeatingInfo
+    public let completedTaskCounts: CountsOfCompletedTasksByRepeatingInfo
     
     /// Use for merge non event tasks with event tasks.
     /// - Parameter fetchedResult: the ``FetchedTaskResult`` to merge with
@@ -29,32 +29,32 @@ public struct FetchedTaskResult {
     func merged(with fetchedResult: FetchedTaskResult, mergingByRepeatingInfoWithState merging: Bool) -> FetchedTaskResult {
         if !merging {
             return .init(tasks: tasks + fetchedResult.tasks,
-                         countsOfStateByRepeatingInfo: [:])
+                         completedTaskCounts: [:])
         }
         
         // Merge counts by adding the counts of the same repeatingInfo.
-        let counts = fetchedResult.countsOfStateByRepeatingInfo.merging(countsOfStateByRepeatingInfo) { $0 + $1 }
+        let counts = fetchedResult.completedTaskCounts.merging(completedTaskCounts) { $0 + $1 }
         let tasks = tasks.merged(with: fetchedResult.tasks)
 
-        return .init(tasks: tasks, countsOfStateByRepeatingInfo: counts)
+        return .init(tasks: tasks, completedTaskCounts: counts)
     }
 }
 
 public extension Array where Element == TaskValue {
-    var repeatingInfoWithStateSet: OrderedSet<TaskRepeatingInfo> {
-        OrderedSet(map(\.repeatingInfoWithState))
+    var repeatingInfoSet: OrderedSet<TaskRepeatingInfo> {
+        OrderedSet(map(\.repeatingInfo))
     }
     
     var taskByRepeatingInfo: [TaskRepeatingInfo: TaskValue] {
         reduce(into: [:]) { partialResult, task in
-            assert(partialResult[task.repeatingInfoWithState] == nil)
-            partialResult[task.repeatingInfoWithState] = task
+//            assert(partialResult[task.repeatingInfo] == nil)
+            partialResult[task.repeatingInfo] = task
         }
     }
     
     func merged(with tasks: [TaskValue]) -> [TaskValue] {
         // Union of both repeatingInfo set
-        let repeatingInfoSet = repeatingInfoWithStateSet.union(tasks.repeatingInfoWithStateSet)
+        let repeatingInfoSet = repeatingInfoSet.union(tasks.repeatingInfoSet)
         
         let taskByRepeatingInfo = taskByRepeatingInfo
         let taskByRepeatingInfo2 = tasks.taskByRepeatingInfo

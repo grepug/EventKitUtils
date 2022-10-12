@@ -95,7 +95,7 @@ extension TaskListViewController {
     }
     
     func currentStateRepeatingCount(_ task: TaskValue) -> Int? {
-        countsOfStateByRepeatingInfo[task.repeatingInfoWithState]
+        countsOfStateByRepeatingInfo[task.repeatingInfo]
     }
     
     func taskHeaderTag(state: TaskKindState?, count: Int) -> String? {

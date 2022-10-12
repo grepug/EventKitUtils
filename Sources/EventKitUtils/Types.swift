@@ -45,7 +45,7 @@ public enum FetchTasksType: Hashable {
     }
 }
 
-public typealias CountsOfStateByRepeatingInfo = [TaskRepeatingInfo: Int]
+public typealias CountsOfCompletedTasksByRepeatingInfo = [TaskRepeatingInfo: Int]
 
 public extension Dictionary where Key == TaskRepeatingInfo, Value == Int {
     func completedCountMerged(of task: TaskValue) -> Int {

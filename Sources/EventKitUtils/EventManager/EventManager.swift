@@ -251,7 +251,7 @@ public extension EventManager {
                 return .init()
             }
             
-            return .init(tasks: [event.value], countsOfStateByRepeatingInfo: [:])
+            return .init(tasks: [event.value], completedTaskCounts: [:])
         }
         
         let includingCounts = type.shouldIncludeCounts

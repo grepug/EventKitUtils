@@ -102,29 +102,26 @@ extension CacheHandlers {
         return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
     }
     
-    func fetchTaskCount(_ task: TaskValue) async -> Int {
-        let predicate1 = NSComparisonPredicate.created(stateNSExpression,
-                                                       NSExpression(format: "\(task.state.rawValue)"),
-                                                       type: .equalTo)
+    private func fetchIncompletedTaskCount(_ task: TaskValue) async -> Int {
+        let predicate1 = TaskKindState.completedPredicate(stateNSExpression: stateNSExpression)
         let predicate2 = task.repeatingInfo.predicate()
-        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1, predicate2])
         
-        return try! await cachedTaskKind.fetchCount(where: predicate)!
+        return try! await cachedTaskKind.fetchCount(where: [predicate1, predicate2].allSatisfied)!
     }
     
-    func fetchTasksCounts(_ tasks: [TaskValue]) async -> CountsOfStateByRepeatingInfo {
+    func fetchTasksCounts(_ tasks: [TaskValue]) async -> CountsOfCompletedTasksByRepeatingInfo {
         await withTaskGroup(of: (TaskValue, Int).self) { group in
             for task in tasks {
                 group.addTask {
-                    (task, await fetchTaskCount(task))
+                    (task, await fetchIncompletedTaskCount(task))
                 }
             }
                 
-            var counts: CountsOfStateByRepeatingInfo = [:]
+            var counts: CountsOfCompletedTasksByRepeatingInfo = [:]
             
             for await (task, count) in group {
-                assert(counts[task.repeatingInfoWithState] == nil)
-                counts[task.repeatingInfoWithState] = count
+//                assert(counts[task.repeatingInfo] == nil)
+                counts[task.repeatingInfo] = count
             }
             
             return counts
