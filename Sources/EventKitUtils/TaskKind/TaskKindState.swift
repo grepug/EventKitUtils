@@ -12,8 +12,8 @@ public enum TaskKindState: Int, CaseIterable {
          today, // 1
          afterToday, // 2
          unscheduled, // 3
-         completed, // 4
-         aborted // 5
+         aborted, // 4
+         completed // 5
     
     public var title: String {
         switch self {

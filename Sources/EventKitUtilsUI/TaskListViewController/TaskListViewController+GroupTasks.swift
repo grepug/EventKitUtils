@@ -45,7 +45,7 @@ extension TaskListViewController {
 }
 
 fileprivate extension TaskValue {
-    var filterState: TaskListFilterState {
+    var repeatingListFilterState: TaskListFilterState {
         switch state {
         case .completed: return .completed
         case .aborted: return .aborted
@@ -60,7 +60,7 @@ fileprivate extension Array where Element == TaskValue {
         
         if isRepeatingList {
             if let filterState {
-                cache[nil] = filter { $0.filterState == filterState }.sorted()
+                cache[nil] = filter { $0.repeatingListFilterState == filterState }.sorted()
             } else {
                 cache[nil] = sorted()
             }

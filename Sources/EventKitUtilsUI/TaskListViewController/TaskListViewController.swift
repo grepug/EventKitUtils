@@ -99,6 +99,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     }
     
     var isLoading = false
+    var hasCollapsedAbortedSection = false
     
     lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: FetchTasksSegmentType.allCases.map(\.text))
@@ -172,16 +173,27 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     }
     
     func handleReloadList() async {
-        await Task {
+        let (groupedTasks, counts) = await Task {
             await em.untilNotPending()
             
             let tasksInfo = await em.fetchTasks(with: mode.fetchingType(in: segment))
             
-            self.groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
-            self.countsOfStateByRepeatingInfo = tasksInfo.countsOfStateByRepeatingInfo
+            let groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
+            let counts = tasksInfo.countsOfStateByRepeatingInfo
             
-            assert(self.groupedTasks.isEmpty ? tasksInfo.tasks.isEmpty : true)
+            assert(groupedTasks.isEmpty ? tasksInfo.tasks.isEmpty : true)
+            
+            return (groupedTasks, counts)
         }.value
+        
+        self.groupedTasks = groupedTasks
+        self.countsOfStateByRepeatingInfo = counts
+        
+        // collapse abortion section on first load
+        if segment == .completed && !hasCollapsedAbortedSection {
+            collapseItem(taskHeaderTag(state: TaskKindState.aborted, count: groupedTasks[.aborted]?.count ?? 0)!)
+            hasCollapsedAbortedSection = true
+        }
         
         reload()
         view.hideToastActivity()
