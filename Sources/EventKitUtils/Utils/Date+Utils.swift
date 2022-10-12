@@ -91,6 +91,13 @@ public extension Date {
         newDate = Calendar.current.date(bySetting: .year, value: year, of: newDate)!
         newDate = Calendar.current.date(bySetting: .month, value: month, of: newDate)!
         newDate = Calendar.current.date(bySetting: .day, value: day, of: newDate)!
+        newDate = Calendar.current.date(bySetting: .hour, value: date.component(.hour), of: newDate)!
+        newDate = Calendar.current.date(bySetting: .minute, value: date.component(.minute), of: newDate)!
+        newDate = Calendar.current.date(bySetting: .second, value: date.component(.second), of: newDate)!
+        
+        assert(newDate.component(.day) == component(.day))
+        assert(newDate.component(.hour) == date.component(.hour))
+        assert(newDate.component(.minute) == date.component(.minute))
         
         return newDate
     }
@@ -107,6 +114,10 @@ public extension Date {
         }
         
         return dateString
+    }
+    
+    func component(_ component: Calendar.Component) -> Int {
+        Calendar.current.component(component, from: self)
     }
 }
 

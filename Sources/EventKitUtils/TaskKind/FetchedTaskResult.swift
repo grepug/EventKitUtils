@@ -42,13 +42,13 @@ public struct FetchedTaskResult {
 
 public extension Array where Element == TaskValue {
     var repeatingInfoSet: OrderedSet<TaskRepeatingInfo> {
-        OrderedSet(map(\.repeatingInfo))
+        OrderedSet(map(\.repeatingInfoWithState))
     }
     
     var taskByRepeatingInfo: [TaskRepeatingInfo: TaskValue] {
         reduce(into: [:]) { partialResult, task in
-//            assert(partialResult[task.repeatingInfo] == nil)
-            partialResult[task.repeatingInfo] = task
+            assert(partialResult[task.repeatingInfo] == nil)
+            partialResult[task.repeatingInfoWithState] = task
         }
     }
     

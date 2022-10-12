@@ -163,6 +163,7 @@ public extension EventManager {
                 event.assignFromTaskKind(task)
                 try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
             } else {
+                print("task", task)
                 assertionFailure("no such task")
             }
         } else {
@@ -302,7 +303,7 @@ public extension EventManager {
     /// - Parameters:
     ///   - tasks: tasks to postpond
     func postponeTasks(_ tasks: [TaskValue]) async {
-        var afterTasks: [TaskValue] = []
+        var afterTasks: [TaskKind] = []
         
         for task in tasks {
             let moreOverduedTasks = await fetchTasks(with: .repeatingInfo(task.repeatingInfo))
@@ -310,9 +311,13 @@ public extension EventManager {
                 .filter { $0.state == .overdued }
             
             for task in moreOverduedTasks {
-                var task = task
-                task.postpone()
-                afterTasks.append(task)
+                if var event = await fetchEvent(withTaskValue: task, firstRecurrence: false) {
+                    event.postpone()
+                    afterTasks.append(event)
+                } else if var nonEventTask = await configuration.fetchNonEventTask(byID: task.normalizedID) {
+                    nonEventTask.postpone()
+                    afterTasks.append(nonEventTask)
+                }
             }
         }
         

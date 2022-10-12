@@ -190,9 +190,9 @@ public extension TaskKind {
         .init(title: normalizedTitle, keyResultID: keyResultId)
     }
     
-//    var repeatingInfoWithState: TaskRepeatingInfo {
-//        .init(title: normalizedTitle, keyResultID: keyResultId, state: state)
-//    }
+    var repeatingInfoWithState: TaskRepeatingInfo {
+        .init(title: normalizedTitle, keyResultID: keyResultId, state: state)
+    }
     
     mutating func assignFromTaskKind(_ task: TaskKind) {
         // Should assign `completedAt` and `abortedAt` before `normalizedTitle`, for the title need its state to prefix emoji.
@@ -263,7 +263,15 @@ public extension TaskKind {
         
         let current = Date()
         let start = current.dateAssigned(from: normalizedStartDate)
-        let end = current.dateAssigned(from: normalizedEndDate)
+        let interval = DateInterval(start: normalizedStartDate, end: normalizedEndDate)
+        let end = Calendar.current.date(byAdding: .second, value: Int(interval.duration), to: start)!
+        
+        // minute should remain the same
+        assert(start.component(.minute) == normalizedStartDate.component(.minute))
+        // minute should remain the same
+        assert(end.component(.minute) == normalizedEndDate.component(.minute))
+        // day should be current day
+        assert(start.component(.day) == current.component(.day))
         
         self.normalizedStartDate = start
         self.normalizedEndDate = end
