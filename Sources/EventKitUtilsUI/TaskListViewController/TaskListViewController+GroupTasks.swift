@@ -36,8 +36,8 @@ extension TaskListViewController {
             
             DispatchQueue.global(qos: .userInitiated).async {
                 let res = tasks.groupTasks(in: segment,
-                                            isRepeatingList: isRepeatingList,
-                                            filterState: filterState)
+                                           isRepeatingList: isRepeatingList,
+                                           filterState: filterState)
                 continuation.resume(returning: res)
             }
         }
