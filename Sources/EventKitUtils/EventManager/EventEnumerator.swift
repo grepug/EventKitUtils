@@ -33,7 +33,7 @@ public struct EventEnumerator {
         let interval: DateInterval
         
         if let dateInterval {
-            interval = dateInterval
+            interval = dateInterval.largerInterval(with: .twoYearsInterval)
         } else {
             interval = await eventConfiguration.eventRequestDateInterval() ?? .twoYearsInterval
         }

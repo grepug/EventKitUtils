@@ -145,6 +145,21 @@ public extension DateInterval {
         "\(start.formatted(in: .medium, timeStyle: .none)) - \(end.formatted(in: .medium, timeStyle: .none))"
     }
     
+    func largerInterval(with interval: DateInterval) -> DateInterval {
+        var start: Date = start
+        var end: Date = end
+        
+        if start > interval.start {
+            start = interval.start
+        }
+        
+        if end < interval.end {
+            end = interval.end
+        }
+        
+        return .init(start: start, end: end)
+    }
+    
     static var twoYearsInterval: DateInterval {
         let current = Date()
         let start = Calendar.current.date(byAdding: .year, value: -1, to: current)!
