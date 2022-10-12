@@ -76,7 +76,7 @@ extension TaskEditorViewController {
                 guard let self else { return }
                 
                 self.presentEventEditor { vc in
-                    vc.view.makeToast("自定义重复规则需要在日历日程编辑页设置", position: .center)
+                    vc.view.makeToast("需要在日程编辑页设置自定义规则", position: .center)
                 }
                 
                 self.reload()
