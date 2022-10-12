@@ -13,22 +13,20 @@ public enum RecordKindIdentifier {
 
 public protocol RecordKind {
     var normalizedID: String { get }
-    var value: Double { get set }
+    var value: Double { get }
     var date: Date? { get set }
-    var createdAt: Date? { get set }
-    var updatedAt: Date? { get set }
-    var notes: String? { get set }
+    var createdAt: Date? { get }
+    var updatedAt: Date? { get }
+    var notes: String? { get }
     var linkedTaskID: String? { get }
     var isValueType: Bool { get }
     var kindIdentifier: RecordKindIdentifier { get }
-    
     var recordValue: RecordValue { get }
 }
 
 public extension RecordKind {
     var valueString: String {
         get { value.toString(toFixed: 2) }
-        set { value = Double(newValue) ?? 0 }
     }
     
     var dateString: String {
@@ -37,7 +35,7 @@ public extension RecordKind {
 }
 
 public struct RecordValue: RecordKind, Hashable {
-    public init(normalizedID: String, value: Double, date: Date? = nil, notes: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, linkedTaskID: String? = nil, kindIdentifier: RecordKindIdentifier) {
+    public init(normalizedID: String, value: Double, date: Date? = nil, notes: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, linkedTaskID: String? = nil, kindIdentifier: RecordKindIdentifier, taskValue: TaskValue? = nil) {
         self.normalizedID = normalizedID
         self.value = value
         self.date = date
@@ -46,6 +44,24 @@ public struct RecordValue: RecordKind, Hashable {
         self.updatedAt = updatedAt
         self.linkedTaskID = linkedTaskID
         self.kindIdentifier = kindIdentifier
+        self.taskValue = taskValue
+    }
+    
+    public init?(withTaskValue task: TaskValue) {
+        guard let linkedValue = task.linkedValue,
+              let completedAt = task.completedAt else {
+            return nil
+        }
+        
+        normalizedID = UUID().uuidString
+        value = linkedValue
+        date = completedAt
+        notes = task.notes
+        createdAt = Date()
+        updatedAt = createdAt
+        linkedTaskID = task.normalizedID
+        kindIdentifier = .event
+        taskValue = task
     }
 
     public var normalizedID: String
@@ -57,6 +73,7 @@ public struct RecordValue: RecordKind, Hashable {
     public var recordValue: RecordValue { self }
     public var linkedTaskID: String?
     public var kindIdentifier: RecordKindIdentifier
+    public var taskValue: TaskValue?
     
     public var isValueType: Bool { true }
 }

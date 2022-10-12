@@ -8,7 +8,7 @@
 import Foundation
 import Collections
 
-public struct TaskValue: TaskKind, Equatable {
+public struct TaskValue: TaskKind, Hashable {
     public static var newCreated: TaskValue {
         let date = Date().nearestTime(in: .half)
         
@@ -90,23 +90,6 @@ public struct TaskValue: TaskKind, Equatable {
         set {
             completedAt = newValue ? Date() : nil
         }
-    }
-    
-    public var recordValue: RecordValue? {
-        guard let linkedValue, let completedAt else {
-            return nil
-        }
-        
-        let current = Date()
-        
-        return .init(normalizedID: UUID().uuidString,
-                     value: linkedValue,
-                     date: completedAt,
-                     notes: notes,
-                     createdAt: current,
-                     updatedAt: current,
-                     linkedTaskID: normalizedID,
-                     kindIdentifier: .event)
     }
     
     func isSameTaskValueForRepeatTasks(as lhs: TaskValue) -> Bool {
