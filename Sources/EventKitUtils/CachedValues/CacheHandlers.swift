@@ -17,7 +17,7 @@ public protocol CacheHandlers {
 }
 
 extension CacheHandlers {
-    func fetchTaskValues(by type: EventKitUtils.FetchTasksType, includingCounts: Bool = false) async -> FetchedTaskResult? {
+    public func fetchTaskValues(by type: EventKitUtils.FetchTasksType, includingCounts: Bool = false) async -> FetchedTaskResult? {
         guard let runID = await currentRunID else {
             return nil
         }

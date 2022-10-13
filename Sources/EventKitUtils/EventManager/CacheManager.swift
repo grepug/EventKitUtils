@@ -18,7 +18,7 @@ public actor CacheManager {
     
     var eventStore: EKEventStore
     var eventConfiguration: EventConfiguration
-    var handlers: CacheHandlers
+    public var handlers: CacheHandlers
     var currentRunID: String?
     var uniquedIDs: Set<String> = []
     public var isPending: Bool = false
