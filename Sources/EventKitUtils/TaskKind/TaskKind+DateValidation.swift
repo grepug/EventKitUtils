@@ -29,6 +29,10 @@ public extension TaskKind {
             return .datesAbsence
         }
         
+        guard startDate <= endDate else {
+            return .endDateEarlierThanStartDate
+        }
+        
         let interval = DateInterval(start: startDate, end: endDate)
         
         for error in TaskDateValidationError.allCases {
