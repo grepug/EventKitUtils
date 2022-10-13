@@ -61,9 +61,9 @@ extension EventManager {
         var actionValue: UIViewController.ActionValue {
             switch self {
             case .canceled: return .cancel
-            case .deletingThis: return .init(title: "alert_action_delete_this_task".loc, style: .destructive)
-            case .deletingAll: return .init(title: "alert_action_delete_all_tasks".loc, style: .destructive)
-            case .deletingIncompleted: return .init(title: "alert_action_delete_all_incompleted_tasks".loc, style: .destructive)
+            case .deletingThis: return .init(id: "1", title: "alert_action_delete_this_task".loc, style: .destructive)
+            case .deletingAll: return .init(id: "2", title: "alert_action_delete_all_tasks".loc, style: .destructive)
+            case .deletingIncompleted: return .init(id: "3", title: "alert_action_delete_all_incompleted_tasks".loc, style: .destructive)
             }
         }
         
