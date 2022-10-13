@@ -85,16 +85,20 @@ extension TaskEditorViewController {
         .tag("2 \(self.task.dateInterval?.formattedDurationString ?? "") \(self.task.isDateEnabled)")
         .listConfig { [unowned self] config in
             var config = config
-            config.footerMode = self.task.normalizedIsInterval ? .supplementary : .none
+            config.footerMode = showingDateSectionPromptFooter ? .supplementary : .none
             return config
         }
         .footer(using: .swiftUI(movingTo: { [unowned self] in self }, content: { [unowned self] in
-            if let errorMessage = taskDateValidated()?.errorMessage {
+            if let errorMessage = taskDateError?.errorMessage {
                 PromptFooter(text: errorMessage, isError: true)
             } else if let text = task.dateInterval?.formattedDurationString {
                 PromptFooter(text: text)
             }
         }))
+    }
+    
+    var showingDateSectionPromptFooter: Bool {
+        task.normalizedIsInterval || !hasNoError
     }
 }
 

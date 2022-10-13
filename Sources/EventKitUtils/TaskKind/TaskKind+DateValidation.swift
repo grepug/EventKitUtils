@@ -12,8 +12,12 @@ public enum TaskDateValidationError: CaseIterable {
     case datesAbsence // 未设置时间
     case endDateEarlierThanStartDate // 结束时间早于开始时间
     case startDateEarlierThanGoalStartDate // 开始时间早于目标开始时间
-    case startDateExceedsTwoYearInterval // 未关联关键结果，开始时间距离当前超过1年
+    case dateIntervalIsNotContainedByTwoYearInterval // 未关联关键结果，任务时间范围不在两年时间范围内
+    case endDateIsNotContainedByTwoYearInterval // 未关联关键结果，结束时间（非时间段）不在两年时间范围内
     case endDateLaterThanGoalEndDate // 结束时间晚于目标结束时间
+}
+
+public enum TaskRecurrenceEndDateValidationError: CaseIterable {
     case recurrenceEndDateEarlierThanStartDate // 结束重复日期早于开始时间
     case recurrenceEndDateLaterThanGoalEndDate // 结束重复日期晚于目标结束时间
     case recurrenceEndDateExceedsTwoYearInterval // 未关联关键结果，结束重复日期距离当前超过1年
@@ -24,6 +28,8 @@ public extension TaskKind {
         guard let startDate = normalizedStartDate, let endDate = normalizedEndDate else {
             return .datesAbsence
         }
+        
+        let interval = DateInterval(start: startDate, end: endDate)
         
         for error in TaskDateValidationError.allCases {
             switch error {
@@ -37,9 +43,15 @@ public extension TaskKind {
                         return error
                     }
                 }
-            case .startDateExceedsTwoYearInterval:
+            case .dateIntervalIsNotContainedByTwoYearInterval:
                 if krInfo == nil {
-                    if startDate < DateInterval.twoYearsInterval.start {
+                    if normalizedIsInterval && !DateInterval.twoYearsInterval.contains(interval) {
+                        return error
+                    }
+                }
+            case .endDateIsNotContainedByTwoYearInterval:
+                if krInfo == nil {
+                    if !normalizedIsInterval && !DateInterval.twoYearsInterval.contains(interval) {
                         return error
                     }
                 }
@@ -49,16 +61,33 @@ public extension TaskKind {
                         return error
                     }
                 }
+            default:
+                break
+            }
+        }
+        
+        return nil
+    }
+    
+    func validateRecurrenceEndDate(withKeyResultInfo krInfo: KeyResultInfo?) -> TaskRecurrenceEndDateValidationError? {
+        guard let event = self as? EKEvent else {
+            return nil
+        }
+        
+        guard let startDate = normalizedStartDate, let endDate = normalizedEndDate else {
+            fatalError()
+        }
+        
+        for error in TaskRecurrenceEndDateValidationError.allCases {
+            switch error {
             case .recurrenceEndDateEarlierThanStartDate:
-                if let event = self as? EKEvent,
-                    let recurrenceEndDate = event.recurrenceEndDate {
+                if let recurrenceEndDate = event.recurrenceEndDate {
                     if recurrenceEndDate < startDate {
                         return error
                     }
                 }
             case .recurrenceEndDateLaterThanGoalEndDate:
-                if let event = self as? EKEvent,
-                   let recurrenceEndDate = event.recurrenceEndDate {
+                if let recurrenceEndDate = event.recurrenceEndDate {
                     if let goalEndDate = krInfo?.goalDateInterval.end {
                         if recurrenceEndDate > goalEndDate {
                             return error
@@ -67,15 +96,12 @@ public extension TaskKind {
                 }
             case .recurrenceEndDateExceedsTwoYearInterval:
                 if krInfo == nil {
-                    if let event = self as? EKEvent,
-                       let recurrenceEndDate = event.recurrenceEndDate {
+                    if let recurrenceEndDate = event.recurrenceEndDate {
                         if recurrenceEndDate > DateInterval.twoYearsInterval.end {
                             return error
                         }
                     }
                 }
-            default:
-                break
             }
         }
         

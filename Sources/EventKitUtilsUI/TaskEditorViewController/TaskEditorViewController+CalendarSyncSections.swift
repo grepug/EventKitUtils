@@ -97,7 +97,7 @@ extension TaskEditorViewController {
     
     @ListBuilder
     private func calendarSyncSettingsSection(event: EKEvent) -> [DLSection] {
-        let errorMessage = recurrenceEndErrorPrompt
+        let errorMessage = taskRecurrenceEndDateError?.errorMessage
         
         DLSection { [unowned self] in
             editingHeader
@@ -189,38 +189,5 @@ extension TaskRecurrenceRule {
         case .yearly: return "每年"
         case .custom: return "自定义"
         }
-    }
-}
-
-extension TaskEditorViewController {
-    var recurrenceEndErrorPrompt: String? {
-        guard let recurrenceEndDate = event?.recurrenceEndDate else {
-            return nil
-        }
-        
-        let start = recurrenceEndDatePickerInterval.start
-        let end = recurrenceEndDatePickerInterval.end
-        
-        if recurrenceEndDate > end {
-            if keyResultInfo == nil {
-                return "结束重复日期不能晚于1年"
-            }
-            
-            return "结束重复日期不能大于所关联目标的结束日期"
-        }
-        
-        if recurrenceEndDate < start  {
-            if keyResultInfo == nil {
-                return "结束重复日期不能早于1年"
-            }
-            
-            return "结束重复日期不能早于任务结束日期"
-        }
-        
-        if recurrenceEndDate.days(to: Date(), includingLastDay: true) > 365 {
-            return "结束重复日期不能超过365天"
-        }
-        
-        return nil
     }
 }

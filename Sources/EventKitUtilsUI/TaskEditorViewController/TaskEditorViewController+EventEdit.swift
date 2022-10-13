@@ -34,7 +34,7 @@ extension TaskEditorViewController {
             return
         }
         
-        if let errorMessage = taskDateValidated()?.errorMessage {
+        if let errorMessage = taskDateError?.errorMessage {
             presentErrorAlert(title: errorMessage)
             return
         }

@@ -171,6 +171,10 @@ public extension DateInterval {
         return .init(start: start, end: end)
     }
     
+    func contains(_ interval: DateInterval) -> Bool {
+        contains(interval.start) && contains(interval.end)
+    }
+    
     static var twoYearsInterval: DateInterval {
         let current = Date()
         let start = Calendar.current.date(byAdding: .year, value: -1, to: current)!

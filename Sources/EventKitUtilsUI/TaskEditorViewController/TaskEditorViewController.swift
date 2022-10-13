@@ -75,8 +75,17 @@ public class TaskEditorViewController: DiffableListViewController {
         return task.value != originalTaskValue
     }
     
+    var taskDateError: TaskDateValidationError? {
+        task.validateDates(withKeyResultInfo: keyResultInfo)
+    }
+    
+    var taskRecurrenceEndDateError: TaskRecurrenceEndDateValidationError? {
+        task.validateRecurrenceEndDate(withKeyResultInfo: keyResultInfo)
+    }
+    
     var hasNoError: Bool {
-        taskDateValidated() == nil
+        taskDateError == nil &&
+        taskRecurrenceEndDateError == nil
     }
     
     public override var list: DLList {
@@ -189,12 +198,12 @@ extension TaskEditorViewController: TaskHandling {
     }
     
     func doneEditor() async {
-        if let errorMessage = taskDateValidated()?.errorMessage {
+        if let errorMessage = taskDateError?.errorMessage {
             presentErrorAlert(title: errorMessage)
             return
         }
         
-        if let errorMessage = recurrenceEndErrorPrompt {
+        if let errorMessage = taskRecurrenceEndDateError?.errorMessage {
             presentErrorAlert(title: errorMessage)
             return
         }
@@ -339,10 +348,6 @@ extension TaskEditorViewController: TaskHandling {
         onDismiss?(shouldOpenTaskList)
         presentingViewController?.dismiss(animated: true)
     }
-    
-    func taskDateValidated() -> TaskDateValidationError? {
-        task.validateDates(withKeyResultInfo: keyResultInfo)
-    }
 }
 
 private extension TaskEditorViewController {
@@ -427,10 +432,19 @@ extension TaskDateValidationError {
             return "task_editor_date_range_error_end_cannot_earlier_than_start".loc
         case .startDateEarlierThanGoalStartDate:
             return "任务的开始时间不能早于关联的关键结果的目标的开始日期"
-        case .startDateExceedsTwoYearInterval:
-            return "任务的开始日期距离当前不能超过一年"
+        case .dateIntervalIsNotContainedByTwoYearInterval:
+            return "任务的开始和结束日期距离当前不能超过一年"
+        case .endDateIsNotContainedByTwoYearInterval:
+            return "任务时间距离当前不能超过一年"
         case .endDateLaterThanGoalEndDate:
             return "任务的结束日期不能晚于关联的关键结果的目标的结束日期"
+        }
+    }
+}
+
+extension TaskRecurrenceEndDateValidationError {
+    var errorMessage: String {
+        switch self {
         case .recurrenceEndDateEarlierThanStartDate:
             return "结束重复日期不能早于任务的开始时间"
         case .recurrenceEndDateLaterThanGoalEndDate:
