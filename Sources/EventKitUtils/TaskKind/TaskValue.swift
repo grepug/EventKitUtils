@@ -155,7 +155,7 @@ public extension Array where Element == TaskValue {
 }
 
 extension Array where Element == TaskValue {
-    enum SortType {
+    public enum SortType {
         case endDateAsc, creationDateAsc, completionDesc, abortionDesc
         
         func sorted(_ a: TaskValue, _ b: TaskValue) -> Bool? {
@@ -183,6 +183,10 @@ extension Array where Element == TaskValue {
             }
             
             return nil
+        }
+        
+        public static var defaultSortTypes: [Self] {
+            [.endDateAsc, .creationDateAsc]
         }
         
         static func sortTypes(in state: TaskKindState?, of segment: FetchTasksSegmentType) -> [Self] {
@@ -216,10 +220,8 @@ extension Array where Element == TaskValue {
         }
     }
     
-    public func sorted(in state: TaskKindState? = .today, of segment: FetchTasksSegmentType = .today) -> [TaskValue] {
-        let sortTypes = SortType.sortTypes(in: state, of: segment)
-        
-        return sorted { a, b in
+    public func sorted(by sortTypes: [SortType] = SortType.defaultSortTypes) -> [TaskValue] {
+        sorted { a, b in
             for type in sortTypes {
                 if let res = type.sorted(a, b) {
                     return res
@@ -232,6 +234,10 @@ extension Array where Element == TaskValue {
             
             return a.normalizedID < b.normalizedID
         }
+    }
+    
+    public func sorted(in state: TaskKindState? = .today, of segment: FetchTasksSegmentType = .today) -> [TaskValue] {
+        sorted(by: SortType.sortTypes(in: state, of: segment))
     }
 }
 
