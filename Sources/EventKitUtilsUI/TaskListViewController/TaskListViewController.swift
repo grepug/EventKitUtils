@@ -176,7 +176,7 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         let (groupedTasks, counts) = await Task {
             await em.untilNotPending()
             
-            let tasksInfo = await em.fetchTasks(with: mode.fetchingType(in: segment))
+            let tasksInfo = await em.fetchTasks(with: mode.fetchingType(in: segment), fetchingKRInfo: true)
             
             let groupedTasks = await groupTasks(tasksInfo.tasks, in: segment, isRepeatingList: isRepeatingList)
             let counts = tasksInfo.completedTaskCounts

@@ -251,7 +251,7 @@ public extension EventManager {
     ///   - type: the ``FetchTasksType`` to fetch
     ///   - fetchingKRInfo: if fetches ``KeyResultInfo``
     /// - Returns: a ``FetchedTaskResult``
-    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = true) async -> FetchedTaskResult {
+    func fetchTasks(with type: FetchTasksType, fetchingKRInfo: Bool = false) async -> FetchedTaskResult {
         if case .recordValue(let recordValue) = type {
             guard let event = eventStore.event(withIdentifier: recordValue.normalizedID) else {
                 return .init()
@@ -279,6 +279,14 @@ public extension EventManager {
         return fetchedTaskResult
     }
     
+    func checkIfKeyResultHasLinkedTasks(keyResultID: String) async -> Bool {
+        if await cacheManager.handlers.fetchTasksCount(withKeyResultID: keyResultID) > 0 {
+            return true
+        }
+        
+        return await configuration.fetchNonEventTaskCount(withKeyResultID: keyResultID) > 0
+    }
+    
     /// Check the total number of EKEvents exceeds the limit for non Pro users
     /// - Returns: the boolean that indicates if events
     func checkIfExceedsNonProLimit() async -> Bool {
@@ -290,7 +298,7 @@ public extension EventManager {
     }
     
     func testIsRepeating(_ taskValue: TaskValue) async -> Bool {
-        if let count = await configuration.fetchNonEventTaskCount(with: taskValue.repeatingInfo),
+        if let count = await configuration.fetchNonEventTaskCount(withRepeatingInfo: taskValue.repeatingInfo),
            count > 0 {
             return true
         }

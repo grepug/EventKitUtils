@@ -121,7 +121,7 @@ extension TaskSummaryCardViewModel {
     func reload() async {
         let segment: FetchTasksSegmentType = showingTodayTasks ? .today : .incompleted
         
-        let result = await em.fetchTasks(with: .segment(segment, keyResultID: nil))
+        let result = await em.fetchTasks(with: .segment(segment, keyResultID: nil), fetchingKRInfo: true)
         let tasks = result
             .tasks
             .filter { $0.displayInSegment(segment) }

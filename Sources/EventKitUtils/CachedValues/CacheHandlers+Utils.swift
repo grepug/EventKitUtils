@@ -127,6 +127,10 @@ extension CacheHandlers {
             return counts
         }
     }
+    
+    func fetchTasksCount(withKeyResultID keyResultID: String) async -> Int {
+        try! await cachedTaskKind.fetchCount(where: .keyResultID(keyResultID)) ?? 0
+    }
 }
 
 extension NSComparisonPredicate {

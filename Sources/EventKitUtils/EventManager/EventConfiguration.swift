@@ -33,7 +33,12 @@ public protocol EventConfiguration {
     /// Get the task count for local tasks with the ``TaskRepeatingInfo``.
     /// - Parameter repeatingInfo: see in ``TaskRepeatingInfo``
     /// - Returns: an optional integer of the count
-    func fetchNonEventTaskCount(with repeatingInfo: TaskRepeatingInfo) async -> Int?
+    func fetchNonEventTaskCount(withRepeatingInfo repeatingInfo: TaskRepeatingInfo) async -> Int?
+    
+    /// Get the count of local tasks with KeyResultID
+    /// - Parameter keyResultID: the ID string of key result
+    /// - Returns: the count
+    func fetchNonEventTaskCount(withKeyResultID keyResultID: String) async -> Int
     
     /// Fetch non event tasks by ``FetchTasksType``.
     /// - Parameter type: see ``FetchTasksType``

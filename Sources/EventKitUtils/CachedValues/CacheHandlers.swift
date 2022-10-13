@@ -127,7 +127,7 @@ extension CacheHandlers {
     }
 }
 
-fileprivate extension NSPredicate {
+extension NSPredicate {
     static func keyResultID(_ id: String) -> NSPredicate {
         NSPredicate(format: "keyResultID == %@", id as CVarArg)
     }
