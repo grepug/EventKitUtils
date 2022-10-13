@@ -123,6 +123,11 @@ public class TaskEditorViewController: DiffableListViewController {
     }
     
     func initialReload() {
+        Task {
+            await fetchKeyResultInfo()
+            reload()
+        }
+        
         if isCreating && em.isDefaultSyncingToCalendarEnabled {
             if em.isEventStoreAuthorized {
                 Task {
@@ -160,11 +165,6 @@ public class TaskEditorViewController: DiffableListViewController {
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating, options: options)
         setupNavigationBar()
-        
-        Task {
-            await fetchKeyResultInfo()
-            super.reload(applyingSnapshot: applyingSnapshot, animating: animating)
-        }
     }
     
     func fetchKeyResultInfo() async {

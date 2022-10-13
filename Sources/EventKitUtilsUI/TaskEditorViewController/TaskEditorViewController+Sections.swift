@@ -102,8 +102,7 @@ extension TaskEditorViewController {
     @ListBuilder
     var keyResultLinkingSection: [DLSection] {
         DLSection { [unowned self] in
-            if let krId = task.keyResultId,
-               let krInfo = keyResultInfo {
+            if let krInfo = keyResultInfo {
                 DLCell {
                     DLImage(krInfo.emojiImage)
                     DLText(krInfo.title)
@@ -111,7 +110,7 @@ extension TaskEditorViewController {
                         .secondary()
                         .color(.secondaryLabel)
                 }
-                .tag(krId)
+                .tag(krInfo)
                 .accessories([.imageButton(image: .init(systemName: "xmark.circle.fill")!.colored(.secondaryLabel),
                                            action: { [weak self] in
                     guard let self = self else { return }
@@ -171,8 +170,11 @@ extension TaskEditorViewController {
         guard let vc = em.uiConfiguration?.makeKeyResultSelectorViewController(completion: { [weak self] krID in
             guard let self = self else { return }
             
-            self.task.keyResultId = krID
-            self.reload()
+            Task {
+                self.task.keyResultId = krID
+                await self.fetchKeyResultInfo()
+                self.reload()
+            }
         }) else {
             return
         }
