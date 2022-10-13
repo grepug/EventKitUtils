@@ -365,7 +365,7 @@ public extension TaskKind {
             
             return [.today, .overdued].contains(state)
         case .incompleted:
-            return [.today, .afterToday, .unscheduled].contains(state)
+            return !isCompleted
         case .completed:
             return isCompleted || state == .aborted
         }
