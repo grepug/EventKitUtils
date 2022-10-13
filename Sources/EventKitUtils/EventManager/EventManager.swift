@@ -89,6 +89,11 @@ public extension EventManager {
         set { configuration.userDefaults.set(newValue, forKey: "isDefaultSyncingToCalendarEnabled") }
     }
     
+    var isNotFirstOpenEventSettings: Bool {
+        get { configuration.userDefaults.bool(forKey: "isNotFirstOpenEventSettings") }
+        set { configuration.userDefaults.set(newValue, forKey: "isNotFirstOpenEventSettings") }
+    }
+    
     var defaultCalendarToSaveEvents: EKCalendar? {
         if let id = selectedCalendarIdentifier,
            let calendar = eventStore.calendar(withIdentifier: id)  {

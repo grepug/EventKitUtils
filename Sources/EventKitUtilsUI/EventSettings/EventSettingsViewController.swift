@@ -143,22 +143,12 @@ public class EventSettingsViewController: DiffableListViewController {
         setTopPadding()
         setCalendars(store: store)
         reload(animating: false)
-        presentOnboardingView()
+        setupNavBar()
         
-        if presentingViewController != nil {
-            navigationItem.rightBarButtonItem = makeDoneButton { [unowned self] in
-                presentingViewController?.dismiss(animated: true)
-            }
+        if !em.isNotFirstOpenEventSettings {
+            presentOnboardingView()
+            em.isNotFirstOpenEventSettings = true
         }
-    }
-    
-    func presentOnboardingView() {
-        let view = EventOnboardingView(isCollapsed: splitViewController?.isCollapsed == true) { [weak self] isOn in
-            self?.dismiss(animated: true)
-        }
-        let vc = UIHostingController(rootView: view)
-        vc.modalPresentationStyle = .formSheet
-        present(vc, animated: true)
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
@@ -166,6 +156,18 @@ public class EventSettingsViewController: DiffableListViewController {
         isGranted = status == .authorized
         
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating, options: options)
+    }
+    
+    func setupNavBar() {
+        navigationItem.rightBarButtonItems = []
+        
+        if presentingViewController != nil {
+            navigationItem.rightBarButtonItems?.append(makeDoneButton { [unowned self] in
+                presentingViewController?.dismiss(animated: true)
+            })
+        }
+        
+        navigationItem.rightBarButtonItems?.append(makeOnbardingNavBarButton())
     }
     
     func isCalendarSelected(_ calendar: EKCalendar) -> Bool {

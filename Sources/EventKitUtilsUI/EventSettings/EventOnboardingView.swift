@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EventOnboardingView.swift
 //  
 //
 //  Created by Kai Shao on 2022/10/13.
@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct EventOnboardingView: View {
+    var isEnabled: Bool
     var isCollapsed: Bool
     var action: (Bool) -> Void
     
@@ -65,7 +66,7 @@ struct EventOnboardingView: View {
                  title: "读取日历日程".loc,
                  secondaryText: "Vision 会直接读取日历中通过 Vision 创建的日程，若需要任务在不同设备间同步，请开启日历 app 的 iCloud 同步".loc)
         }
-        .frame(maxWidth: isCollapsed ? 310 : 400)
+        .frame(maxWidth: isCollapsed ? 320 : 400)
     }
     
     func item(imageName: String,
@@ -87,6 +88,7 @@ struct EventOnboardingView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondaryLabel)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -96,7 +98,7 @@ extension EventOnboardingView {
         Button {
             action(true)
         } label: {
-            Text("开启日历同步")
+            Text(isEnabled ? "日历同步已开启，开始使用" : "开启日历同步")
                 .font(.body.weight(.bold))
                 .foregroundColor(.white)
                 .frame(width: 300, height: 44)
