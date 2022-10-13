@@ -10,3 +10,14 @@
 
 "v3_task_editor_title_ph" = "标题";
 "v3_task_editor_remark" = "备忘";
+
+"alarm_type_timeOfEvent" = "当时";
+"alarm_type_fiveMinBefore" = "5分钟前";
+"alarm_type_tenMinBefore" = "10分钟前";
+"alarm_type_fifteenMinBefore" = "15分钟前";
+"alarm_type_thirtyMinBefore" = "30分钟前";
+"alarm_type_oneHourBefore" = "1小时前";
+"alarm_type_twoHoursBefore" = "2小时前";
+"alarm_type_oneDayBefore" = "1天前";
+"alarm_type_twoDaysBefore" = "2天前";
+"alarm_type_oneWeekBefore" = "1周前";

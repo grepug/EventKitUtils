@@ -30,14 +30,16 @@ public struct TaskAlarmType: Equatable {
 }
 
 public extension TaskAlarmType {
-    static let timeOfEvent: Self = .init(title: "当时", offset: 0)
-    static let fiveMinBefore: Self = .init(title: "5分钟前", offset: -5 * 60)
-    static let tenMinBefore: Self = .init(title: "10分钟前", offset: -10 * 60)
-    static let fifteenMinBefore: Self = .init(title: "15分钟前", offset: -15 * 60)
-    static let thirtyMinBefore: Self = .init(title: "30分钟前", offset: -30 * 60)
-    static let oneDayBefore: Self = .init(title: "1天前", offset: -24 * 60 * 60)
-    static let twoDaysBefore: Self = .init(title: "2天前", offset: -2 * 24 * 60 * 60)
-    static let oneWeekBefore: Self = .init(title: "1周前", offset: -7 * 24 * 60 * 60)
+    static let timeOfEvent: Self = .init(title: "alarm_type_timeOfEvent".loc, offset: 0)
+    static let fiveMinBefore: Self = .init(title: "alarm_type_fiveMinBefore".loc, offset: -5 * 60)
+    static let tenMinBefore: Self = .init(title: "alarm_type_tenMinBefore".loc, offset: -10 * 60)
+    static let fifteenMinBefore: Self = .init(title: "alarm_type_fifteenMinBefore".loc, offset: -15 * 60)
+    static let thirtyMinBefore: Self = .init(title: "alarm_type_thirtyMinBefore".loc, offset: -30 * 60)
+    static let oneHourBefore: Self = .init(title: "alarm_type_oneHourBefore".loc, offset: -60 * 60)
+    static let twoHoursBefore: Self = .init(title: "alarm_type_twoHoursBefore".loc, offset: -2 * 60 * 60)
+    static let oneDayBefore: Self = .init(title: "alarm_type_oneDayBefore".loc, offset: -24 * 60 * 60)
+    static let twoDaysBefore: Self = .init(title: "alarm_type_twoDaysBefore".loc, offset: -2 * 24 * 60 * 60)
+    static let oneWeekBefore: Self = .init(title: "alarm_type_oneWeekBefore".loc, offset: -7 * 24 * 60 * 60)
     
     static var allCases: [TaskAlarmType] {
         [
@@ -46,7 +48,10 @@ public extension TaskAlarmType {
             .tenMinBefore,
             .fifteenMinBefore,
             .thirtyMinBefore,
+            .oneHourBefore,
+            .twoHoursBefore,
             .oneDayBefore,
+            .twoDaysBefore,
             .oneWeekBefore
         ]
     }
