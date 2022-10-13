@@ -149,6 +149,10 @@ public extension DateInterval {
         let endString = end.formattedRelatively(includingTime: includingTime,
                                                 includingDate: !isSameDate)
         
+        if endString.isEmpty {
+            return startString
+        }
+        
         return "\(startString) - \(endString)"
     }
     
