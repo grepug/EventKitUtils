@@ -89,7 +89,7 @@ extension TaskEditorViewController {
             return config
         }
         .footer(using: .swiftUI(movingTo: { [unowned self] in self }, content: { [unowned self] in
-            if let errorMessage = task.dateErrorMessage {
+            if let errorMessage = taskDateValidated()?.errorMessage {
                 PromptFooter(text: errorMessage, isError: true)
             } else if let text = task.dateInterval?.formattedDurationString {
                 PromptFooter(text: text)
