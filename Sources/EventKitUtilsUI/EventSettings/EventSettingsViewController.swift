@@ -143,12 +143,22 @@ public class EventSettingsViewController: DiffableListViewController {
         setTopPadding()
         setCalendars(store: store)
         reload(animating: false)
+        presentOnboardingView()
         
         if presentingViewController != nil {
             navigationItem.rightBarButtonItem = makeDoneButton { [unowned self] in
                 presentingViewController?.dismiss(animated: true)
             }
         }
+    }
+    
+    func presentOnboardingView() {
+        let view = EventOnboardingView(isCollapsed: splitViewController?.isCollapsed == true) { [weak self] isOn in
+            self?.dismiss(animated: true)
+        }
+        let vc = UIHostingController(rootView: view)
+        vc.modalPresentationStyle = .formSheet
+        present(vc, animated: true)
     }
     
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
