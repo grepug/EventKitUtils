@@ -125,8 +125,14 @@ public class EventSettingsViewController: DiffableListViewController {
                     }))
                     .tag("deletion")
                     .onTapAndDeselect { [weak self] _ in
+                        guard let self = self else { return }
+                        
                         Task {
-                            await self?.handleDeleteAllEventTask()
+                            let action = await self.presentAlertController(title: "确认删除所有日历任务吗？", message: "该操作不可逆", actions: [.ok, .cancel])
+                                
+                            if action == .cancel {
+                                await self.handleDeleteAllEventTask()
+                            }
                         }
                     }
                 }
