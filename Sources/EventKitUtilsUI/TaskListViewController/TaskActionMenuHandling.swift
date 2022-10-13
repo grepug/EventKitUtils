@@ -58,10 +58,8 @@ public extension TaskActionMenuHandling {
             }
         }
         
-        if !task.isRepeating || isRepeatingList {
-            MBButton.edit { [weak self] in
-                self?.taskActionMenu(presentTaskEditorWith: task)
-            }
+        MBButton.edit { [weak self] in
+            self?.taskActionMenu(presentTaskEditorWith: task)
         }
         
         // abortion button, shows when it is not completed
