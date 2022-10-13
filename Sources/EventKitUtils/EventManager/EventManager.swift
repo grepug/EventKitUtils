@@ -134,14 +134,18 @@ public extension EventManager {
         try! await saveTask(task)
     }
     
-    func abortTasks(_ tasks: [TaskKind]) async throws {
-        let tasks = tasks.uniquedById
+    func toggleTasksAbortion(_ tasks: [TaskKind]) async throws {
+        assert(!tasks.isEmpty)
         
-        for task in tasks {
+        let uniquedTasks = tasks.uniquedById
+        
+        for task in uniquedTasks {
             var task = task
             task.toggleAbortion()
             
-            try await saveTask(task, savingRecurrences: true, commit: false)
+            // task abortion may start from not the first recrrence of the task
+            // therefore cannot use firstRecurrence to find the first recurrence to save
+            try await saveTask(task, savingRecurrences: true, firstRecurrence: false, commit: false)
         }
         
         try eventStore.commit()
@@ -152,7 +156,7 @@ public extension EventManager {
     ///   - task: the ``TaskKind`` to save
     ///   - savingRecurence: should save the recurrences
     ///   - commit: should commit to the EKEventStore
-    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, commit: Bool = true) async throws {
+    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, firstRecurrence: Bool? = nil, commit: Bool = true) async throws {
         if var event = task as? EKEvent {
             if savingRecurrences {
                 // save the first recurrence and its future events
@@ -162,9 +166,11 @@ public extension EventManager {
             
             try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
         } else if let task = task as? TaskValue {
+            let firstRecurrence = firstRecurrence != false && savingRecurrences
+            
             if task.kindIdentifier == .managedObject {
                 await configuration.saveNonEventTask(task.value)
-            } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: savingRecurrences)  {
+            } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: firstRecurrence)  {
                 event.assignFromTaskKind(task)
                 try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
             } else {

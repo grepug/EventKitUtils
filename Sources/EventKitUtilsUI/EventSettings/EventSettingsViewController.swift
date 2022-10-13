@@ -130,7 +130,7 @@ public class EventSettingsViewController: DiffableListViewController {
                         Task {
                             let action = await self.presentAlertController(title: "确认删除所有日历任务吗？", message: "该操作不可逆", actions: [.ok, .cancel])
                                 
-                            if action == .cancel {
+                            if action == .ok {
                                 await self.handleDeleteAllEventTask()
                             }
                         }
