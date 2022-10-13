@@ -181,7 +181,15 @@ extension TaskEditorViewController {
         }
         
         vc.modalPresentationStyle = .popover
-        vc.popoverPresentationController?.sourceView = listView.cellForItem(at: [2, 0])
+        
+        let indexPath: IndexPath = [1, 0]
+        vc.popoverPresentationController?.sourceView = listView.cellForItem(at: indexPath)
+        
+        if let keyResultInfo {
+            assert(listView.diffableDataSource.itemIdentifier(for: indexPath) == "\(keyResultInfo.hashValue)")
+        } else {
+            assert(listView.diffableDataSource.itemIdentifier(for: indexPath) == "link kr")
+        }
         
         present(vc, animated: true)
     }
