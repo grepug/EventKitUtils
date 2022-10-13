@@ -116,6 +116,7 @@ extension TaskEditorViewController {
                     guard let self = self else { return }
                     
                     self.task.keyResultId = nil
+                    self.keyResultInfo = nil
                     self.reload()
                 })])
                 .onTapAndDeselect { [weak self] _ in
