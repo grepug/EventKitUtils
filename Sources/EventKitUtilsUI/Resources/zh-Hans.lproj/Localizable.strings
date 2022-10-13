@@ -65,7 +65,10 @@
 
 "alert_title_deleting_repeat_tasks" = "此为重复任务，您确定要删除此任务吗？";
 "alert_action_delete_this_task" = "仅删除此任务";
+"alert_action_delete_all_incompleted_tasks" = "删除所有未完成的任务";
 "alert_action_delete_all_tasks" = "删除所有重复任务";
 "alert_title_task_save_failed" = "任务保存失败";
 
 "no_tasks" = "没有任务";
+"action_warning" = "警告";
+"alert_msg_delete_all_tasks" = "将会同时删除重复任务关联的关键结果记录值数据，且无法找回！";

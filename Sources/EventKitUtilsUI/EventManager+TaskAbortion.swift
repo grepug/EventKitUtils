@@ -35,7 +35,7 @@ extension EventManager {
                     removeTask?()
                 }
                 
-                try! await abortTasks(repeatingTasks)
+                try! await abortTasks(repeatingTasks.filter { $0.state.isIncompleted })
                 return true
             }
         } else {

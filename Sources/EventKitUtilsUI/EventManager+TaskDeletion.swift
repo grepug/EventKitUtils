@@ -37,6 +37,10 @@ extension EventManager {
                 await self.deleteTask(task)
                 
                 return true
+            case .deletingIncompleted:
+                removeTask?()
+                await self.deleteTasks(repeatingTasks.filter { $0.state.isIncompleted })
+                return true
             case .deletingAll:
                 removeTask?()
                 await self.deleteTasks(repeatingTasks)
@@ -51,27 +55,53 @@ extension EventManager {
         }
     }
     
-    private enum DeletionTasksAlertOption {
-        case canceled, deletingThis, deletingAll
+    private enum DeletionTasksAlertOption: CaseIterable {
+        case canceled, deletingThis, deletingIncompleted, deletingAll 
+        
+        var actionValue: UIViewController.ActionValue {
+            switch self {
+            case .canceled: return .cancel
+            case .deletingThis: return .init(title: "alert_action_delete_this_task".loc, style: .destructive)
+            case .deletingAll: return .init(title: "alert_action_delete_all_tasks".loc, style: .destructive)
+            case .deletingIncompleted: return .init(title: "alert_action_delete_all_incompleted_tasks".loc, style: .destructive)
+            }
+        }
+        
+        init(actionValue: UIViewController.ActionValue) {
+            for item in DeletionTasksAlertOption.allCases {
+                if item.actionValue == actionValue {
+                    self = item
+                    return
+                }
+            }
+            
+            self = .canceled
+        }
     }
     
     private func presentDeletingTasksAlert(parentVC: UIViewController) async -> DeletionTasksAlertOption {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.main.async { [unowned parentVC] in
-                parentVC.presentAlertController(title: "alert_title_deleting_repeat_tasks".loc,
-                                                message: nil,
-                                                actions: [
-                                                    .cancel {
-                                                        continuation.resume(returning: .canceled)
-                                                    },
-                                                    .init(title: "alert_action_delete_this_task".loc, style: .destructive) { _ in
-                                                        continuation.resume(returning: .deletingThis)
-                                                    },
-                                                    .init(title: "alert_action_delete_all_tasks".loc, style: .destructive) { _ in
-                                                        continuation.resume(returning: .deletingAll)
-                                                    }
-                                                ])
+        
+        let actions = DeletionTasksAlertOption.allCases.map(\.actionValue)
+        guard let result = await parentVC.presentAlertController(title: "alert_title_deleting_repeat_tasks".loc,
+                                                                 message: nil,
+                                                                 actions: actions) else {
+            return .canceled
+        }
+        
+        let deleteOption = DeletionTasksAlertOption(actionValue: result)
+        
+        if deleteOption == .deletingAll {
+            guard await presentDeletingAllTasksAlert(parentVC: parentVC) else {
+                return .canceled
             }
         }
+        
+        return deleteOption
+    }
+    
+    private func presentDeletingAllTasksAlert(parentVC: UIViewController) async -> Bool {
+        await parentVC.presentAlertController(title: "action_warning".loc,
+                                              message: "alert_msg_delete_all_tasks".loc,
+                                              actions: [.delete, .cancel]) == .delete
     }
 }
