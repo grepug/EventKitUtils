@@ -33,7 +33,7 @@ public extension TaskKind {
             return .endDateEarlierThanStartDate
         }
         
-        let interval = DateInterval(start: startDate, end: endDate)
+        let dateInterval = DateInterval(start: startDate, end: endDate)
         
         for error in TaskDateValidationError.allCases {
             switch error {
@@ -49,19 +49,19 @@ public extension TaskKind {
                 }
             case .dateIntervalIsNotContainedByTwoYearInterval:
                 if krInfo == nil {
-                    if normalizedIsInterval && !DateInterval.twoYearsInterval.contains(interval) {
+                    if normalizedIsInterval && !DateInterval.twoYearsInterval.contains(dateInterval) {
                         return error
                     }
                 }
             case .endDateIsNotContainedByTwoYearInterval:
                 if krInfo == nil {
-                    if !normalizedIsInterval && !DateInterval.twoYearsInterval.contains(interval) {
+                    if !normalizedIsInterval && !DateInterval.twoYearsInterval.contains(dateInterval) {
                         return error
                     }
                 }
             case .endDateLaterThanGoalEndDate:
                 if let goalEndDate = krInfo?.goalDateInterval.end {
-                    if endDate < goalEndDate {
+                    if endDate > goalEndDate {
                         return error
                     }
                 }
@@ -78,7 +78,7 @@ public extension TaskKind {
             return nil
         }
         
-        guard let startDate = normalizedStartDate, let endDate = normalizedEndDate else {
+        guard let startDate = normalizedStartDate else {
             fatalError()
         }
         
@@ -93,7 +93,7 @@ public extension TaskKind {
             case .recurrenceEndDateLaterThanGoalEndDate:
                 if let recurrenceEndDate = event.recurrenceEndDate {
                     if let goalEndDate = krInfo?.goalDateInterval.end {
-                        if recurrenceEndDate > goalEndDate {
+                        if recurrenceEndDate.endOfDay > goalEndDate.endOfDay {
                             return error
                         }
                     }
