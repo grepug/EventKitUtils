@@ -22,7 +22,7 @@ extension CacheHandlers {
             return nil
         }
         
-        let runIDPredicate = NSPredicate(format: "runID == %@", runID as CVarArg)
+        let runIDPredicate = NSPredicate.runID(runID)
         var predicates = [runIDPredicate]
         let sortDescriptors: [NSSortDescriptor] = [.init(key: "startDate", ascending: true)]
         var counts: CountsOfCompletedTasksByRepeatingInfo = [:]
@@ -32,14 +32,14 @@ extension CacheHandlers {
             predicates.append(statePredicates(segment.displayStates))
             
             if let krID {
-                predicates.append(NSPredicate(format: "keyResultID == %@", krID as CVarArg))
+                predicates.append(.keyResultID(krID))
             }
         case .repeatingInfo(let info):
             predicates.append(info.predicate())
         case .keyResultDetailVC(let keyResultID):
             predicates.append(
                 [
-                    NSPredicate(format: "keyResultID == %@", keyResultID as CVarArg),
+                    .keyResultID(keyResultID),
                     [
                         statePredicate(.overdued),
                         statePredicate(.today),
@@ -49,13 +49,13 @@ extension CacheHandlers {
                 ].allSatisfied
             )
         case .taskID(let taskID):
-            predicates.append(NSPredicate(format: "eventIDString == %@", taskID as CVarArg))
+            predicates.append(.taskID(taskID))
         case .recordValue:
             return nil
         case .completedListByKeyResultID(let krID):
             predicates.append(
                 [
-                    NSPredicate(format: "keyResultID == %@", krID as CVarArg),
+                    .keyResultID(krID),
                     statePredicate(.completed)
                 ].allSatisfied
             )
@@ -124,5 +124,19 @@ extension CacheHandlers {
                 }
             }
         }
+    }
+}
+
+fileprivate extension NSPredicate {
+    static func keyResultID(_ id: String) -> NSPredicate {
+        NSPredicate(format: "keyResultID == %@", id as CVarArg)
+    }
+    
+    static func runID(_ id: String) -> NSPredicate {
+        NSPredicate(format: "runID == %@", id as CVarArg)
+    }
+    
+    static func taskID(_ id: String) -> NSPredicate {
+        NSPredicate(format: "eventIDString == %@", id as CVarArg)
     }
 }
