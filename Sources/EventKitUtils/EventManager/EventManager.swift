@@ -203,7 +203,10 @@ public extension EventManager {
     func deleteTask(_ task: TaskKind, deletingRecurrences: Bool = false, commit: Bool = true) async {
         if task.kindIdentifier == .managedObject {
             await configuration.deleteNonEventTask(byID: task.normalizedID)
-        } else if let task = task as? TaskValue {
+            return
+        }
+        
+        if let task = task as? TaskValue {
             if var event = await fetchEvent(withTaskValue: task, firstRecurrence: deletingRecurrences) {
                 if deletingRecurrences {
                     // delete the first recurrence and its future events
@@ -213,12 +216,11 @@ public extension EventManager {
                 try! eventStore.remove(event,
                                        span: deletingRecurrences && !event.isDetached ? .futureEvents : .thisEvent,
                                        commit: commit)
-            } else {
-                assertionFailure()
+                return
             }
-        } else {
-            assertionFailure("no such task")
         }
+        
+        assertionFailure("no such task")
     }
     
     /// Delete tasks
