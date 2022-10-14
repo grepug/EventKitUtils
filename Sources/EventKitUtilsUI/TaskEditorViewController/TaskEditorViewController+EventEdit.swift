@@ -106,13 +106,14 @@ extension TaskEditorViewController: EKEventEditViewDelegate {
         case .canceled:
             dismiss(animated: true)
         case .saved:
-            // set default recurrence end date
             if let event = controller.event {
-                event.setDefaultRecurrenceEndIfAbsents(savingWithEventStore: controller.eventStore)
+                // set default recurrence end date
+                setDefaultRecurrenceEndIfAbsents(event: event)
             }
             
             event?.refresh()
             reload()
+            
             dismiss(animated: true)
         case .deleted:
             dismissEditor()
@@ -121,5 +122,21 @@ extension TaskEditorViewController: EKEventEditViewDelegate {
         @unknown default:
             break
         }
+    }
+    
+    func setDefaultRecurrenceEndIfAbsents(event: EKEvent?) {
+        if let event {
+            let didSet = event.setDefaultRecurrenceEndIfAbsents(savingWithEventStore: eventStore)
+            
+            if didSet {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.presentChangedRecurrenceEndDateToOneWeekLaterIfAbsents()
+                }
+            }
+        }
+    }
+    
+    func presentChangedRecurrenceEndDateToOneWeekLaterIfAbsents() {
+        presentAlertController(title: "不支持设置结束重复日期为“永不”，已为你设置为一周后。", message: nil, actions: [.ok()])
     }
 }

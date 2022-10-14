@@ -187,12 +187,16 @@ public extension EKEvent {
 }
 
 public extension EKEvent {
-    func setDefaultRecurrenceEndIfAbsents(savingWithEventStore eventStore: EKEventStore) {
+    @discardableResult
+    func setDefaultRecurrenceEndIfAbsents(savingWithEventStore eventStore: EKEventStore) -> Bool {
         if let rule = firstRecurrenceRule, recurrenceEndDate == nil {
             removeAllRecurrenceRules()
             addRecurrenceRule(rule.copied(end: .init(end: endDate.nextWeek)))
             try! eventStore.save(self, span: .futureEvents, commit: true)
+            return true
         }
+        
+        return false
     }
 }
 
