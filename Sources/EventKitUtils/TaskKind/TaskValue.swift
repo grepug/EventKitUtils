@@ -92,6 +92,12 @@ public struct TaskValue: TaskKind, Hashable {
         }
     }
     
+    public var keyResultInfoRemoved: Self {
+        var me = self
+        me.keyResultInfo = nil
+        return me
+    }
+    
     func isSameTaskValueForRepeatTasks(as lhs: TaskValue) -> Bool {
         let rhs = self
         

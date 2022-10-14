@@ -25,7 +25,7 @@ public class TaskEditorViewController: DiffableListViewController {
     public init(task: TaskValue, eventManager: EventManager) {
         self.task = task
         self.em = eventManager
-        self.originalTaskValue = task
+        self.originalTaskValue = task.keyResultInfoRemoved
         
         super.init(nibName: nil, bundle: nil)
     }
