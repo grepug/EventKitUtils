@@ -30,12 +30,12 @@ public struct EventEnumerator {
     /// - Returns: a boolean indicates if the count of events has exceeded the non Pro user's limit
     @discardableResult
     public func enumerateEventsAndReturnsIfExceedsNonProLimit(eventStore: EKEventStore? = nil, matching dateInterval: DateInterval? = nil, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) async -> Bool {
-        let interval: DateInterval
+        var interval: DateInterval = .twoYearsInterval
         
         if let dateInterval {
-            interval = dateInterval.largerInterval(with: .twoYearsInterval)
-        } else {
-            interval = await eventConfiguration.eventRequestDateInterval() ?? .twoYearsInterval
+            interval = dateInterval
+        } else if let eventRequestDateInterval = await eventConfiguration.eventRequestDateInterval() {
+            interval = eventRequestDateInterval.largerInterval(with: .twoYearsInterval)
         }
         
         return enumerateEventsAndReturnsIfExceedsNonProLimitImpl(eventStore: eventStore, matching: interval, handler: handler)
