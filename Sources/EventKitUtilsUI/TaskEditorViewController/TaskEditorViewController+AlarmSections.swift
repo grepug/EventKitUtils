@@ -18,11 +18,11 @@ extension TaskEditorViewController {
         if let event {
             DLSection {
                 DLCell {
-                    DLText("提醒")
+                    DLText("alarm".loc)
                 }
                 .tag("first alarm \(event.taskAlarmType?.title ?? "")")
                 .accessories(.popUpMenu(menu: .makeMenu(self.alarmMenu),
-                                        value: event.taskAlarmType?.title ?? "无"))
+                                        value: event.taskAlarmType?.title ?? "none".loc))
             }
             .tag("alarm section")
         }
@@ -33,7 +33,7 @@ private extension TaskEditorViewController {
     @MenuBuilder
     var alarmMenu: [MBMenu] {
         MBGroup { [unowned self] in
-            MBButton("无", checked: event?.taskAlarmType == nil) { [weak self] in
+            MBButton("none".loc, checked: event?.taskAlarmType == nil) { [weak self] in
                 guard let self = self, let event = self.event else { return }
                 
                 event.removeAllTaskAlarms()

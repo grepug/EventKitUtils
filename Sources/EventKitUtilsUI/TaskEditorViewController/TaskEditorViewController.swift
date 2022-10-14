@@ -253,7 +253,9 @@ extension TaskEditorViewController: TaskHandling {
         }
         
         if tasks.count > 1 {
-            guard await presentAlertController(title: "此为重复任务", message: "所做编辑针对所有重复任务保存", actions: [.ok, .cancel]) == .ok else {
+            guard await presentAlertController(title: "task_editor_alert_repeating_task".loc,
+                                               message: "task_editor_msg_repeating_task".loc,
+                                               actions: [.ok, .cancel]) == .ok else {
                 return
             }
         }

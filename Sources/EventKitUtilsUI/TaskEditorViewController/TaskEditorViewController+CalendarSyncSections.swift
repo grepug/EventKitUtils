@@ -32,7 +32,7 @@ extension TaskEditorViewController {
             DLCell(using: .swiftUI(movingTo: self, content: {
                 VStack(spacing: 8) {
                     HStack {
-                        Text("无法编辑重复规则")
+                        Text("task_editor_unable_edit_recurrence".loc)
                             .foregroundColor(.secondary)
                         
                         Button {
@@ -44,7 +44,7 @@ extension TaskEditorViewController {
                     Button { [weak self] in
                         self?.presentEventEditor()
                     } label: {
-                        Text("编辑日历日程")
+                        Text("task_editor_edit_event".loc)
                             .font(.subheadline)
                     }
                 }
@@ -76,7 +76,7 @@ extension TaskEditorViewController {
                 guard let self else { return }
                 
                 self.presentEventEditor { vc in
-                    vc.view.makeToast("需要在日程编辑页设置自定义规则", position: .center)
+                    vc.view.makeToast("task_editor_toast_on_custom_recurrence".loc, position: .center)
                 }
                 
                 self.reload()
@@ -88,7 +88,7 @@ extension TaskEditorViewController {
     private var editingHeader: [DLCell] {
         DLCell(using: .header(" "))
             .accessories([
-                .labelButton(title: "编辑日历日程", action: { [weak self] button in
+                .labelButton(title: "task_editor_edit_event".loc, action: { [weak self] button in
                     self?.presentEventEditor()
                 })
             ])
@@ -103,14 +103,14 @@ extension TaskEditorViewController {
             editingHeader
             
             DLCell {
-                DLText("重复")
+                DLText("repeating".loc)
             }
             .tag("repeat \(event.taskRecurrenceRule.title) \(forceReloadFlag)")
             .accessories(.popUpMenu(menu: .makeMenu(self.repeatingMenu),
                                     value: event.taskRecurrenceRule.title))
             
             if event.taskRecurrenceRule != .never, let endDate = event.recurrenceEndDate {
-                DLCell(using: .datePicker(labelText: "结束重复",
+                DLCell(using: .datePicker(labelText: "repeating_end".loc,
                                           date: endDate,
                                           interval: recurrenceEndDatePickerInterval,
                                           valueDidChange: { [weak self] date in

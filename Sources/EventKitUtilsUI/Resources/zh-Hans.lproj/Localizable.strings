@@ -96,3 +96,14 @@
 "event_settings_onboarding_item_desc_3" = "Vision 会直接读取日历中通过 Vision 创建的日程，若需要任务在不同设备间同步，请开启日历 app 的 iCloud 同步";
 "event_settings_onboarding_button_enabled" = "日历同步已开启，开始使用";
 "event_settings_onboarding_button" = "开启日历同步";
+
+"task_editor_alert_repeating_task" = "此为重复任务";
+"task_editor_msg_repeating_task" = "所做编辑针对所有重复任务保存";
+"alarm" = "提醒";
+"none" = "无";
+"repeating" = "重复";
+"repeating_end" = "结束重复";
+"task_editor_unable_edit_recurrence" = "无法编辑重复规则";
+"task_editor_edit_event" = "编辑日历日程";
+"task_editor_toast_on_custom_recurrence" = "需要在日程编辑页设置自定义规则";
+"task_editor_enable_event_task" = "开启日历同步";
