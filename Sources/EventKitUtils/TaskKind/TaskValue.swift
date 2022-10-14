@@ -61,6 +61,9 @@ public struct TaskValue: TaskKind, Hashable {
     public var repeatingCount: Int
     public var keyResultInfo: KeyResultInfo?
     
+    /// Use this old date interval to fetch its underlying EKEvent even when its dates are changed
+    public var oldDateInterval: DateInterval?
+    
     public var cellTag: String {
         normalizedID +
         normalizedTitle +

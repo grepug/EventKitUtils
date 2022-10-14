@@ -363,8 +363,8 @@ public extension EventManager {
             }
         }
         
-        guard let startDate = task.normalizedStartDate,
-              let endDate = task.normalizedEndDate else {
+        guard let startDate = task.oldDateInterval?.start ?? task.normalizedStartDate,
+              let endDate = task.oldDateInterval?.end ?? task.normalizedEndDate else {
             return nil
         }
         

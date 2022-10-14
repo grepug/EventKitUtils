@@ -262,13 +262,15 @@ extension TaskEditorViewController: TaskHandling {
         let uniquedTasks = ([task] + tasks).uniquedById
         
         for task in uniquedTasks {
-            var task = task
-                
-            if task.isValueType {
+            if var task = task as? TaskValue {
+                // save the old date interval in order to fetch this underlying EKEvent with EventManager.fetchEvent(withTaskValue:firstRecurrence:)
+                task.oldDateInterval = task.dateInterval
                 task.assignAsRepeatingTask(from: self.task)
+                
+                savingTasks.append(task)
+            } else {
+                savingTasks.append(task)
             }
-            
-            savingTasks.append(task)
         }
         
         guard await saveTasksAndPresentErrorAlert(savingTasks) else {
