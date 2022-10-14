@@ -64,7 +64,7 @@ public extension TaskActionMenuHandling {
         
         // abortion button, shows when it is not completed
         if task.state != .completed {
-            let abortTitle = task.isAborted ? "取消放弃" : "放弃"
+            let abortTitle = task.isAborted ? "task_editor_cancel_abort".loc : "task_editor_abort".loc
             let abortImageName = task.isAborted ? "arrowshape.turn.up.backward.fill" : "xmark"
             
             MBButton(abortTitle, image: .init(systemName: abortImageName), color: .systemYellow, destructive: true) { [weak self] completion in

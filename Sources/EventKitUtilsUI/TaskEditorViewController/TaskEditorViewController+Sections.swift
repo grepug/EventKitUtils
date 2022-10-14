@@ -40,7 +40,7 @@ extension TaskEditorViewController {
     var plannedDateSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
-                DLText("时间段".loc)
+                DLText("task_editor_date_interval".loc)
             }
             .tag("is interval \(task.isDateEnabled) \(task.normalizedIsInterval)")
             .accessories([.toggle(isOn: task.normalizedIsInterval, action: { [unowned self] isOn in
@@ -71,7 +71,7 @@ extension TaskEditorViewController {
                 .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode) \(datePickerInterval)")
             }
             
-            DLCell(using: .datePicker(labelText: task.normalizedIsInterval ? "task_editor_end_date".loc : "时间",
+            DLCell(using: .datePicker(labelText: task.normalizedIsInterval ? "task_editor_end_date".loc : "task_editor_time".loc,
                                       date: task.normalizedEndDate!,
                                       mode: datePickerMode,
                                       interval: datePickerInterval,

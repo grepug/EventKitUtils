@@ -15,9 +15,9 @@ enum TaskListFilterState: Equatable, CaseIterable {
     
     var title: String {
         switch self {
-        case .incompleted: return "未完成"
-        case .completed: return "已完成"
-        case .aborted: return "已放弃"
+        case .incompleted: return "filter_state_incompleted".loc
+        case .completed: return "filter_state_completed".loc
+        case .aborted: return "filter_state_aborted".loc
         }
     }
 }

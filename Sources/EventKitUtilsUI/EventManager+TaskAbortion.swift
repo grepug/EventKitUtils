@@ -66,8 +66,8 @@ extension EventManager {
     }
     
     private func presentAbortingTaskAlert(on vc: UIViewController, isToAbort: Bool) async -> AbortionTasksAlertOption {
-        let abortThisText = isToAbort ? "放弃当前任务" : "取消放弃当前任务"
-        let abortAllText = isToAbort ? "放弃所有未完成任务" : "取消放弃所有任务"
+        let abortThisText = isToAbort ? "abort_this".loc : "cancel_abort_this".loc
+        let abortAllText = isToAbort ? "abort_all_incompleted".loc : "cancel_abort_all".loc
         
         let actions: [UIViewController.ActionValue] = [
             .cancel,
@@ -75,7 +75,7 @@ extension EventManager {
             .init(title: abortAllText, style: .destructive),
         ]
         
-        let action = await vc.presentAlertController(title: "此为重复任务，您确定要放弃吗？", message: nil, actions: actions)
+        let action = await vc.presentAlertController(title: "abort_repeating_alert_title".loc, message: nil, actions: actions)
         
         switch action {
         case actions[0]: return .canceled

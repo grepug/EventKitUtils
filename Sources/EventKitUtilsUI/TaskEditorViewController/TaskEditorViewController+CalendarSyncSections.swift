@@ -140,14 +140,14 @@ extension TaskEditorViewController {
     private var calendarSyncEnablingSection: [DLSection] {
         DLSection { [unowned self] in
             DLCell {
-                DLText("任务重复、提醒".loc)
-                DLText("此功能需开启日历同步".loc)
+                DLText("calendar_syncing_title".loc)
+                DLText("calendar_syncing_desc".loc)
                     .secondary()
                     .color(.secondaryLabel)
             }
             .tag("calendar \(isEvent) \(forceReloadFlag)")
             .accessories([
-                .label("开启日历同步", color: .accentColor),
+                .label("task_editor_enable_event_task".loc, color: .accentColor),
             ])
             .onTapAndDeselect { [weak self] _ in
                 guard let self = self else { return }
@@ -179,15 +179,15 @@ extension TaskEditorViewController {
 extension TaskRecurrenceRule {
     var title: String {
         switch self {
-        case .never: return "永不"
-        case .daily: return "每天"
-        case .everyWorkDay: return "每个工作日"
-        case .everyWeekendDay: return "每个周末"
-        case .weekly: return "每周"
-        case .everyTwoWeek: return "每两周"
-        case .monthly: return "每月"
-        case .yearly: return "每年"
-        case .custom: return "自定义"
+        case .never: return "repeating_rule_never".loc
+        case .daily: return "repeating_rule_daily".loc
+        case .everyWorkDay: return "repeating_rule_everyWorkDay".loc
+        case .everyWeekendDay: return "repeating_rule_everyWeekendDay".loc
+        case .weekly: return "repeating_rule_weekly".loc
+        case .everyTwoWeek: return "repeating_rule_everyTwoWeek".loc
+        case .monthly: return "repeating_rule_monthly".loc
+        case .yearly: return "repeating_rule_yearly".loc
+        case .custom: return "repeating_rule_custom".loc
         }
     }
 }

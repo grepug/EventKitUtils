@@ -250,7 +250,7 @@ extension TaskListViewController {
     @MenuBuilder
     var filterMenu: [MBMenu] {
         MBGroup { [unowned self] in
-            MBButton("全部", checked: selectedFilterTaskState == nil) { [weak self] in
+            MBButton("all".loc, checked: selectedFilterTaskState == nil) { [weak self] in
                 self?.selectedFilterTaskState = nil
             }
         }

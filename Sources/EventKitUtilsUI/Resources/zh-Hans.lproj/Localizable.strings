@@ -48,6 +48,7 @@
 "task_editor_all_day" = "全天";
 "task_editor_start_date" = "开始时间";
 "task_editor_end_date" = "结束时间";
+"task_editor_time" = "时间";
 "task_editor_link_kr" = "关联关键结果";
 "task_editor_sync_to_calendar" = "同步到系统日历";
 "task_editor_sync_to_calendar_desc" = "设置提醒、重复任务";
@@ -107,3 +108,32 @@
 "task_editor_edit_event" = "编辑日历日程";
 "task_editor_toast_on_custom_recurrence" = "需要在日程编辑页设置自定义规则";
 "task_editor_enable_event_task" = "开启日历同步";
+
+"repeating_rule_never" = "永不";
+"repeating_rule_daily" = "每天";
+"repeating_rule_everyWorkDay" = "每个工作日";
+"repeating_rule_everyWeekendDay" = "每个周末";
+"repeating_rule_weekly" = "每周";
+"repeating_rule_everyTwoWeek" = "每两周";
+"repeating_rule_monthly" = "每月";
+"repeating_rule_yearly" = "每年";
+"repeating_rule_custom" = "自定义";
+
+"calendar_syncing_title" = "任务重复、提醒";
+"calendar_syncing_desc" = "此功能需开启日历同步";
+
+"alert_ChangedRecurrenceEndDateToOneWeekLaterIfAbsents" = "不支持设置结束重复日期为“永不”，已为你设置为一周后。";
+"task_editor_date_interval" = "时间段";
+"task_editor_abort" = "放弃";
+"task_editor_cancel_abort" = "取消放弃";
+
+"all" = "全部";
+"filter_state_incompleted" = "未完成";
+"filter_state_completed" = "已完成";
+"filter_state_aborted" = "已放弃";
+
+"abort_this" = "放弃当前任务";
+"cancel_abort_this" = "取消放弃当前任务";
+"abort_all_incompleted" = "放弃所有未完成任务";
+"cancel_abort_all" = "取消放弃所有任务";
+"abort_repeating_alert_title" = "此为重复任务，您确定要放弃吗？";

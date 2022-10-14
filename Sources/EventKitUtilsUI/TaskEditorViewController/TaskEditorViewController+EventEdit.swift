@@ -150,6 +150,6 @@ extension TaskEditorViewController: EKEventEditViewDelegate {
     }
     
     func presentChangedRecurrenceEndDateToOneWeekLaterIfAbsents() {
-        presentAlertController(title: "不支持设置结束重复日期为“永不”，已为你设置为一周后。", message: nil, actions: [.ok()])
+        presentAlertController(title: "alert_ChangedRecurrenceEndDateToOneWeekLaterIfAbsents".loc, message: nil, actions: [.ok()])
     }
 }

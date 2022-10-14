@@ -40,6 +40,7 @@
 "task_editor_all_day" = "All Day";
 "task_editor_start_date" = "Start Date";
 "task_editor_end_date" = "End Date";
+"task_editor_time" = "Time";
 "task_editor_link_kr" = "Link Key Result";
 "task_editor_sync_to_calendar" = "Sync to Calendar";
 "task_editor_sync_to_calendar_desc" = "Alarm, repeat tasks";
@@ -103,9 +104,38 @@
 "task_editor_msg_repeating_task" = "The change will be applied to all repeating tasks.";
 "alarm" = "Alarm";
 "none" = "None";
-"repeating" = "重复";
-"repeating_end" = "结束重复";
-"task_editor_unable_edit_recurrence" = "无法编辑重复规则";
-"task_editor_edit_event" = "编辑日历日程";
-"task_editor_toast_on_custom_recurrence" = "需要在日程编辑页设置自定义规则";
-"task_editor_enable_event_task" = "开启日历同步";
+"repeating" = "Repeating";
+"repeating_end" = "Repeating End";
+"task_editor_unable_edit_recurrence" = "Unable to Change Repeating Rules";
+"task_editor_edit_event" = "Edit Calendar Event";
+"task_editor_toast_on_custom_recurrence" = "You should edit custom repeating in the calendar event editor";
+"task_editor_enable_event_task" = "Enable Calendar Sync";
+
+"repeating_rule_never" = "Never";
+"repeating_rule_daily" = "Daily";
+"repeating_rule_everyWorkDay" = "Every Work Day";
+"repeating_rule_everyWeekendDay" = "Every Weekend Day";
+"repeating_rule_weekly" = "Weekly";
+"repeating_rule_everyTwoWeek" = "Every Two Week";
+"repeating_rule_monthly" = "Monthly";
+"repeating_rule_yearly" = "Yearly";
+"repeating_rule_custom" = "Custom";
+
+"calendar_syncing_title" = "Task Repeating, Alarms";
+"calendar_syncing_desc" = "Enbale Calendar Sync to unlock them.";
+
+"alert_ChangedRecurrenceEndDateToOneWeekLaterIfAbsents" = "Unable to set repeating end as \"Never\". Set it to one week later."; 
+"task_editor_date_interval" = "Date Interval";
+"task_editor_abort" = "Abandon";
+"task_editor_cancel_abort" = "Resume";
+
+"all" = "All";
+"filter_state_incompleted" = "Incompleted";
+"filter_state_completed" = "Completed";
+"filter_state_aborted" = "Abandoned";
+
+"abort_this" = "Only Abandon This";
+"cancel_abort_this" = "Only Resume This";
+"abort_all_incompleted" = "Abandon All Incompleted Tasks";
+"cancel_abort_all" = "Resume All";
+"abort_repeating_alert_title" = "Abandon Repeating Tasks";

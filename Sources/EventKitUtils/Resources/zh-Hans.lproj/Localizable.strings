@@ -6,6 +6,7 @@
 "v3_task_list_segment_today" = "今天";
 "v3_task_list_segment_incompleted" = "未完成";
 "v3_task_list_segment_completed" = "已完成";
+"v3_task_list_segment_ended" = "已结束";
 "v3_task_postpone" = "顺延";
 
 "v3_task_editor_title_ph" = "标题";
@@ -21,3 +22,6 @@
 "alarm_type_oneDayBefore" = "1天前";
 "alarm_type_twoDaysBefore" = "2天前";
 "alarm_type_oneWeekBefore" = "1周前";
+
+"completed" = "已完成";
+"abandoned" = "已放弃";

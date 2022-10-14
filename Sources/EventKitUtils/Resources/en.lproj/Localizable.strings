@@ -6,6 +6,7 @@
 "v3_task_list_segment_today" = "Today";
 "v3_task_list_segment_incompleted" = "Incompleted";
 "v3_task_list_segment_completed" = "Completed";
+"v3_task_list_segment_ended" = "Ended";
 
 "v3_task_postpone" = "Postpone";
 "v3_task_editor_title_ph" = "Title";
@@ -21,3 +22,6 @@
 "alarm_type_oneDayBefore" = "1 day before";
 "alarm_type_twoDaysBefore" = "2 days before";
 "alarm_type_oneWeekBefore" = "1 week before";
+
+"completed" = "Completed";
+"abandoned" = "Abandoned";

@@ -21,8 +21,8 @@ public enum TaskKindState: Int, CaseIterable {
         case .today: return "v3_task_state_today".loc
         case .afterToday: return "v3_task_state_after_today".loc
         case .unscheduled: return "v3_task_state_unscheduled".loc
-        case .completed: return "已完成".loc
-        case .aborted: return "已放弃".loc
+        case .completed: return "completed".loc
+        case .aborted: return "abandoned".loc
         }
     }
     
