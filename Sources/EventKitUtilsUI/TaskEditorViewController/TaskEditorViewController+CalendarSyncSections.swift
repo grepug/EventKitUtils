@@ -122,7 +122,7 @@ extension TaskEditorViewController {
                     self.reload(animating: false)
                     #endif
                 }))
-                .tag("repeat end \(self.event?.recurrenceEndDate?.description ?? "") \(self.recurrenceEndDatePickerInterval)")
+                .tag("repeat end \(self.event?.recurrenceEndDate?.description ?? "") \(self.recurrenceEndDatePickerInterval?.description ?? "")")
             }
         }
         .tag("repeating \(errorMessage ?? "")")
@@ -167,9 +167,15 @@ extension TaskEditorViewController {
         .tag("4")
     }
     
-    private var recurrenceEndDatePickerInterval: DateInterval {
+    private var recurrenceEndDatePickerInterval: DateInterval? {
         guard let keyResultInfo, let start = task.normalizedEndDate else {
             return .twoYearsInterval
+        }
+        
+        let endDate = keyResultInfo.goalDateInterval.end.endOfDay
+        
+        guard start <= endDate else {
+            return nil
         }
         
         return .init(start: start, end: keyResultInfo.goalDateInterval.end.endOfDay)

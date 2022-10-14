@@ -32,6 +32,10 @@ extension TaskEditorViewController {
         super.present(viewControllerToPresent, animated: flag, completion: completion)
     }
     
+    var datePickerInterval: DateInterval {
+        keyResultInfo?.goalDateInterval ?? .twoYearsInterval
+    }
+    
     @ListBuilder
     var plannedDateSection: [DLSection] {
         DLSection { [unowned self] in
@@ -57,18 +61,20 @@ extension TaskEditorViewController {
                 DLCell(using: .datePicker(labelText: "task_editor_start_date".loc,
                                           date: task.normalizedStartDate!,
                                           mode: datePickerMode,
+                                          interval: datePickerInterval,
                                           valueDidChange: { [unowned self] date in
                     task.normalizedStartDate = date
                     #if !targetEnvironment(macCatalyst)
                     reload(animating: false)
                     #endif
                 }))
-                .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode)")
+                .tag("startDate \(task.isDateEnabled) \(task.normalizedStartDate!.description) \(datePickerMode) \(datePickerInterval)")
             }
             
             DLCell(using: .datePicker(labelText: task.normalizedIsInterval ? "task_editor_end_date".loc : "时间",
                                       date: task.normalizedEndDate!,
                                       mode: datePickerMode,
+                                      interval: datePickerInterval,
                                       valueDidChange: { [unowned self] date in
                 if !task.normalizedIsInterval {
                     task.normalizedStartDate = date
@@ -80,7 +86,7 @@ extension TaskEditorViewController {
                 reload(animating: false)
                 #endif
             }))
-            .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode) \(task.normalizedIsInterval)")
+            .tag("endDate \(task.isDateEnabled) \(task.normalizedEndDate!.description) \(datePickerMode) \(task.normalizedIsInterval) \(datePickerInterval)")
         }
         .tag("2 \(self.task.dateInterval?.formattedDurationString ?? "") \(self.task.isDateEnabled)")
         .listConfig { [unowned self] config in

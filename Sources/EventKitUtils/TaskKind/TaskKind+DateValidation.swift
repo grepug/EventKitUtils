@@ -61,7 +61,7 @@ public extension TaskKind {
                 }
             case .endDateLaterThanGoalEndDate:
                 if let goalEndDate = krInfo?.goalDateInterval.end {
-                    if endDate > goalEndDate {
+                    if endDate > goalEndDate.endOfDay {
                         return error
                     }
                 }
@@ -93,7 +93,7 @@ public extension TaskKind {
             case .recurrenceEndDateLaterThanGoalEndDate:
                 if let recurrenceEndDate = event.recurrenceEndDate {
                     if let goalEndDate = krInfo?.goalDateInterval.end {
-                        if recurrenceEndDate.endOfDay > goalEndDate.endOfDay {
+                        if recurrenceEndDate > goalEndDate.endOfDay {
                             return error
                         }
                     }
