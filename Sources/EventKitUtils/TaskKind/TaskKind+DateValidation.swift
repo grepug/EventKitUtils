@@ -8,7 +8,7 @@
 import Foundation
 import EventKit
 
-public enum TaskDateValidationError: CaseIterable {
+public enum TaskDateValidationError: String, CaseIterable {
     case datesAbsence // 未设置时间
     case endDateEarlierThanStartDate // 结束时间早于开始时间
     case startDateEarlierThanGoalStartDate // 开始时间早于目标开始时间
@@ -17,7 +17,7 @@ public enum TaskDateValidationError: CaseIterable {
     case endDateLaterThanGoalEndDate // 结束时间晚于目标结束时间
 }
 
-public enum TaskRecurrenceEndDateValidationError: CaseIterable {
+public enum TaskRecurrenceEndDateValidationError: String, CaseIterable {
     case recurrenceEndDateEarlierThanStartDate // 结束重复日期早于开始时间
     case recurrenceEndDateLaterThanGoalEndDate // 结束重复日期晚于目标结束时间
     case recurrenceEndDateExceedsTwoYearInterval // 未关联关键结果，结束重复日期距离当前超过1年

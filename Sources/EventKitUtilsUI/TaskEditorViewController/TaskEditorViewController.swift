@@ -425,32 +425,12 @@ public extension EventManager {
 
 extension TaskDateValidationError {
     var errorMessage: String {
-        switch self {
-        case .datesAbsence:
-            return "未设置时间"
-        case .endDateEarlierThanStartDate:
-            return "task_editor_date_range_error_end_cannot_earlier_than_start".loc
-        case .startDateEarlierThanGoalStartDate:
-            return "任务的开始时间不能早于关联的关键结果的目标的开始日期"
-        case .dateIntervalIsNotContainedByTwoYearInterval:
-            return "任务的开始和结束日期距离当前不能超过一年"
-        case .endDateIsNotContainedByTwoYearInterval:
-            return "任务时间距离当前不能超过一年"
-        case .endDateLaterThanGoalEndDate:
-            return "任务的结束日期不能晚于关联的关键结果的目标的结束日期"
-        }
+        rawValue.loc
     }
 }
 
 extension TaskRecurrenceEndDateValidationError {
     var errorMessage: String {
-        switch self {
-        case .recurrenceEndDateEarlierThanStartDate:
-            return "结束重复日期不能早于任务的开始时间"
-        case .recurrenceEndDateLaterThanGoalEndDate:
-            return "结束重复日期不能晚于关联的关键结果的目标的结束日期"
-        case .recurrenceEndDateExceedsTwoYearInterval:
-            return "结束重复日期距离当前不能超过一年"
-        }
+        rawValue.loc
     }
 }

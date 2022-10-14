@@ -33,6 +33,15 @@
 "task_editor_save_future_tasks" = "保存将来所有未完成的任务";
 "task_editor_save_alert_title" = "此为重复任务";
 "task_editor_date_range_error_end_cannot_earlier_than_start" = "结束日期不能早于开始日期";
+"datesAbsence" = "未设置时间";
+"startDateEarlierThanGoalStartDate" = "任务的开始时间不能早于关联的关键结果的目标的开始日期";
+"dateIntervalIsNotContainedByTwoYearInterval" = "任务的开始和结束日期距离当前不能超过一年";
+"endDateIsNotContainedByTwoYearInterval" = "任务时间距离当前不能超过一年";
+"endDateLaterThanGoalEndDate" = "任务的结束日期不能晚于关联的关键结果的目标的结束日期";
+"recurrenceEndDateEarlierThanStartDate" = "结束重复日期不能早于任务的开始时间";
+"recurrenceEndDateLaterThanGoalEndDate" = "结束重复日期不能晚于关联的关键结果的目标的结束日期";
+"recurrenceEndDateExceedsTwoYearInterval" = "结束重复日期距离当前不能超过一年";
+
 "task_editor_calendar_not_authorized_title" = "未开启日历权限";
 "task_editor_calendar_not_authorized_action" = "去开启";
 "task_editor_plan_date" = "计划时间";
