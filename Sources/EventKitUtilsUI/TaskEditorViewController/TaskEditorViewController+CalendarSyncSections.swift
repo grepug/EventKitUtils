@@ -34,12 +34,6 @@ extension TaskEditorViewController {
                     HStack {
                         Text("task_editor_unable_edit_recurrence".loc)
                             .foregroundColor(.secondary)
-                        
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "questionmark.circle")
-                        }
                     }
                     Button { [weak self] in
                         self?.presentEventEditor()
