@@ -18,7 +18,7 @@ public enum TaskDateValidationError: String, CaseIterable {
 }
 
 public enum TaskRecurrenceEndDateValidationError: String, CaseIterable {
-    case recurrenceEndDateEarlierThanStartDate // 结束重复日期早于开始时间
+    case recurrenceEndDateEarlierThanEndDate // 结束重复日期早于结束时间
     case recurrenceEndDateLaterThanGoalEndDate // 结束重复日期晚于目标结束时间
     case recurrenceEndDateExceedsTwoYearInterval // 未关联关键结果，结束重复日期距离当前超过1年
 }
@@ -78,15 +78,15 @@ public extension TaskKind {
             return nil
         }
         
-        guard let startDate = normalizedStartDate else {
+        guard let endDate = normalizedEndDate else {
             fatalError()
         }
         
         for error in TaskRecurrenceEndDateValidationError.allCases {
             switch error {
-            case .recurrenceEndDateEarlierThanStartDate:
+            case .recurrenceEndDateEarlierThanEndDate:
                 if let recurrenceEndDate = event.recurrenceEndDate {
-                    if recurrenceEndDate < startDate {
+                    if recurrenceEndDate < endDate {
                         return error
                     }
                 }

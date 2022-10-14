@@ -38,7 +38,7 @@
 "dateIntervalIsNotContainedByTwoYearInterval" = "任务的开始和结束日期距离当前不能超过一年";
 "endDateIsNotContainedByTwoYearInterval" = "任务时间距离当前不能超过一年";
 "endDateLaterThanGoalEndDate" = "任务的结束日期不能晚于关联的关键结果的目标的结束日期";
-"recurrenceEndDateEarlierThanStartDate" = "结束重复日期不能早于任务的开始时间";
+"recurrenceEndDateEarlierThanEndDate" = "结束重复日期不能早于任务的结束时间";
 "recurrenceEndDateLaterThanGoalEndDate" = "结束重复日期不能晚于关联的关键结果的目标的结束日期";
 "recurrenceEndDateExceedsTwoYearInterval" = "结束重复日期距离当前不能超过一年";
 

@@ -79,6 +79,6 @@
 "dateIntervalIsNotContainedByTwoYearInterval" = "It can't be longer than 1 year from start date or end date to today";
 "endDateIsNotContainedByTwoYearInterval" = "It can't be longer than 1 year from the date to today";
 "endDateLaterThanGoalEndDate" = "End date can't be later than the end date of the linked key result's objective.";
-"recurrenceEndDateEarlierThanStartDate" = "Repeating end date can't be earlier than the start date of the task.";
+"recurrenceEndDateEarlierThanEndDate" = "Repeating end date can't be earlier than the end date of the task.";
 "recurrenceEndDateLaterThanGoalEndDate" = "Repeating end date can't be later than the end date of the linked key results' objective";
 "recurrenceEndDateExceedsTwoYearInterval" = "It can't be longer than 1 year from repeating end date to today";
