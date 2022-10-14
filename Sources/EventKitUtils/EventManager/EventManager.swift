@@ -146,7 +146,7 @@ public extension EventManager {
             
             // task abortion may start from not the first recrrence of the task
             // therefore cannot use firstRecurrence to find the first recurrence to save
-            try await saveTask(task, savingRecurrences: true, firstRecurrence: false, commit: false)
+            try await saveTask(task, savingRecurrences: true, commit: false)
         }
         
         try eventStore.commit()
@@ -157,10 +157,10 @@ public extension EventManager {
     ///   - task: the ``TaskKind`` to save
     ///   - savingRecurence: should save the recurrences
     ///   - commit: should commit to the EKEventStore
-    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, firstRecurrence: Bool? = nil, commit: Bool = true) async throws {
+    func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, commit: Bool = true) async throws {
+        let taskValue = task.value
+
         if var event = task as? EKEvent {
-            let taskValue = task.value
-            
             if savingRecurrences {
                 // save the first recurrence and its future events
                 event = eventStore.event(withIdentifier: event.normalizedID)!
@@ -168,22 +168,28 @@ public extension EventManager {
                 event.assignFromTaskKind(taskValue, onlyAssignDatesTime: true)
             }
             
-            try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
-        } else if let task = task as? TaskValue {
-            let firstRecurrence = firstRecurrence != false && savingRecurrences
-            
+            try eventStore.save(event,
+                                span: savingRecurrences && !event.isDetached ? .futureEvents : .thisEvent,
+                                commit: commit)
+            return
+        }
+        
+        if let task = task as? TaskValue {
             if task.kindIdentifier == .managedObject {
                 await configuration.saveNonEventTask(task.value)
-            } else if var event = await fetchEvent(withTaskValue: task, firstRecurrence: firstRecurrence)  {
-                event.assignFromTaskKind(task)
-                try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
-            } else {
-                print("task", task)
-                assertionFailure("no such task")
+                return
             }
-        } else {
-            assertionFailure("no such task")
+            
+            if var event = await fetchEvent(withTaskValue: task, firstRecurrence: false)  {
+                event.assignFromTaskKind(taskValue, onlyAssignDatesTime: true)
+                try eventStore.save(event,
+                                    span: savingRecurrences && !event.isDetached ? .futureEvents : .thisEvent,
+                                    commit: commit)
+                return
+            }
         }
+        
+        assertionFailure("no such task")
     }
     
     /// Delete a task
@@ -205,7 +211,7 @@ public extension EventManager {
                 }
                 
                 try! eventStore.remove(event,
-                                       span: deletingRecurrences ? .futureEvents : .thisEvent,
+                                       span: deletingRecurrences && !event.isDetached ? .futureEvents : .thisEvent,
                                        commit: commit)
             } else {
                 assertionFailure()
@@ -231,10 +237,8 @@ public extension EventManager {
     ///  In the implementation, we unique tasks by their IDs. Because a set of repeating events share a **same** ID, we can find the first recurrence by calling ``EventStore.event(withIdentifier:)``, and delete the first recurrence and its future events.
     /// - Parameter tasks: task kinds to delete
     func deleteTasks(_ tasks: [TaskKind]) async {
-        let tasks = tasks.uniquedByIdIgnoringRecurrenceID
+        let tasks = tasks.uniquedById
         
-        print("taskscount", tasks.count, tasks.map(\.normalizedID))
-
         for task in tasks {
             await deleteTask(task, deletingRecurrences: true, commit: false)
         }
@@ -243,13 +247,11 @@ public extension EventManager {
     }
     
     func saveTasks(_ tasks: [TaskKind], savingRecurrences: Bool = true) async throws {
-        var tasks = tasks
-        
-        if savingRecurrences {
-            tasks = tasks.uniquedByIdIgnoringRecurrenceID
-        }
-        
         for task in tasks {
+            if let task = task as? TaskValue {
+                assert(task.oldDateInterval != nil)
+            }
+            
             try await saveTask(task, savingRecurrences: savingRecurrences, commit: false)
         }
         
@@ -357,8 +359,10 @@ public extension EventManager {
     /// - Returns: an Optional ``EKEvent``
     func fetchEvent(withTaskValue task: TaskValue, firstRecurrence: Bool) async -> EKEvent? {
         // 若 event 不是重复事件，则可以直接用 id 拿到
-        if let event = eventStore.event(withIdentifier: task.normalizedID) {
-            if firstRecurrence || !event.hasRecurrenceRules {
+        if firstRecurrence {
+            if let event = eventStore.event(withIdentifier: task.normalizedID),
+                event.hasRecurrenceRules &&
+                !event.isDetached {
                 return event
             }
         }
@@ -377,7 +381,7 @@ public extension EventManager {
         var foundEvent: EKEvent?
         
         await eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(matching: interval) { event, completion in
-            guard event.value.isSameTaskValueForRepeatTasks(as: task) else {
+            guard task.isSameTaskValueForRepeatTasks(as: event.value) else {
                 return
             }
 

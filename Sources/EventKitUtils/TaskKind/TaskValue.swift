@@ -104,7 +104,12 @@ public struct TaskValue: TaskKind, Hashable {
     func isSameTaskValueForRepeatTasks(as lhs: TaskValue) -> Bool {
         let rhs = self
         
-        return lhs.normalizedID == rhs.normalizedID && lhs.normalizedStartDate == rhs.normalizedStartDate && lhs.normalizedEndDate == rhs.normalizedEndDate
+        let startDate = oldDateInterval?.start ?? normalizedStartDate
+        let endDate = oldDateInterval?.end ?? normalizedEndDate
+        
+        return lhs.normalizedID == rhs.normalizedID &&
+        lhs.normalizedStartDate == startDate &&
+        lhs.normalizedEndDate == endDate
     }
     
     /// Use for merging non event tasks with event tasks that are with same ``TaskRepeatingInfo``
