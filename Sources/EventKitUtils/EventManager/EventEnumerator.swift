@@ -29,7 +29,7 @@ public struct EventEnumerator {
     ///   - handler: returns an EKEvent to the function caller each enumeration, and offers a completion handler to stop the enumeration
     /// - Returns: a boolean indicates if the count of events has exceeded the non Pro user's limit
     @discardableResult
-    public func enumerateEventsAndReturnsIfExceedsNonProLimit(matching dateInterval: DateInterval? = nil, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) async -> Bool {
+    public func enumerateEventsAndReturnsIfExceedsNonProLimit(eventStore: EKEventStore? = nil, matching dateInterval: DateInterval? = nil, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) async -> Bool {
         let interval: DateInterval
         
         if let dateInterval {
@@ -38,7 +38,7 @@ public struct EventEnumerator {
             interval = await eventConfiguration.eventRequestDateInterval() ?? .twoYearsInterval
         }
         
-        return enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching: interval, handler: handler)
+        return enumerateEventsAndReturnsIfExceedsNonProLimitImpl(eventStore: eventStore, matching: interval, handler: handler)
     }
     
     /// The implementation of enumerating over events
@@ -46,12 +46,13 @@ public struct EventEnumerator {
     ///   - dateInterval: the date interval it should enumerate in
     ///   - handler: returns an EKEvent to the function caller each enumeration, and offers a completion handler to stop the enumeration
     /// - Returns: a boolean indicates if the count of events has exceeded the non Pro user's limit
-    private func enumerateEventsAndReturnsIfExceedsNonProLimitImpl(matching dateInterval: DateInterval = .twoYearsInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
+    private func enumerateEventsAndReturnsIfExceedsNonProLimitImpl(eventStore: EKEventStore? = nil, matching dateInterval: DateInterval = .twoYearsInterval, handler: ((EKEvent, @escaping () -> Void) -> Void)? = nil) -> Bool {
         var enumeratedRepeatingInfoSet: Set<TaskRepeatingInfo> = []
         var exceededNonProLimit = false
 
         let predicate = dateInterval.eventPredicate()
         let config = eventConfiguration
+        let eventStore = eventStore ?? self.eventStore
         
         eventStore.enumerateEvents(matching: predicate) { event, pointer in
             guard event.url?.host == config.eventBaseURL.host else {

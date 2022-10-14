@@ -49,6 +49,7 @@ public class EventManager {
             .merge(with: reloadCaches)
             .throttle(for: 1, scheduler: queue, latest: false)
             .prepend(())
+            .filter { [unowned self] in isEventStoreAuthorized }
             .sink {
                 Task {
                     await self.cacheManager.makeCache()

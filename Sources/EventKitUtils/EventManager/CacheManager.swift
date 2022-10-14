@@ -46,8 +46,9 @@ extension CacheManager {
     
     private func makeCacheImpl(runID: String) async {
         var tasks: CacheHandlersTaskValuesDict = [:]
+        let eventStore = EKEventStore()
         
-        await eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit { event, completion in
+        await eventEnumerator.enumerateEventsAndReturnsIfExceedsNonProLimit(eventStore: eventStore) { event, completion in
             let repeatingInfo = event.repeatingInfo
             let state = event.state
             
