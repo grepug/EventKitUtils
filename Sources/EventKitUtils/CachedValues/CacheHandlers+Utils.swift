@@ -120,7 +120,6 @@ extension CacheHandlers {
             var counts: CountsOfCompletedTasksByRepeatingInfo = [:]
             
             for await (task, count) in group {
-//                assert(counts[task.repeatingInfo] == nil)
                 counts[task.repeatingInfo] = count
             }
             

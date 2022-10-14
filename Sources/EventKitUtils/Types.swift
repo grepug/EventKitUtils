@@ -47,27 +47,6 @@ public enum FetchTasksType: Hashable {
 
 public typealias CountsOfCompletedTasksByRepeatingInfo = [TaskRepeatingInfo: Int]
 
-public extension Dictionary where Key == TaskRepeatingInfo, Value == Int {
-    func completedCountMerged(of task: TaskValue) -> Int {
-        let incompletedCount = reduce(into: 0) { partialResult, pair in
-            let info = pair.key
-            let count = pair.value
-            
-            guard task.repeatingInfo == info.stateRemoved else {
-                return
-            }
-            
-            guard let state = info.state, state.isIncompleted else {
-                return
-            }
-            
-            partialResult += count
-        }
-        
-        return Swift.max(task.repeatingCount - incompletedCount, 0)
-    }
-}
-
 public struct KeyResultInfo: Hashable {
     public init(id: String, title: String, emojiImage: UIImage, goalTitle: String, goalDateInterval: DateInterval) {
         self.id = id
