@@ -81,3 +81,8 @@
 "no_tasks" = "没有任务";
 "action_warning" = "警告";
 "alert_msg_delete_all_tasks" = "将会同时删除重复任务关联的关键结果记录值数据，且无法找回！";
+
+"delete_all_event_tasks" = "删除所有日历任务";
+"new_created_task_default_to_event_task" = "新建任务默认同步到日历";
+"alert_title_delete_all_event_task" = "确认删除所有日历任务吗？";
+"alert_message_delete_all_event_task" = "该操作不可逆";

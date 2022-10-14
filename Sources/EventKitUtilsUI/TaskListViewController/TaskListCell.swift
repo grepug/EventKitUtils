@@ -155,6 +155,10 @@ public struct TaskListCell: View {
                     .font(.caption)
                     .lineLimit(5)
             }
+            
+//            Text(task.normalizedID)
+//                .foregroundColor(.secondary)
+//                .font(.caption)
         }
     }
 }

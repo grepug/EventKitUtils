@@ -82,3 +82,8 @@
 "recurrenceEndDateEarlierThanEndDate" = "Repeating end date can't be earlier than the end date of the task.";
 "recurrenceEndDateLaterThanGoalEndDate" = "Repeating end date can't be later than the end date of the linked key results' objective";
 "recurrenceEndDateExceedsTwoYearInterval" = "It can't be longer than 1 year from repeating end date to today";
+
+"delete_all_event_tasks" = "Delete All Calendar Tasks";
+"new_created_task_default_to_event_task" = "Always Create Calendar Synced Tasks";
+"alert_title_delete_all_event_task" = "Are You Sure to Delete All Calendar Synced Tasks?";
+"alert_message_delete_all_event_task" = "It can't be undone.";

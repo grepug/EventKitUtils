@@ -109,7 +109,7 @@ public class EventSettingsViewController: DiffableListViewController {
                 
                 DLSection { [unowned self] in
                     DLCell {
-                        DLText("新建任务默认同步到日历")
+                        DLText("new_created_task_default_to_event_task".loc)
                     }
                     .tag("enabling default to calendar \(em.isDefaultSyncingToCalendarEnabled) \(forceReloadToggleFlag)")
                     .accessories([.toggle(isOn: em.isDefaultSyncingToCalendarEnabled, action: { [weak self] isOn in
@@ -120,7 +120,7 @@ public class EventSettingsViewController: DiffableListViewController {
                 
                 DLSection {
                     DLCell(using: .swiftUI(movingTo: self, content: {
-                        Text("删除所有日历任务".loc)
+                        Text("delete_all_event_tasks".loc)
                             .foregroundColor(.red)
                             .frame(height: 44)
                     }))
@@ -129,9 +129,10 @@ public class EventSettingsViewController: DiffableListViewController {
                         guard let self = self else { return }
                         
                         Task {
-                            let action = await self.presentAlertController(title: "确认删除所有日历任务吗？", message: "该操作不可逆", actions: [.ok, .cancel])
+                            let action = await self.presentAlertController(title: "alert_title_delete_all_event_task".loc,
+                                                                           message: "alert_message_delete_all_event_task".loc, actions: [.delete, .cancel])
                                 
-                            if action == .ok {
+                            if action == .delete {
                                 await self.handleDeleteAllEventTask()
                             }
                         }
