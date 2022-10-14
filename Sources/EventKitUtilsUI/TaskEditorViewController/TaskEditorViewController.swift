@@ -263,8 +263,11 @@ extension TaskEditorViewController: TaskHandling {
         
         for task in uniquedTasks {
             var task = task
+                
+            if task.isValueType {
+                task.assignAsRepeatingTask(from: self.task)
+            }
             
-            task.assignAsRepeatingTask(from: self.task)
             savingTasks.append(task)
         }
         

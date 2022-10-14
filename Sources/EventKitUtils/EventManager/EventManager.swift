@@ -159,10 +159,13 @@ public extension EventManager {
     ///   - commit: should commit to the EKEventStore
     func saveTask(_ task: TaskKind, savingRecurrences: Bool = false, firstRecurrence: Bool? = nil, commit: Bool = true) async throws {
         if var event = task as? EKEvent {
+            let taskValue = task.value
+            
             if savingRecurrences {
                 // save the first recurrence and its future events
                 event = eventStore.event(withIdentifier: event.normalizedID)!
-                event.assignFromTaskKind(task)
+                // when assign dates, only time of the dates should assign, for this event may not be the first recurrence, which should not change its date.
+                event.assignFromTaskKind(taskValue, onlyAssignDatesTime: true)
             }
             
             try eventStore.save(event, span: savingRecurrences ? .futureEvents : .thisEvent, commit: commit)
@@ -345,6 +348,8 @@ public extension EventManager {
     }
     
     /// Fetch EKEvent instance by ``TaskValue``
+    ///
+    /// ⚠️ The task here to fetch event with, its date time may be changed, therefore won't be found by this method.
     ///
     /// Narrow down the date range of events, improving the performance
     /// - Parameter task: the ``TaskValue``

@@ -194,14 +194,23 @@ public extension TaskKind {
         .init(title: normalizedTitle, keyResultID: keyResultId, state: state)
     }
     
-    mutating func assignFromTaskKind(_ task: TaskKind) {
+    mutating func assignFromTaskKind(_ task: TaskKind, onlyAssignDatesTime: Bool = false) {
         // Should assign `completedAt` and `abortedAt` before `normalizedTitle`, for the title need its state to prefix emoji.
         completedAt = task.completedAt
         abortedAt = task.abortedAt
         normalizedID = task.normalizedID
         normalizedTitle = task.normalizedTitle
-        normalizedStartDate = task.normalizedStartDate
-        normalizedEndDate = task.normalizedEndDate
+        
+        if onlyAssignDatesTime,
+           let startDate = task.normalizedStartDate,
+           let endDate = task.normalizedEndDate {
+            normalizedStartDate = normalizedStartDate?.timeAssigned(from: startDate)
+            normalizedEndDate = normalizedEndDate?.timeAssigned(from: endDate)
+        } else {
+            normalizedStartDate = task.normalizedStartDate
+            normalizedEndDate = task.normalizedEndDate
+        }
+        
         originalIsAllDay = task.originalIsAllDay
         notes = task.notes
         keyResultId = task.keyResultId

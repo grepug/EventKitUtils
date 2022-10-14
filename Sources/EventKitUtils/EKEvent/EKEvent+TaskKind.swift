@@ -23,7 +23,7 @@ extension EKEvent: TaskKind {
     
     public var normalizedID: String {
         get {
-            eventIdentifier
+            eventIdentifier ?? ""
         }
         
         set {}
