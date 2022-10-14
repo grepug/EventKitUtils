@@ -214,7 +214,7 @@ extension TaskListViewController {
 }
 
 extension TaskListViewController {
-    static let dismissedSubject = PassthroughSubject<Void, Never>()
+    public static let dismissedSubject = PassthroughSubject<Void, Never>()
     
     func setupNavigationBar() {
         navigationItem.rightBarButtonItems = []
