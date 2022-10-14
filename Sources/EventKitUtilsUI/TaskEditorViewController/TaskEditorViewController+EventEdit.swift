@@ -17,7 +17,9 @@ extension TaskEditorViewController {
                 guard let self = self else { return }
                 
                 let vc = EventSettingsViewController(eventManager: self.em)
-                self.present(vc.navigationControllerWrapped(), animated: true)
+                let nav = vc.navigationControllerWrapped()
+                nav.modalPresentationStyle = .formSheet
+                self.present(nav, animated: true)
             }
         ])
     }
