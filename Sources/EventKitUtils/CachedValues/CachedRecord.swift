@@ -92,7 +92,15 @@ public extension Array where Element == RecordValue {
                     fatalError()
                 }
                 
-                return date1 > date2
+                if date1 != date2 {
+                    return date1 > date2
+                }
+                
+                if let date1 = a.createdAt, let date2 = b.createdAt {
+                    return date1 > date2
+                }
+                
+                return true
             }
     }
 }
