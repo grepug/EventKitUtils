@@ -16,6 +16,7 @@ import Combine
 public class EventSettingsViewController: DiffableListViewController {
     unowned let em: EventManager
     var calendars: [EKCalendar] = []
+    var onDismiss: (() -> Void)?
     
     var isGranted = false
     var forceReloadToggleFlag = 0
@@ -169,6 +170,7 @@ public class EventSettingsViewController: DiffableListViewController {
         
         if presentingViewController != nil {
             navigationItem.rightBarButtonItems?.append(makeDoneButton { [unowned self] in
+                onDismiss?()
                 presentingViewController?.dismiss(animated: true)
             })
         }

@@ -17,6 +17,19 @@ extension TaskEditorViewController {
                 guard let self = self else { return }
                 
                 let vc = EventSettingsViewController(eventManager: self.em)
+                vc.onDismiss = { [weak self] in
+                    guard let self else { return }
+                    guard self.em.isEventStoreAuthorized else {
+                        return
+                    }
+                    
+                    Task {
+                        await self.convertToEvent(showingToastActivity: false)
+                        self.reload()
+                    }
+                }
+                
+                
                 let nav = vc.navigationControllerWrapped()
                 nav.modalPresentationStyle = .formSheet
                 self.present(nav, animated: true)
