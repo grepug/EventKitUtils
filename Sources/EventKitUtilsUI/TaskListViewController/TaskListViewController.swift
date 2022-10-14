@@ -263,7 +263,13 @@ extension TaskListViewController {
     }
     
     func presentTaskEditor(task: TaskValue? = nil) {
-        let vc = em.makeTaskEditorViewController(task: task) { [weak self] _ in
+        var keyResultID: String?
+        
+        if case .keyResultList(let krInfo) = mode {
+            keyResultID = krInfo.id
+        }
+        
+        let vc = em.makeTaskEditorViewController(task: task, keyResultId: keyResultID) { [weak self] _ in
             self?.reloadList()
         }
         

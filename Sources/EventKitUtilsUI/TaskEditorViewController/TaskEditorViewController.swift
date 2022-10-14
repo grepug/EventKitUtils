@@ -408,14 +408,15 @@ private extension TaskEditorViewController {
 }
 
 public extension EventManager {
-    func makeTaskEditorViewController(task _task: TaskValue? = nil, onDismiss: ((Bool) -> Void)? = nil) -> UIViewController {
-        let task: TaskValue
+    func makeTaskEditorViewController(task _task: TaskValue? = nil, keyResultId: String? = nil, onDismiss: ((Bool) -> Void)? = nil) -> UIViewController {
+        var task: TaskValue
         
         if let _task {
             task = _task
         } else {
             /// Just create an empty ``TaskValue``, saving it on editor done
             task = .newCreated
+            task.keyResultId = keyResultId
         }
         
         let vc = TaskEditorViewController(task: task, eventManager: self)
