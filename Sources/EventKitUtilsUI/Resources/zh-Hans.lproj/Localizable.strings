@@ -86,3 +86,13 @@
 "new_created_task_default_to_event_task" = "新建任务默认同步到日历";
 "alert_title_delete_all_event_task" = "确认删除所有日历任务吗？";
 "alert_message_delete_all_event_task" = "该操作不可逆";
+
+"event_settings_onboarding_title" = "创建日历同步任务";
+"event_settings_onboarding_item_title_1" = "与系统日历联动";
+"event_settings_onboarding_item_desc_1" = "在 Vision 创建的任务，自动同步创建到系统日历 app 的日程中，即刻享有系统日历的强大日历视图和其他功能。";
+"event_settings_onboarding_item_title_2" = "任务重复、提醒";
+"event_settings_onboarding_item_desc_2" = "开启日历同步后，支持创建重复任务、任务开始前的推送提醒。";
+"event_settings_onboarding_item_title_3" = "读取日历日程";
+"event_settings_onboarding_item_desc_3" = "Vision 会直接读取日历中通过 Vision 创建的日程，若需要任务在不同设备间同步，请开启日历 app 的 iCloud 同步";
+"event_settings_onboarding_button_enabled" = "日历同步已开启，开始使用";
+"event_settings_onboarding_button" = "开启日历同步";

@@ -36,7 +36,7 @@ struct EventOnboardingView: View {
                 Image(systemName: "")
                     .foregroundColor(.accentColor)
                     .font(.system(size: 56))
-                Text("日历同步")
+                Text("event_settings_onboarding_title".loc)
                     .font(.largeTitle.bold())
             }
             .padding(.top)
@@ -56,15 +56,15 @@ struct EventOnboardingView: View {
         VStack(spacing: 32) {
             item(imageName: "calendar",
                  imageColor: .red,
-                 title: "与系统日历联动".loc,
-                 secondaryText: "在 Vision 创建的任务，自动同步创建到系统日历 app 的日程中".loc)
+                 title: "event_settings_onboarding_item_title_1".loc,
+                 secondaryText: "event_settings_onboarding_item_desc_1".loc)
             item(imageName: "highlighter",
-                 title: "任务重复、提醒".loc,
-                 secondaryText: "开启日历同步后，支持创建重复任务、任务开始前的推送提醒。".loc)
-            item(imageName: "arrow.counterclockwise",
+                 title: "event_settings_onboarding_item_title_2".loc,
+                 secondaryText: "event_settings_onboarding_item_desc_2".loc)
+            item(imageName: "info.circle",
                  imageColor: .green,
-                 title: "读取日历日程".loc,
-                 secondaryText: "Vision 会直接读取日历中通过 Vision 创建的日程，若需要任务在不同设备间同步，请开启日历 app 的 iCloud 同步".loc)
+                 title: "event_settings_onboarding_item_title_3".loc,
+                 secondaryText: "event_settings_onboarding_item_desc_3".loc)
         }
         .frame(maxWidth: isCollapsed ? 320 : 400)
     }
@@ -98,7 +98,7 @@ extension EventOnboardingView {
         Button {
             action(true)
         } label: {
-            Text(isEnabled ? "日历同步已开启，开始使用" : "开启日历同步")
+            Text(isEnabled ? "event_settings_onboarding_button_enabled".loc : "event_settings_onboarding_button".loc)
                 .font(.body.weight(.bold))
                 .foregroundColor(.white)
                 .frame(width: 300, height: 44)

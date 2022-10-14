@@ -52,7 +52,7 @@
 "event_settings_select_default_calendar" = "Select Default Calendar";
 "event_settings_select_default_calendar_desc" = "The default calendar to save to when creating calendar synced tasks.";
 "event_settings_default_calendar_desc" = "Calendar Default";
-"event_settings_sync_notice" = "Please enable the Calendar's iCloud sync in the system Settings, if you want your calendar synced tasks available across your devices, which is not concerned with Vision's iCloud Syncing.";
+"event_settings_sync_notice" = "Please enable the Calendar's iCloud sync in the system Settings, if you want your calendar synced tasks available across your devices, which is not concerned with Vision's iCloud syncing.";
 "event_settings_not_authorized_alert_title" = "No Access Permission for Calendar";
 "event_settings_not_authorized_alert_msg" = "To authorize, please go to System Settings.";
 "event_settings_not_authorized_alert_action" = "OK";
@@ -87,3 +87,14 @@
 "new_created_task_default_to_event_task" = "Always Create Calendar Synced Tasks";
 "alert_title_delete_all_event_task" = "Are You Sure to Delete All Calendar Synced Tasks?";
 "alert_message_delete_all_event_task" = "It can't be undone.";
+
+"event_settings_onboarding_title" = "Calendar Synced Task";
+"event_settings_onboarding_item_title_1" = "Sync with System's Calendar";
+"event_settings_onboarding_item_desc_1" = "Create tasks in Vision and leverage the powerful Calendar app of the system";
+"event_settings_onboarding_item_title_2" = "Repeating Tasks, Notifications";
+"event_settings_onboarding_item_desc_2" = "Create repeating tasks and set alarms with your tasks with ease.";
+"event_settings_onboarding_item_title_3" = "Notice";
+"event_settings_onboarding_item_desc_3" = "Please enable the Calendar's iCloud sync in the system Settings, if you want your calendar synced tasks available across your devices, which is not concerned with Vision's iCloud syncing.";
+
+"event_settings_onboarding_button_enabled" = "Get Started";
+"event_settings_onboarding_button" = "Enable Calendar Sync";
