@@ -217,7 +217,6 @@ extension EventSettingsViewController {
             })
     }
     
-    @MainActor
     func determineAuthorizationStatus() async {
         switch status {
         case .notDetermined:
@@ -226,14 +225,12 @@ extension EventSettingsViewController {
             presentGoingToSystemSettingsAlert()
         case .authorized:
             isGranted = true
-            em.isDefaultSyncingToCalendarEnabled = true
             reload()
         @unknown default:
             presentGoingToSystemSettingsAlert()
         }
     }
 
-    @MainActor
     func requestAccess() async {
         let store = EKEventStore()
         
@@ -242,6 +239,11 @@ extension EventSettingsViewController {
             setCalendars(store: store)
             isGranted = res
             em.eventStore = store
+            
+            if res {
+                em.isDefaultSyncingToCalendarEnabled = true
+                reload()
+            }
         } catch {
             isGranted = false
         }
