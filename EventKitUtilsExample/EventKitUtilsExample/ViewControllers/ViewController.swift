@@ -33,7 +33,7 @@ class ViewController: DiffableListViewController {
                             HStack {
                                 Button { [unowned self] in
                                     Task {
-                                        await EventManager.shared.toggleCompletion(task)
+                                        try! await EventManager.shared.toggleCompletion(task.value)
                                         reload()
                                     }
                                 } label: {

@@ -83,6 +83,10 @@ extension EventManager {
 
 extension EventManager {
     struct MyCacheHandlers: CacheHandlers {
+        var orderNSExpression: NSExpression {
+            .init(forKeyPath: \CachedTask.order_)
+        }
+        
         var stateNSExpression: NSExpression {
             .init(forKeyPath: \CachedTask.state_)
         }
@@ -95,20 +99,40 @@ extension EventManager {
             CachedTask.self
         }
         
-        var completionDateNSExpression: NSExpression {
-            .init(forKeyPath: \CachedTask.completionDate)
-        }
-        
-        var prefixNSExpression: NSExpression {
-            .init(forKeyPath: \CachedTask.order_)
-        }
-        
         var abortionDateNSExpression: NSExpression {
             .init(forKeyPath: \CachedTask.abortionDate)
         }
     }
     
     struct MyEventConfiguration: EventConfiguration {
+        func eventRequestDateInterval() async -> DateInterval? {
+            nil
+        }
+        
+        func fetchNonEventTaskCount(withRepeatingInfo repeatingInfo: EventKitUtils.TaskRepeatingInfo) async -> Int? {
+            nil
+        }
+        
+        func fetchNonEventTaskCount(withKeyResultID keyResultID: String) async -> Int {
+            0
+        }
+        
+        func fetchNonEventTasks(type: EventKitUtils.FetchTasksType, includingCounts: Bool) async -> EventKitUtils.FetchedTaskResult? {
+            nil
+        }
+        
+        func fetchNonEventTask(byID id: String) async -> EventKitUtils.TaskValue? {
+            nil
+        }
+        
+        func saveNonEventTask(_ taskValue: EventKitUtils.TaskValue) async {
+            
+        }
+        
+        func deleteNonEventTask(byID id: String) async {
+            
+        }
+        
         func fetchNonEventTasks(type: EventKitUtils.FetchTasksType) async -> [EventKitUtils.TaskValue] {
             []
         }
@@ -166,15 +190,15 @@ extension EventManager {
     }
     
     struct MyEventUIConfiguration: EventUIConfiguration {
-        func presentNonProErrorAlert() {
+        func presentNonProErrorAlert(on vc: UIViewController) {
             
         }
         
-        func makeKeyResultSelector(completion: @escaping (String) -> Void) -> UIViewController {
-            .init()
+        func makeKeyResultSelectorViewController(completion: @escaping (String) -> Void) -> UIViewController {
+            fatalError()
         }
         
-        func makeKeyResultDetail(byID id: String) -> UIViewController? {
+        func makeKeyResultDetailViewController(byID id: String) -> UIViewController? {
             nil
         }
         

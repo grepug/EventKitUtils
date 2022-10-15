@@ -23,14 +23,12 @@ extension CachedTask: TaskKind, CachedTaskKind {
         }
     }
     
-    public var repeatingCount: Int? {
+    public var repeatingCount: Int {
         get {
             Int(repeatCount)
         }
         set(newValue) {
-            if let newValue {
-                repeatCount = Int32(newValue)
-            }
+            repeatCount = Int32(newValue)
         }
     }
     

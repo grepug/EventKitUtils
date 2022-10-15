@@ -10,9 +10,9 @@ import EventKitUtils
 import StorageProvider
 
 extension Mission: SimpleManagedObject, TaskKind {
-    public var repeatingCount: Int? {
+    public var repeatingCount: Int {
         get {
-            nil
+            0
         }
         set(newValue) {
             

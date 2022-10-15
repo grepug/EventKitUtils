@@ -40,8 +40,9 @@ class TestingViweModel {
 private extension TestingViweModel {
     func fetchEvents() async -> [EKEvent] {
         let config = em.configuration
+        let interval = await em.configuration.eventRequestDateInterval() ?? .twoYearsInterval
         
-        return em.eventStore.events(matching: em.eventStore.predicateForEvents(withStart: config.eventRequestRange.lowerBound, end: config.eventRequestRange.upperBound, calendars: [em.eventStore.defaultCalendarForNewEvents!]))
+        return em.eventStore.events(matching: em.eventStore.predicateForEvents(withStart: interval.start, end: interval.end, calendars: [em.eventStore.defaultCalendarForNewEvents!]))
     }
     
     func deleteAllCalendarEvents() async {
@@ -73,34 +74,34 @@ private extension TestingViweModel {
     }
     
     func testUniqueness() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo)).tasks
         assert(tasks.count == 1)
         
-        let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
+        let tasks2 = await em.fetchTasks(with: .repeatingInfo(repeatInfo)).tasks
         assert((tasks2 as [TaskKind]).uniquedById.count == 1)
     }
     
     func testDeleteFirstAndFuture() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo)).tasks
         assert(tasks.count == 1)
 
         await em.deleteTasks(tasks)
         
         try! await Task.delayed(byTimeInterval: 3) {
-            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo))
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo)).tasks
             assert(tasks.isEmpty)
         }.value
     }
     
     func testDeleteSecond() async {
-        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo))
+        let tasks = await em.fetchTasks(with: .repeatingInfo(repeatInfo)).tasks
         assert(tasks.count >= 360)
         
         let dropped = Array(tasks.dropFirst())
         await em.deleteTasks(dropped)
         
         try! await Task.delayed(byTimeInterval: 3) {
-            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo))
+            let tasks = await self.em.fetchTasks(with: .repeatingInfo(self.repeatInfo)).tasks
             assert(tasks.count == 1)
         }.value
     }
@@ -138,7 +139,7 @@ extension TestingViweModel {
         }
         
         if await em.cacheManager.isPending == false {
-            let tasks = await self.em.fetchTasks(with: .segment(.incompleted))
+            let tasks = await self.em.fetchTasks(with: .segment(.incompleted, keyResultID: nil)).tasks
             assert(tasks.count == 100)
         }
     }
