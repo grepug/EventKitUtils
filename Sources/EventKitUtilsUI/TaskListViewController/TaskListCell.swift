@@ -120,6 +120,7 @@ public struct TaskListCell: View {
                     if !hidingDate && task.isDateEnabled, let dateString = task.dateFormatted() {
                         Text(dateString)
                             .foregroundColor(task.dateColor)
+                            .lineLimit(1)
                     }
                     
                     if !hidingRepeatingCount, let repeatingCount = repeatingCountString {
