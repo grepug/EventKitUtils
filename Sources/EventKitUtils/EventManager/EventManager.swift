@@ -161,9 +161,9 @@ public extension EventManager {
         let taskValue = task.value
 
         if var event = task as? EKEvent {
-            if savingRecurrences {
+            if savingRecurrences, let firstRecurrence = eventStore.event(withIdentifier: event.normalizedID) {
                 // save the first recurrence and its future events
-                event = eventStore.event(withIdentifier: event.normalizedID)!
+                event = firstRecurrence
                 // when assign dates, only time of the dates should assign, for this event may not be the first recurrence, which should not change its date.
                 event.assignFromTaskKind(taskValue, onlyAssignDatesTime: true)
             }

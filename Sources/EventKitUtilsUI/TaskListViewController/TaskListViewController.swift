@@ -160,7 +160,8 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
         $segment
             .removeDuplicates()
             .merge(with: reloadingSubject)
-            .merge(with: eventsChangedPublisher)
+            .merge(with: eventsChangedPublisher
+                .debounce(for: 0.5, scheduler: RunLoop.current))
             .throttle(for: 0.3, scheduler: RunLoop.current, latest: false)
             .sink { [weak self] _ in
                 guard let self = self else { return }
