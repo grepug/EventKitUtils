@@ -77,6 +77,17 @@ extension CacheHandlers {
         
         return .init(tasks: tasks, completedTaskCounts: counts)
     }
+    
+    public func fetchRecordValuesCount(after date: Date) async -> Int {
+        let predicate: NSPredicate = [
+            NSPredicate(format: "completionDate != nil"),
+            NSPredicate(format: "completionDate >= %@", date as CVarArg),
+        ].allSatisfied
+        
+        let count = try! await cachedTaskKind.fetchCount(where: predicate) ?? 0
+        
+        return count
+    }
 }
 
 extension CacheHandlers {
