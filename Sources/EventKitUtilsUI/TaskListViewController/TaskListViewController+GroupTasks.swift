@@ -59,6 +59,10 @@ fileprivate extension Array where Element == TaskValue {
         var cache: TasksByState = [:]
         
         if isRepeatingList {
+            guard !isEmpty else {
+                return cache
+            }
+            
             if let filterState {
                 cache[nil] = filter { $0.repeatingListFilterState == filterState }.sorted()
             } else {

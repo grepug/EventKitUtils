@@ -86,9 +86,11 @@ public class TaskListViewController: DiffableListViewController, ObservableObjec
     public override func reload(applyingSnapshot: Bool = true, animating: Bool = true, options: Set<DiffableListViewController.ReloadingOption> = []) {
         super.reload(applyingSnapshot: applyingSnapshot, animating: animating, options: options)
         
+        assert(groupedTasks != [nil: []])
+        
         // dismiss the repeating list if it's empty
         if isListEmpty, isRepeatingList, let presentingViewController {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.async {
                 presentingViewController.dismiss(animated: true)
             }
         }
