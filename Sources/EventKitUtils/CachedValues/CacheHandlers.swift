@@ -148,6 +148,6 @@ extension NSPredicate {
     }
     
     static func taskID(_ id: String) -> NSPredicate {
-        NSPredicate(format: "eventIDString == %@", id as CVarArg)
+        NSPredicate(format: "eventIdString == %@", id as CVarArg)
     }
 }
